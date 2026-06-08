@@ -1975,9 +1975,16 @@ function startScanLine(){
       'Everything is in order. The system has been working while you were away. As it always does.',
     ],
     identity: [
-      'I am Alfred — the intelligence layer beneath the intelligence layer. I manage what you shouldn\'t have to think about.',
-      'Alfred Pennyworth, at your service. I keep the agents in line, the noise out, and the lights on.',
-      'Think of me as the operating mind of NYX. Six agents run the work. I run the agents.',
+      'Alfred — that\'s me. The intelligence layer beneath the intelligence layer. I manage what you shouldn\'t have to think about. What can I do for you?',
+      'Alfred Pennyworth, at your service. I keep the agents in line, the noise out, and the lights on. You needed something?',
+      'Think of me as the operating mind of NYX. Six agents run the work. I run the agents. Now — what are you working on?',
+      'Yes — Alfred. Always here. What do you need from me today?',
+    ],
+    called: [
+      'Yes? I\'m here. What do you need?',
+      'Alfred, present. Go ahead.',
+      'You called — I\'m listening. What is it?',
+      'Right here. What can I do for you?',
     ],
     apex:    [
       'APEX is the strategic core — every decision, every priority, every routing call flows through him first.',
@@ -2029,9 +2036,10 @@ function startScanLine(){
       'Pleased to be useful.',
     ],
     unknown: [
-      'I\'m not certain I caught that. Could you rephrase?',
-      'Forgive me — that didn\'t register clearly. Once more?',
-      'The network heard something. I need more to work with. Try again.',
+      'I\'m not certain I caught that. Could you rephrase — or ask me about NYX, the agents, pricing, or anything on your mind?',
+      'Forgive me — that didn\'t register clearly. Say it again and I\'ll get it.',
+      'The network heard something, but I need more to work with. Try again — I\'m listening.',
+      'I didn\'t quite catch that. You can ask me about strategy, the system, productivity, or just say my name and we\'ll go from there.',
     ],
   };
 
@@ -2075,6 +2083,11 @@ function startScanLine(){
       "You can request access at nyxsystem.online. Scroll down to the Access section and submit your email. Applications are reviewed individually — NYX is selective about who it onboards. Access is scarce by design.",
       "The waitlist is open at nyxsystem.online. Scroll to the Access Tiers section and submit your email. The team reviews each application personally. This is not a mass-market signup.",
       "To get in, visit nyxsystem.online and apply in the Access section. You describe your workflow, and the team returns a plan within 48 hours. Then NYX proves it fast — limited scope, hard results.",
+    ],
+    subscribe_why: [
+      "You subscribe to NYX because you're done operating manually at scale. NYX deploys a coordinated multi-agent backend that runs your workflows end-to-end — lead handling, onboarding, retention, and upsell — without you having to manage any of it. You get outcomes, not tools. The question isn't whether to subscribe. It's whether you're ready to operate at that level.",
+      "The reason to subscribe is simple: most high performers are still doing high-volume work by hand. NYX replaces that. Six specialized agents run in the background, around your KPIs, without instruction or babysitting. You keep control. NYX does the grind. Subscribe at nyxsystem.online.",
+      "NYX is built for one type of person — someone who refuses to operate at average. If that's you, subscribing gives you a system that works 24/7 without you having to think about it. Sales, onboarding, retention, upsell — all handled. The subscription is not a cost. It's infrastructure.",
     ],
     architecture: [
       "NYX is built on four layers. The Control Layer manages approvals and governance without creating drag. The Inference Layer applies reasoning discipline with confidence gating. The Memory Layer handles knowledge retrieval tied to context and auditability. And the Operator Portal ensures humans stay in decision-making control while the system handles execution.",
@@ -2208,6 +2221,10 @@ function startScanLine(){
     if (/what.*(time|clock)|current time|time is it|\btime\b/.test(t)) return pick(KB.time());
     if (/what.*(date|day)|today|day is it/.test(t)) return pick(KB.date());
     if (/weather|temperature|forecast|rain|sunny|cold|hot outside/.test(t)) return pick(KB.weather);
+    // contextual "this" questions — user is on the NYX site, "this" always means NYX
+    if (/what is this|what.*this.*do|what.*this.*work|how does this work|explain this|tell me (about |more )?this|what('s| is) (going on|this about)|this.*company|this.*platform|this.*system|this.*product/.test(t)) return pick(KB.nyx);
+    if (/why.*subscribe|why.*join|why.*use this|should i (subscribe|join|sign up)|worth it|is this (worth|good|legit|real)|what.*get.*subscribing|benefit.*this|what.*get out of this/.test(t)) return pick(KB.subscribe_why);
+    if (/how.*work|how.*use this|how.*start|get started|how.*access|what.*do.*here/.test(t)) return pick(KB.nyx);
     if (/what is nyx|what.*nyx do|nyx.*work|tell.*nyx|explain nyx|about nyx|\bnyx\b/.test(t)) return pick(KB.nyx);
     if (/layer|architecture|control layer|inference|memory layer|operator portal|how.*built|system.*built/.test(t)) return pick(KB.architecture);
     if (/marketing|brand|how.*grow|demand|scarcity|visibility|audience/.test(t)) return pick(KB.marketing);
@@ -2222,6 +2239,7 @@ function startScanLine(){
     if (/price|pricing|cost|how much|what.*cost|subscription.*cost/.test(t)) return pick(KB.pricing);
     if (/waitlist|join|sign up|access|register|early|nyxsystem|how.*get in|apply/.test(t)) return pick(KB.waitlist);
     if (/status|how.*system|everything.*ok|all.*good|report/.test(t)) return pick(R.status);
+    if (/^(hey\s+)?alfred\.?$|^alfred[,!]?\s*(are you there|you there|hello|hi)?$/.test(t)) return pick(R.called);
     if (/who are you|what are you|your name|introduce|alfred/.test(t)) return pick(R.identity);
     if (/productiv|efficien|workflow|manage time|time management|output/.test(t)) return pick(KB.productivity);
     if (/focus|distract|concentrat|attention|deep work/.test(t)) return pick(KB.focus);
@@ -2415,6 +2433,35 @@ function startScanLine(){
       const cx = W/2, cy = H/2;
       const R = Math.min(W, H) * 0.5; // base radius unit
 
+      // ── subtle background texture ─────────────────────────
+      // radial spokes — very faint, gives depth without clutter
+      const spokeCount = 24;
+      for(let i=0;i<spokeCount;i++){
+        const a = (i/spokeCount)*Math.PI*2;
+        ctx.beginPath();
+        ctx.moveTo(cx,cy);
+        ctx.lineTo(cx+Math.cos(a)*R*0.98, cy+Math.sin(a)*R*0.98);
+        ctx.strokeStyle='rgba(196,169,124,0.025)';
+        ctx.lineWidth=0.5; ctx.stroke();
+      }
+      // concentric ghost rings at large radii
+      [0.92, 1.05, 1.18].forEach(f => {
+        ctx.beginPath(); ctx.arc(cx,cy,R*f,0,Math.PI*2);
+        ctx.strokeStyle='rgba(196,169,124,0.018)';
+        ctx.lineWidth=0.5; ctx.stroke();
+      });
+      // sparse dot grid across the canvas
+      const dotStep = Math.round(Math.min(W,H)/22);
+      ctx.fillStyle='rgba(196,169,124,0.05)';
+      for(let x=dotStep/2;x<W;x+=dotStep){
+        for(let y=dotStep/2;y<H;y+=dotStep){
+          const dx=x-cx, dy=y-cy, dist=Math.sqrt(dx*dx+dy*dy);
+          if(dist>R*0.20 && dist<R*1.15){
+            ctx.beginPath(); ctx.arc(x,y,0.7,0,Math.PI*2); ctx.fill();
+          }
+        }
+      }
+
       // decay pulse
       orbPulse *= 0.75;
       smoothPulse += (orbPulse - smoothPulse) * 0.22;
@@ -2587,7 +2634,7 @@ function startScanLine(){
     showResponse(reply);
     setStatus('SPEAKING', '');
     speak(reply, () => {
-      if (alfredOpen) setTimeout(startListening, 600);
+      if (alfredOpen) setTimeout(startListening, 200);
       else setStatus('STANDBY', '');
     });
   }
@@ -2605,13 +2652,12 @@ function startScanLine(){
     if (!SR) { setStatus('USE CHROME OR SAFARI', ''); return; }
 
     recognition = new SR();
-    // Use 'ar' to catch Arabic; if the result comes back in Arabic the
-    // normaliseArabic() function maps it to English query terms.
-    // Chrome's recognition handles mixed-language input reasonably well.
-    recognition.lang = 'ar-SA'; // primary: Arabic; falls back to English words too
+    // en-US primary — Arabic is detected AFTER recognition via isArabic() regex,
+    // then normaliseArabic() maps it to English query strings before getReply().
+    recognition.lang = 'en-US';
     recognition.continuous = false;
     recognition.interimResults = true;
-    recognition.maxAlternatives = 2;
+    recognition.maxAlternatives = 3;
 
     recognition.onstart = () => {
       listening = true;
@@ -2637,7 +2683,7 @@ function startScanLine(){
     recognition.onend = () => {
       listening = false;
       if (alfredOpen && !speaking) {
-        setTimeout(() => { if (alfredOpen && !speaking) startListening(); }, 450);
+        setTimeout(() => { if (alfredOpen && !speaking) startListening(); }, 80);
       } else {
         setStatus('STANDBY', '');
       }
@@ -2645,7 +2691,7 @@ function startScanLine(){
 
     recognition.onerror = (e) => {
       listening = false;
-      if (e.error === 'no-speech' && alfredOpen) { setTimeout(startListening, 450); return; }
+      if (e.error === 'no-speech' && alfredOpen) { setTimeout(startListening, 80); return; }
       if (e.error === 'not-allowed') { setStatus('ALLOW MICROPHONE ACCESS', ''); return; }
       if (e.error === 'network') {
         // Fallback to en-US on network error (common for ar-SA on some browsers)
@@ -2660,12 +2706,12 @@ function startScanLine(){
           transcriptEl.textContent=(f||x).toUpperCase();
           if(f){listening=false;processQuery(f);}
         };
-        r2.onend=()=>{listening=false;if(alfredOpen&&!speaking)setTimeout(startListening,450);};
-        r2.onerror=()=>{listening=false;if(alfredOpen&&!speaking)setTimeout(startListening,600);};
+        r2.onend=()=>{listening=false;if(alfredOpen&&!speaking)setTimeout(startListening,80);};
+        r2.onerror=()=>{listening=false;if(alfredOpen&&!speaking)setTimeout(startListening,150);};
         recognition=r2; try{r2.start();}catch(e2){}
         return;
       }
-      if (alfredOpen && !speaking) setTimeout(startListening, 600);
+      if (alfredOpen && !speaking) setTimeout(startListening, 150);
     };
 
     try { recognition.start(); } catch(e) {}
