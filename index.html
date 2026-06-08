@@ -2026,43 +2026,94 @@ function startScanLine(){
     bars.forEach(b => { b.style.height = '4px'; b.classList.remove('active'); });
   }
 
+  let jarvisOpen = false;
+
   function initRecognition() {
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) return null;
     const r = new SR();
-    r.lang = 'en-US'; r.continuous = false; r.interimResults = true;
-    r.onstart = () => { listening=true; micBtn.classList.add('listening'); statusEl.textContent='LISTENING'; statusEl.classList.add('active'); transcriptEl.textContent=''; responseEl.classList.remove('show'); startWave(); };
+    r.lang = 'en-US';
+    r.continuous = true;
+    r.interimResults = true;
+    r.maxAlternatives = 1;
+    r.onstart = () => {
+      listening = true;
+      micBtn.classList.add('listening');
+      statusEl.textContent = 'LISTENING';
+      statusEl.classList.add('active');
+      transcriptEl.textContent = '';
+      responseEl.classList.remove('show');
+      startWave();
+    };
     r.onresult = (e) => {
-      const interim = Array.from(e.results).map(r=>r[0].transcript).join('');
+      const interim = Array.from(e.results).map(r => r[0].transcript).join('');
       transcriptEl.textContent = interim.toUpperCase();
-      if (e.results[e.results.length-1].isFinal) {
-        const final = e.results[e.results.length-1][0].transcript;
-        const reply = matchCommand(final);
-        setTimeout(() => { responseEl.textContent=reply; responseEl.classList.add('show'); speak(reply); }, 200);
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        if (e.results[i].isFinal) {
+          const final = e.results[i][0].transcript;
+          const reply = matchCommand(final);
+          transcriptEl.textContent = final.toUpperCase();
+          setTimeout(() => { responseEl.textContent = reply; responseEl.classList.add('show'); speak(reply); }, 200);
+        }
       }
     };
-    r.onend = () => { listening=false; micBtn.classList.remove('listening'); statusEl.textContent='CLICK MIC TO SPEAK'; statusEl.classList.remove('active'); stopWave(); };
-    r.onerror = (e) => { listening=false; micBtn.classList.remove('listening'); stopWave(); statusEl.textContent = e.error==='not-allowed'?'MICROPHONE ACCESS DENIED':'CLICK MIC TO SPEAK'; statusEl.classList.remove('active'); };
+    r.onend = () => {
+      // Auto-restart if Jarvis is still open and user didn't manually stop
+      if (jarvisOpen && listening) {
+        try { r.start(); return; } catch(e) {}
+      }
+      listening = false;
+      micBtn.classList.remove('listening');
+      statusEl.textContent = 'CLICK MIC TO SPEAK';
+      statusEl.classList.remove('active');
+      stopWave();
+    };
+    r.onerror = (e) => {
+      if (e.error === 'no-speech') return; // ignore silence, keep going
+      listening = false;
+      micBtn.classList.remove('listening');
+      stopWave();
+      if (e.error === 'not-allowed') {
+        statusEl.textContent = 'ALLOW MICROPHONE IN BROWSER SETTINGS';
+      } else if (e.error === 'audio-capture') {
+        statusEl.textContent = 'NO MICROPHONE DETECTED';
+      } else {
+        statusEl.textContent = 'CLICK MIC TO SPEAK';
+      }
+      statusEl.classList.remove('active');
+    };
     return r;
   }
 
   micBtn.addEventListener('click', () => {
-    if (listening) { recognition && recognition.stop(); }
-    else { recognition = initRecognition(); if (!recognition) { statusEl.textContent='BROWSER NOT SUPPORTED'; return; } recognition.start(); }
+    if (listening) {
+      jarvisOpen = false;
+      recognition && recognition.stop();
+    } else {
+      recognition = initRecognition();
+      if (!recognition) { statusEl.textContent = 'USE CHROME OR SAFARI'; return; }
+      jarvisOpen = true;
+      try { recognition.start(); } catch(e) { statusEl.textContent = 'CLICK MIC TO SPEAK'; }
+    }
   });
 
   function openJarvis() {
+    jarvisOpen = true;
     overlay.classList.add('active');
     document.body.style.overflow = 'hidden';
     statusEl.textContent = 'CLICK MIC TO SPEAK';
     transcriptEl.textContent = ''; responseEl.textContent = ''; responseEl.classList.remove('show');
-    setTimeout(() => { responseEl.textContent='NYX online. State your command.'; responseEl.classList.add('show'); speak('NYX online. Jarvis Mode activated. State your command.'); }, 400);
+    setTimeout(() => { responseEl.textContent = 'NYX online. State your command.'; responseEl.classList.add('show'); speak('NYX online. Jarvis Mode activated. State your command.'); }, 400);
   }
 
   function closeJarvis() {
+    jarvisOpen = false;
     overlay.classList.remove('active');
     document.body.style.overflow = '';
-    if (listening && recognition) recognition.stop();
+    if (recognition) { try { recognition.stop(); } catch(e) {} }
+    listening = false;
+    micBtn.classList.remove('listening');
+    statusEl.classList.remove('active');
     window.speechSynthesis && window.speechSynthesis.cancel();
     stopWave();
   }
