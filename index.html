@@ -2164,59 +2164,8 @@ function startScanLine(){
     ],
   };
 
-  // ── Arabic detection & translation map ──────────────────
-  function isArabic(text) {
-    return /[؀-ۿ]/.test(text);
-  }
-
-  // Arabic keyword patterns → English query normalisation
-  const AR_MAP = [
-    [/ما.*الوقت|الساعة|كم الساعة/,           'what time is it'],
-    [/ما.*التاريخ|اليوم/,                      'what is today date'],
-    [/طقس|جو|حرارة|مطر/,                      'weather'],
-    [/ما.*نيكس|ما هو nyx|اشرح nyx|عن nyx/,   'what is nyx'],
-    [/الوكلاء|الوكيل|قائمة الوكلاء/,          'list agents'],
-    [/أبيكس|apex/i,                            'apex agent'],
-    [/أوراكل|oracle/i,                         'oracle agent'],
-    [/سيغنال|signal/i,                         'signal agent'],
-    [/كونفرت|convert/i,                        'convert agent'],
-    [/فورج|forge/i,                            'forge agent'],
-    [/ليدجر|ledger/i,                          'ledger agent'],
-    [/سعر|تسعير|اشتراك|خطة|تير|كم التكلفة/,  'pricing subscription'],
-    [/قائمة الانتظار|انضمام|وصول|سجل/,        'join waitlist'],
-    [/الحالة|كيف النظام|تقرير/,               'system status'],
-    [/من أنت|ما اسمك|عرّف نفسك|ألفريد/,      'who are you alfred'],
-    [/إنتاجية|كفاءة|إدارة الوقت/,             'productivity'],
-    [/تركيز|تشتت|انتباه/,                      'focus'],
-    [/قيادة|فريق|ثقافة/,                       'leadership'],
-    [/نجاح|أداء|متميز/,                        'success performance'],
-    [/تحفيز|انضباط|طموح/,                      'motivation discipline'],
-    [/ذكاء اصطناعي|AI|تعلم آلي/,              'artificial intelligence'],
-    [/أعمال|شركة|مشروع|إيرادات/,              'business startup'],
-    [/نوم|راحة|تعافي/,                         'sleep'],
-    [/صحة|لياقة|رياضة/,                        'health fitness'],
-    [/مال|ثروة|استثمار|مالية/,                'money wealth'],
-    [/قراءة|كتاب|تعلم/,                        'reading books'],
-    [/توظيف|مواهب|فريق/,                       'hiring talent'],
-    [/قرار|خيار|مخاطر/,                        'decision making'],
-    [/شكرا|ممتاز|عظيم/,                        'thank you'],
-    [/وداع|إنهاء|خروج|أوقف/,                  'goodbye shutdown'],
-    [/مساعدة|ماذا تعرف|ماذا تستطيع/,          'help capabilities'],
-    [/مرحبا|أهلا|صباح|مساء/,                  'hello greetings'],
-  ];
-
-  function normaliseArabic(text) {
-    const lower = text.toLowerCase();
-    for (const [pattern, replacement] of AR_MAP) {
-      if (pattern.test(lower)) return replacement;
-    }
-    return text; // pass through; will hit unknown fallback
-  }
-
   function getReply(query) {
-    let t = query.trim();
-    if (isArabic(t)) t = normaliseArabic(t);
-    t = t.toLowerCase();
+    let t = query.trim().toLowerCase();
 
     if (/what.*(time|clock)|current time|time is it|\btime\b/.test(t)) return pick(KB.time());
     if (/what.*(date|day)|today|day is it/.test(t)) return pick(KB.date());
@@ -2425,6 +2374,18 @@ function startScanLine(){
     let angle1 = 0, angle2 = 0, angle3 = 0;
     let pulse = 0;
     let smoothPulse = 0;
+    let spokeAngle = 0; // slow rotation for background spokes
+
+    // ── drifting background particles ─────────────────────
+    const PARTICLE_COUNT = 80;
+    const particles = Array.from({length: PARTICLE_COUNT}, () => ({
+      x: Math.random(),        // 0–1 normalised
+      y: Math.random(),
+      vx: (Math.random() - 0.5) * 0.00012,
+      vy: (Math.random() - 0.5) * 0.00012,
+      r: 0.4 + Math.random() * 0.8,
+      a: 0.03 + Math.random() * 0.07,
+    }));
 
     function tick(){
       if(!alfredOpen){ requestAnimationFrame(tick); return; }
@@ -2433,32 +2394,43 @@ function startScanLine(){
       const cx = W/2, cy = H/2;
       const R = Math.min(W, H) * 0.5; // base radius unit
 
-      // ── subtle background texture ─────────────────────────
-      // radial spokes — very faint, gives depth without clutter
-      const spokeCount = 24;
-      for(let i=0;i<spokeCount;i++){
-        const a = (i/spokeCount)*Math.PI*2;
+      // ── animated background ───────────────────────────────
+      spokeAngle += 0.0008; // very slow rotation
+
+      // slowly rotating radial spokes
+      ctx.save(); ctx.translate(cx,cy); ctx.rotate(spokeAngle);
+      for(let i=0;i<24;i++){
+        const a = (i/24)*Math.PI*2;
         ctx.beginPath();
-        ctx.moveTo(cx,cy);
-        ctx.lineTo(cx+Math.cos(a)*R*0.98, cy+Math.sin(a)*R*0.98);
-        ctx.strokeStyle='rgba(196,169,124,0.025)';
+        ctx.moveTo(0,0);
+        ctx.lineTo(Math.cos(a)*R*1.1, Math.sin(a)*R*1.1);
+        ctx.strokeStyle='rgba(196,169,124,0.022)';
         ctx.lineWidth=0.5; ctx.stroke();
       }
-      // concentric ghost rings at large radii
-      [0.92, 1.05, 1.18].forEach(f => {
-        ctx.beginPath(); ctx.arc(cx,cy,R*f,0,Math.PI*2);
-        ctx.strokeStyle='rgba(196,169,124,0.018)';
+      ctx.restore();
+
+      // ghost concentric rings (counter-rotate slowly)
+      ctx.save(); ctx.translate(cx,cy); ctx.rotate(-spokeAngle*0.4);
+      [0.90, 1.04, 1.18].forEach((f,i) => {
+        ctx.beginPath(); ctx.arc(0,0,R*f,0,Math.PI*2);
+        ctx.setLineDash(i===1 ? [6,18] : []);
+        ctx.strokeStyle='rgba(196,169,124,0.016)';
         ctx.lineWidth=0.5; ctx.stroke();
       });
-      // sparse dot grid across the canvas
-      const dotStep = Math.round(Math.min(W,H)/22);
-      ctx.fillStyle='rgba(196,169,124,0.05)';
-      for(let x=dotStep/2;x<W;x+=dotStep){
-        for(let y=dotStep/2;y<H;y+=dotStep){
-          const dx=x-cx, dy=y-cy, dist=Math.sqrt(dx*dx+dy*dy);
-          if(dist>R*0.20 && dist<R*1.15){
-            ctx.beginPath(); ctx.arc(x,y,0.7,0,Math.PI*2); ctx.fill();
-          }
+      ctx.setLineDash([]);
+      ctx.restore();
+
+      // drifting particles
+      for(const p of particles){
+        p.x += p.vx; p.y += p.vy;
+        if(p.x<0) p.x=1; if(p.x>1) p.x=0;
+        if(p.y<0) p.y=1; if(p.y>1) p.y=0;
+        const px=p.x*W, py=p.y*H;
+        const dist=Math.hypot(px-cx,py-cy);
+        if(dist<R*1.2){
+          ctx.beginPath(); ctx.arc(px,py,p.r,0,Math.PI*2);
+          ctx.fillStyle=`rgba(196,169,124,${p.a})`;
+          ctx.fill();
         }
       }
 
@@ -2588,8 +2560,8 @@ function startScanLine(){
     const utt = new SpeechSynthesisUtterance(text);
     // More natural: slightly faster, less robotic pitch
     utt.rate = 0.88; utt.pitch = 0.82; utt.volume = 1;
-    utt.onend  = () => { speaking = false; orbPulse = 0; onDone && onDone(); };
-    utt.onerror= () => { speaking = false; orbPulse = 0; onDone && onDone(); };
+    utt.onend  = () => { speaking = false; orbPulse = 0; mutedUntil = Date.now() + SPEAK_MUTE_MS; onDone && onDone(); };
+    utt.onerror= () => { speaking = false; orbPulse = 0; mutedUntil = Date.now() + SPEAK_MUTE_MS; onDone && onDone(); };
     // Fire pulse + outward wave on every word boundary
     utt.onboundary = (e) => {
       if (e.name === 'word') {
@@ -2634,87 +2606,72 @@ function startScanLine(){
     showResponse(reply);
     setStatus('SPEAKING', '');
     speak(reply, () => {
-      if (alfredOpen) setTimeout(startListening, 200);
+      if (alfredOpen) setStatus('LISTENING', 'on');
       else setStatus('STANDBY', '');
     });
   }
 
-  // ── RECOGNITION — single recognizer, Arabic detected via text ──
-  // Arabic characters in the result are normalised to English query strings.
-  // This avoids the mic conflict caused by running two recognizers simultaneously.
+  // ── RECOGNITION — continuous duplex mode ──────────────────
   function stopAllRecognition() {
-    if (recognition) { try { recognition.stop(); } catch(e){} recognition = null; }
+    if (recognition) { try { recognition.abort(); } catch(e){} recognition = null; }
   }
 
+  // ── DUPLEX: mic runs continuously; processQuery gated by speaking flag ──
+  // Alfred's own voice is captured but ignored because speaking=true during speech.
+  // A brief mute window (SPEAK_MUTE_MS) after speech ends prevents the tail
+  // of Alfred's voice from triggering a false query.
+  const SPEAK_MUTE_MS = 600;
+  let mutedUntil = 0;
+
   function startListening() {
-    if (speaking) return;
+    if (recognition) return; // already running
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) { setStatus('USE CHROME OR SAFARI', ''); return; }
 
     recognition = new SR();
-    // en-US primary — Arabic is detected AFTER recognition via isArabic() regex,
-    // then normaliseArabic() maps it to English query strings before getReply().
     recognition.lang = 'en-US';
-    recognition.continuous = false;
+    recognition.continuous = true;   // duplex — stays open
     recognition.interimResults = true;
     recognition.maxAlternatives = 3;
 
     recognition.onstart = () => {
       listening = true;
       setStatus('LISTENING', 'on');
-      transcriptEl.textContent = '';
     };
 
     recognition.onresult = (e) => {
       let interim = '', finalText = '';
       for (let i = e.resultIndex; i < e.results.length; i++) {
-        // Pick best alternative
         const best = e.results[i][0].transcript;
         if (e.results[i].isFinal) finalText += best;
         else interim += best;
       }
-      transcriptEl.textContent = (finalText || interim).toUpperCase();
+      // Show interim even while speaking so transcript stays live
+      if (interim && !finalText) transcriptEl.textContent = interim.toUpperCase();
       if (finalText) {
-        listening = false;
+        // Suppress Alfred's own voice for SPEAK_MUTE_MS after he finishes
+        if (speaking || Date.now() < mutedUntil) return;
+        transcriptEl.textContent = finalText.toUpperCase();
         processQuery(finalText);
       }
     };
 
+    // continuous mode rarely fires onend — restart if it does
     recognition.onend = () => {
       listening = false;
-      if (alfredOpen && !speaking) {
-        setTimeout(() => { if (alfredOpen && !speaking) startListening(); }, 80);
-      } else {
-        setStatus('STANDBY', '');
-      }
+      recognition = null;
+      if (alfredOpen) setTimeout(startListening, 80);
     };
 
     recognition.onerror = (e) => {
-      listening = false;
-      if (e.error === 'no-speech' && alfredOpen) { setTimeout(startListening, 80); return; }
-      if (e.error === 'not-allowed') { setStatus('ALLOW MICROPHONE ACCESS', ''); return; }
-      if (e.error === 'network') {
-        // Fallback to en-US on network error (common for ar-SA on some browsers)
-        recognition = null;
-        const r2 = new SR(); r2.lang='en-US'; r2.continuous=false; r2.interimResults=true;
-        r2.onstart=()=>{listening=true; setStatus('LISTENING','on');};
-        r2.onresult=(ev)=>{
-          let f='',x='';
-          for(let i=ev.resultIndex;i<ev.results.length;i++){
-            if(ev.results[i].isFinal)f+=ev.results[i][0].transcript; else x+=ev.results[i][0].transcript;
-          }
-          transcriptEl.textContent=(f||x).toUpperCase();
-          if(f){listening=false;processQuery(f);}
-        };
-        r2.onend=()=>{listening=false;if(alfredOpen&&!speaking)setTimeout(startListening,80);};
-        r2.onerror=()=>{listening=false;if(alfredOpen&&!speaking)setTimeout(startListening,150);};
-        recognition=r2; try{r2.start();}catch(e2){}
-        return;
-      }
-      if (alfredOpen && !speaking) setTimeout(startListening, 150);
+      if (e.error === 'not-allowed') { setStatus('ALLOW MICROPHONE ACCESS', ''); recognition=null; return; }
+      if (e.error === 'no-speech') return; // continuous mode — just keep going
+      // any other error: restart
+      recognition = null;
+      if (alfredOpen) setTimeout(startListening, 200);
     };
 
-    try { recognition.start(); } catch(e) {}
+    try { recognition.start(); } catch(err) {}
   }
 
   // ── TEXT INPUT ─────────────────────────────────────────────
@@ -2747,8 +2704,9 @@ function startScanLine(){
     setTimeout(() => {
       showResponse(greeting);
       setStatus('SPEAKING', '');
-      speak(greeting, () => { if (alfredOpen) setTimeout(startListening, 500); });
-    }, 500);
+      speak(greeting, () => { if (alfredOpen) setStatus('LISTENING', 'on'); });
+      startListening(); // mic on immediately — duplex
+    }, 400);
   }
 
   function closeAlfred() {
