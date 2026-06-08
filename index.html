@@ -2106,20 +2106,112 @@ function startScanLine(){
     } else { trySpeak(); }
   }
 
-  // ── AI RESPONSE ────────────────────────────────────────
-  async function getReply(query) {
-    try {
-      const res = await fetch('/.netlify/functions/alfred', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ query }),
-      });
-      const data = await res.json();
-      return data.reply || pick(R.unknown);
-    } catch (e) {
-      return pick(R.unknown);
-    }
+  // ── LOCAL INTELLIGENCE ENGINE ──────────────────────────
+  const KB = {
+    time: () => {
+      const n = new Date();
+      const t = n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
+      const d = n.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+      return [`It is currently ${t} on ${d}.`, `The time is ${t}. ${d}, for the record.`];
+    },
+    date: () => {
+      const d = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+      return [`Today is ${d}.`, `${d}. Not that time should rush you.`];
+    },
+    weather: [
+      "I don't have access to live weather data, I'm afraid. A quick glance out the window, or weather.com, should serve you well.",
+      "Weather isn't something I can pull in real time. Though I'd recommend dressing for the occasion regardless.",
+    ],
+    nyx: [
+      "NYX is an autonomous AI operating system — built for founders, executives, and elite performers who refuse to operate at average. Six agents. One system. Continuous intelligence.",
+      "NYX operates silently and decisively. It observes, analyzes, optimizes, and compounds — without requiring your attention to do so.",
+      "Think of NYX as infrastructure, not software. It doesn't assist your process. It replaces the inefficiency of not having one.",
+    ],
+    agents: [
+      "Six agents form the network — APEX handles strategy, ORACLE handles research, SIGNAL handles marketing, CONVERT handles revenue, FORGE handles engineering, and LEDGER handles finance. Each a specialist. None requiring instruction.",
+    ],
+    apex:    ["APEX is the strategic core. Every decision, every priority, every routing call across the network flows through APEX first."],
+    oracle:  ["ORACLE runs continuous market intelligence. Competitive signals, industry shifts, emerging patterns — all processed without you having to ask."],
+    signal:  ["SIGNAL manages audience intelligence and content strategy. It knows when to speak, what to say, and who needs to hear it."],
+    convert: ["CONVERT is pure revenue focus. Pipeline analysis, conversion rates, leverage points — it finds where the money is being left on the table."],
+    forge:   ["FORGE handles technical architecture and system health. Infrastructure decisions, build execution, automated monitoring — all handled."],
+    ledger:  ["LEDGER watches the numbers. Cash flow, burn rate, projections — financial clarity without the spreadsheet work."],
+    productivity: [
+      "The highest performers don't manage more — they eliminate what shouldn't be managed at all. That's the principle NYX is built on.",
+      "Clarity and constraint are the engines of performance. Less decided in the moment means more executed with precision.",
+      "Energy is finite. Systems are not. Build the system, then let it work.",
+    ],
+    focus: [
+      "Distraction is a design problem, not a willpower problem. The solution is architecture, not discipline.",
+      "Single-threaded focus beats multitasking every time. The research is settled. The application, less so.",
+    ],
+    success: [
+      "Success at the highest level is rarely dramatic. It's the compounding of thousands of unremarkable decisions, made correctly.",
+      "The gap between good and elite isn't talent. It's the quality of the system running underneath.",
+    ],
+    motivation: [
+      "Motivation follows action, not the other way around. The system moves first. The feeling arrives later.",
+      "You don't need to feel ready. You need to be structured well enough that readiness is irrelevant.",
+    ],
+    ai: [
+      "Artificial intelligence is infrastructure now — like electricity was in 1920. The question isn't whether to use it. It's whether you're using it better than everyone else.",
+      "Most people are using AI as a search engine with a conversational interface. The real advantage is using it as an autonomous execution layer.",
+    ],
+    business: [
+      "The highest-leverage business decision is always the one that makes future decisions unnecessary.",
+      "Operators who scale do one thing differently — they build systems that produce results in their absence.",
+    ],
+    hello: () => pick(R.greet),
+    thanks: () => pick(R.thanks),
+    shutdown: () => pick(R.shutdown),
+    who: () => pick(R.identity),
+    status: () => pick(R.status),
+    help: ["You can ask me about the time, date, NYX, the agents, productivity, focus, business, AI, or anything on your mind. I may not have a live feed to the world, but I have a point of view on most of it."],
+  };
+
+  function getReply(query) {
+    const t = query.toLowerCase().trim();
+    // Time & Date
+    if (/what.*(time|clock)|current time|time is it/.test(t)) return pick(KB.time());
+    if (/what.*(date|day)|today.*(date|day)|day is it/.test(t)) return pick(KB.date());
+    // Weather
+    if (/weather|temperature|forecast|rain|sunny|cold|hot outside/.test(t)) return pick(KB.weather);
+    // NYX
+    if (/what is nyx|what.*nyx do|nyx.*work|tell.*nyx|explain nyx/.test(t)) return pick(KB.nyx);
+    // Agents
+    if (/\bapex\b/.test(t)) return pick(KB.apex);
+    if (/\boracle\b/.test(t)) return pick(KB.oracle);
+    if (/\bsignal\b/.test(t)) return pick(KB.signal);
+    if (/\bconvert\b/.test(t)) return pick(KB.convert);
+    if (/\bforge\b/.test(t)) return pick(KB.forge);
+    if (/\bledger\b/.test(t)) return pick(KB.ledger);
+    if (/agent|network|all.*agent|six/.test(t)) return pick(KB.agents);
+    // Status
+    if (/status|how.*system|everything.*ok|all.*good|report/.test(t)) return KB.status();
+    // Identity
+    if (/who are you|what are you|your name|introduce|alfred/.test(t)) return KB.who();
+    // Productivity / Performance
+    if (/productiv|efficien|workflow|manage time|time management/.test(t)) return pick(KB.productivity);
+    if (/focus|distract|concentrat|attention/.test(t)) return pick(KB.focus);
+    if (/success|achieve|perform|elite|high.perform/.test(t)) return pick(KB.success);
+    if (/motivat|inspired|driven|push|discipline/.test(t)) return pick(KB.motivation);
+    // AI / Business
+    if (/artificial intelligence|\bai\b|machine learning|automation/.test(t)) return pick(KB.ai);
+    if (/business|company|startup|scale|grow|revenue|sales/.test(t)) return pick(KB.business);
+    // Social
+    if (/hello|hi |hey|good (morning|evening|afternoon)|wake/.test(t)) return KB.hello();
+    if (/thank|thanks|appreciate|well done|good job/.test(t)) return KB.thanks();
+    if (/shutdown|stop|sleep|exit|bye|goodbye/.test(t)) return KB.shutdown();
+    if (/help|what can|commands|options|what do you know/.test(t)) return pick(KB.help);
+    // Fallback — thoughtful, not robotic
+    return pick(R.unknown);
   }
+
+  // Make getReply return a promise for consistent handling
+  const _getReply = getReply;
+  async function getReplyAsync(q) { return _getReply(q); }
+  // Override the async reference used below
+  window._alfredGetReply = getReplyAsync;
 
   function setStatus(text, active) {
     statusEl.textContent = text;
@@ -2160,7 +2252,7 @@ function startScanLine(){
         listening = false;
         setStatus('PROCESSING');
         transcriptEl.textContent = finalText.toUpperCase();
-        getReply(finalText).then(reply => {
+        Promise.resolve(getReply(finalText)).then(reply => {
           showResponse(reply);
           setStatus('SPEAKING');
           speak(reply, () => {

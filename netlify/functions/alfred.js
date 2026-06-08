@@ -1,4 +1,5 @@
-const Anthropic = require('@anthropic-ai/sdk');
+// Alfred backend disabled — fully client-side
+// const Anthropic = require('@anthropic-ai/sdk');
 
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
