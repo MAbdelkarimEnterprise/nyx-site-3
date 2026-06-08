@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(npx tsc *)",
+      "Bash(mkdir -p \"/Users/abdelkarim/Downloads/nyx-site 3/dashboard/app/api/workflows/[id]/pause\")",
+      "Bash(mkdir -p \"/Users/abdelkarim/Downloads/nyx-site 3/dashboard/app/api/workflows/[id]/resume\")",
+      "Bash(mkdir -p \"/Users/abdelkarim/Downloads/nyx-site 3/dashboard/app/api/workflows/[id]/retry\")",
+      "Bash(mkdir -p \"/Users/abdelkarim/Downloads/nyx-site 3/dashboard/app/api/workflows/[id]/duplicate\")",
+      "Bash(mkdir -p \"/Users/abdelkarim/Downloads/nyx-site 3/dashboard/app/api/triggers/[workflowId]\")",
+      "Bash(npm audit *)",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\('next:', d['dependencies']['next']\\)\")",
+      "Bash(python3 *)",
+      "Bash(xattr -w com.apple.fileprovider.ignore\\\\#P 1 \"/Users/abdelkarim/Downloads/nyx-site 3/dashboard/node_modules\")",
+      "Bash(xattr -w com.apple.icloud.donotupload 1 \"/Users/abdelkarim/Downloads/nyx-site 3/dashboard/node_modules\")",
+      "Bash(rm -rf node_modules)",
+      "Bash(mkdir node_modules.nosync)",
+      "Bash(ln -s node_modules.nosync node_modules)",
+      "Bash(curl -s http://localhost:3001 -o /dev/null -w \"%{http_code}\")",
+      "Bash(./node_modules/.bin/next dev *)",
+      "Bash(ln -sf node_modules.nosync node_modules)",
+      "Bash(curl -s http://localhost:3001/login -o /dev/null -w \"%{http_code}\")",
+      "Bash(node -e \"require\\('/Users/abdelkarim/Downloads/nyx-site 3/netlify/functions/agent.js'\\)\")",
+      "Bash(node --check \"/Users/abdelkarim/Downloads/nyx-site 3/netlify/functions/agent.js\")"
+    ]
+  }
+}

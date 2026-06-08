@@ -1,0 +1,2509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NYX — Autonomous AI Operating System</title>
+<meta name="description" content="NYX Systems. Silent infrastructure. Elite outcomes. An autonomous AI operating system for founders, executives, and elite performers.">
+<meta property="og:title" content="NYX — Autonomous AI Operating System">
+<meta property="og:description" content="What operates in the dark controls what happens in the light.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://nyxsystem.online">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+/* ── RESET ─────────────────────────────────────────────── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;cursor:none}
+body{background:#000;color:#F0EDE8;font-family:'DM Sans',system-ui,sans-serif;font-weight:300;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+a,button{cursor:none}
+
+/* ── TOKENS ────────────────────────────────────────────── */
+:root{
+  --void:#000;--deep:#050505;--surf:#0A0A0A;--s2:#121212;
+  --line:rgba(255,255,255,0.048);--line-hi:rgba(255,255,255,0.11);
+  --t1:#F0EDE8;--t2:rgba(240,237,232,0.38);--t3:rgba(240,237,232,0.16);
+  --gold:#C4A97C;--gold-d:rgba(196,169,124,0.28);
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --mono:'Space Mono',monospace;
+  --sans:'DM Sans',system-ui,sans-serif;
+  --ease-out:cubic-bezier(0.16,1,0.3,1);
+  --ease-io:cubic-bezier(0.87,0,0.13,1);
+  --sh:clamp(20px,5vw,72px);
+  --sv:clamp(90px,11vw,150px);
+}
+
+/* ── GRAIN OVERLAY ─────────────────────────────────────── */
+#grain{
+  position:fixed;inset:0;width:100%;height:100%;
+  pointer-events:none;z-index:9997;
+  opacity:0.38;mix-blend-mode:overlay;
+  background-repeat:repeat;background-size:200px 200px;
+}
+
+/* ── CURSOR ────────────────────────────────────────────── */
+.cursor{position:fixed;top:0;left:0;pointer-events:none;z-index:10000}
+.cursor-dot{
+  position:absolute;width:4px;height:4px;background:#fff;border-radius:50%;
+  transform:translate(-50%,-50%);
+  transition:width .15s,height .15s,opacity .15s;
+}
+.cursor-ring{
+  position:absolute;width:28px;height:28px;
+  border:1px solid rgba(255,255,255,0.5);border-radius:50%;
+  transform:translate(-50%,-50%);
+  transition:width .3s var(--ease-out),height .3s var(--ease-out),border-color .2s,opacity .2s;
+}
+.cursor.on .cursor-ring{width:44px;height:44px;border-color:var(--gold)}
+.cursor.on .cursor-dot{opacity:0}
+
+/* ── LOADER ────────────────────────────────────────────── */
+.loader{
+  position:fixed;inset:0;z-index:9999;background:#000;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+}
+/* HUD corner brackets */
+.hud-tl,.hud-tr,.hud-bl,.hud-br{
+  position:absolute;width:28px;height:28px;
+  border-color:rgba(196,169,124,0.45);border-style:solid;
+}
+.hud-tl{top:28px;left:28px;border-width:1px 0 0 1px}
+.hud-tr{top:28px;right:28px;border-width:1px 1px 0 0}
+.hud-bl{bottom:28px;left:28px;border-width:0 0 1px 1px}
+.hud-br{bottom:28px;right:28px;border-width:0 1px 1px 0}
+.loader-sys{
+  position:absolute;top:36px;left:60px;
+  font-family:var(--mono);font-size:8px;letter-spacing:0.22em;
+  color:rgba(196,169,124,0.5);text-transform:uppercase;
+}
+.loader-clock{
+  position:absolute;top:36px;right:60px;
+  font-family:var(--mono);font-size:8px;letter-spacing:0.18em;
+  color:rgba(240,237,232,0.2);
+}
+.loader-logo{
+  font-family:var(--serif);font-weight:300;
+  font-size:clamp(80px,18vw,200px);
+  letter-spacing:0.2em;color:var(--t1);
+  text-transform:uppercase;line-height:1;
+  padding-right:0.2em;
+  opacity:0;transform:scale(0.9);
+}
+.loader-sub{
+  font-family:var(--mono);font-size:8px;
+  letter-spacing:0.5em;text-transform:uppercase;
+  color:var(--gold);margin-top:18px;opacity:0;
+}
+.loader-progress{
+  position:absolute;bottom:28px;left:60px;right:60px;
+  display:flex;align-items:center;gap:16px;
+}
+.loader-bar-track{
+  flex:1;height:1px;background:rgba(255,255,255,0.08);overflow:hidden;
+}
+.loader-bar-fill{
+  height:100%;background:var(--gold);
+  transform-origin:left;transform:scaleX(0);
+}
+.loader-pct{
+  font-family:var(--mono);font-size:8px;
+  letter-spacing:0.15em;color:var(--t3);
+  white-space:nowrap;min-width:36px;
+}
+
+/* ── NAV ───────────────────────────────────────────────── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  padding:28px var(--sh);
+  display:flex;align-items:center;justify-content:space-between;
+  transition:background .5s,backdrop-filter .5s,border-color .4s,padding .3s;
+  border-bottom:1px solid transparent;
+}
+nav.scrolled{
+  background:rgba(0,0,0,0.88);backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);border-color:var(--line);
+  padding-top:18px;padding-bottom:18px;
+}
+.nav-logo{
+  font-family:var(--serif);font-size:17px;font-weight:300;
+  letter-spacing:0.48em;color:var(--t1);
+  text-transform:uppercase;text-decoration:none;
+  padding-right:0.48em;
+}
+.nav-links{display:flex;align-items:center;gap:40px}
+.nav-link{
+  font-family:var(--mono);font-size:8px;
+  letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--t2);text-decoration:none;
+  transition:color .2s;position:relative;
+}
+.nav-link::after{
+  content:'';position:absolute;bottom:-2px;left:0;right:0;
+  height:1px;background:var(--gold);
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .25s var(--ease-out);
+}
+.nav-link:hover{color:var(--t1)}
+.nav-link:hover::after{transform:scaleX(1)}
+.nav-cta{
+  font-family:var(--mono);font-size:8px;
+  letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--void);background:var(--t1);
+  padding:11px 24px;text-decoration:none;
+  transition:background .2s,transform .3s;
+  display:inline-block;
+}
+.nav-cta:hover{background:var(--gold)}
+
+/* ── HERO ──────────────────────────────────────────────── */
+.hero{
+  position:relative;min-height:100vh;
+  display:flex;flex-direction:column;
+  align-items:center;justify-content:center;overflow:hidden;
+}
+#hero-canvas{
+  position:absolute;inset:0;width:100%;height:100%;
+  opacity:0;transition:opacity 2.5s ease;
+}
+#hero-canvas.show{opacity:1}
+.hero-grid{
+  position:absolute;inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.034) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,0.034) 1px,transparent 1px),
+    linear-gradient(rgba(255,255,255,0.009) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,0.009) 1px,transparent 1px);
+  background-size:80px 80px,80px 80px,16px 16px,16px 16px;
+  -webkit-mask-image:radial-gradient(ellipse 92% 88% at 50% 50%,#000 15%,transparent 100%);
+  mask-image:radial-gradient(ellipse 92% 88% at 50% 50%,#000 15%,transparent 100%);
+  pointer-events:none;
+}
+/* Atmospheric center glow */
+.hero-glow{
+  position:absolute;top:50%;left:50%;
+  transform:translate(-50%,-52%);
+  width:clamp(500px,72vw,1100px);height:clamp(500px,72vw,1100px);
+  background:radial-gradient(circle,rgba(196,169,124,0.052) 0%,transparent 62%);
+  pointer-events:none;z-index:1;
+  animation:glowBreathe 9s ease-in-out infinite;
+}
+/* Sweep scan line */
+.hero-scan{
+  position:absolute;left:0;right:0;top:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(196,169,124,0.55) 28%,rgba(255,255,255,0.25) 50%,rgba(196,169,124,0.55) 72%,transparent);
+  pointer-events:none;z-index:1;opacity:0;
+}
+/* HUD corners on hero */
+.hero-hud{position:absolute;inset:0;pointer-events:none;z-index:2}
+.hero-hud-tl,.hero-hud-tr,.hero-hud-bl,.hero-hud-br{
+  position:absolute;width:22px;height:22px;
+  border-color:rgba(255,255,255,0.12);border-style:solid;
+  opacity:0;
+}
+.hero-hud-tl{top:72px;left:var(--sh);border-width:1px 0 0 1px}
+.hero-hud-tr{top:72px;right:var(--sh);border-width:1px 1px 0 0}
+.hero-hud-bl{bottom:40px;left:var(--sh);border-width:0 0 1px 1px}
+.hero-hud-br{bottom:40px;right:var(--sh);border-width:0 1px 1px 0}
+/* HUD data labels */
+.hero-status{
+  position:absolute;top:80px;left:calc(var(--sh) + 32px);
+  display:flex;align-items:center;gap:8px;z-index:2;opacity:0;
+}
+.hero-status-dot{
+  width:5px;height:5px;border-radius:50%;background:var(--gold);
+  animation:blink 2.2s ease-in-out infinite;
+}
+.hero-status-label{
+  font-family:var(--mono);font-size:7px;
+  letter-spacing:0.3em;text-transform:uppercase;color:var(--t3);
+}
+.hero-coords{
+  position:absolute;bottom:48px;left:calc(var(--sh) + 32px);
+  z-index:2;opacity:0;
+}
+.hero-coords p{
+  font-family:var(--mono);font-size:7px;
+  letter-spacing:0.2em;color:var(--t3);line-height:1.8;
+}
+.hero-access{
+  position:absolute;top:80px;right:calc(var(--sh) + 32px);
+  text-align:right;z-index:2;opacity:0;
+}
+.hero-access p{
+  font-family:var(--mono);font-size:7px;
+  letter-spacing:0.2em;color:var(--t3);line-height:1.8;text-align:right;
+}
+/* Main hero content */
+.hero-content{
+  position:relative;z-index:3;text-align:center;
+  padding:120px var(--sh) 80px;
+  width:100%;max-width:1400px;margin:0 auto;
+}
+.hero-eyebrow{
+  font-family:var(--mono);font-size:8px;
+  letter-spacing:0.5em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:32px;opacity:0;
+}
+/* Title with char split */
+.hero-title{
+  font-family:var(--serif);font-weight:300;
+  font-size:clamp(120px,26vw,320px);
+  line-height:0.82;letter-spacing:0.12em;
+  color:var(--t1);text-transform:uppercase;
+  padding-right:0.12em;overflow:hidden;
+  display:flex;justify-content:center;gap:0.04em;
+}
+.hero-char{
+  display:inline-block;
+  transform-origin:bottom center;
+  opacity:0;transform:translateY(110%);
+}
+.hero-rule{
+  width:32px;height:1px;background:var(--line-hi);
+  margin:32px auto;transform:scaleX(0);transform-origin:center;
+}
+.hero-subtitle{
+  font-family:var(--serif);font-style:italic;font-weight:300;
+  font-size:clamp(14px,1.7vw,19px);
+  color:var(--t2);letter-spacing:0.04em;
+  line-height:1.8;max-width:420px;margin:0 auto;opacity:0;
+}
+.hero-scroll{
+  position:absolute;bottom:44px;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:10px;
+  opacity:0;z-index:2;
+}
+.hero-scroll-line{
+  width:1px;height:40px;
+  background:linear-gradient(to bottom,transparent,var(--t3));
+  animation:scrollPulse 2s ease-in-out infinite;
+}
+.hero-scroll-text{
+  font-family:var(--mono);font-size:7px;letter-spacing:0.35em;
+  text-transform:uppercase;color:var(--t3);
+  writing-mode:vertical-rl;transform:rotate(180deg);
+}
+
+/* ── SECTION LABELS ────────────────────────────────────── */
+.sec-label{
+  font-family:var(--mono);font-size:8px;
+  letter-spacing:0.48em;text-transform:uppercase;
+  color:var(--gold);margin-bottom:64px;
+  display:flex;align-items:center;gap:16px;
+  opacity:0;
+}
+.sec-label-line{width:28px;height:1px;background:var(--gold);opacity:0.3;flex-shrink:0}
+
+/* ── MANIFESTO ─────────────────────────────────────────── */
+.manifesto{
+  padding:var(--sv) var(--sh);
+  max-width:1400px;margin:0 auto;
+}
+.manifesto-headline{
+  font-family:var(--serif);font-size:clamp(36px,5.2vw,68px);
+  font-weight:300;line-height:1.08;color:var(--t1);
+  max-width:700px;margin-bottom:72px;overflow:hidden;
+  clip-path:inset(0 0 100% 0);
+}
+.manifesto-headline em{font-style:italic;color:var(--gold)}
+.manifesto-split{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:80px;align-items:start;
+}
+.manifesto-body p{
+  font-size:14px;line-height:1.95;
+  color:var(--t2);letter-spacing:0.015em;margin-bottom:20px;
+}
+.manifesto-body p:last-child{margin-bottom:0}
+.orrery-wrap{
+  width:100%;aspect-ratio:1;max-width:460px;
+  margin:0 auto;opacity:0;
+}
+
+/* ── SYSTEM PILLARS ────────────────────────────────────── */
+.system{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.system-inner{max-width:1400px;margin:0 auto;padding:var(--sv) var(--sh)}
+.system-headline{
+  font-family:var(--serif);font-size:clamp(38px,5.5vw,76px);
+  font-weight:300;line-height:1.05;color:var(--t1);
+  max-width:640px;margin-bottom:80px;overflow:hidden;
+  clip-path:inset(0 0 100% 0);
+}
+.pillars{display:grid;grid-template-columns:repeat(4,1fr);border-left:1px solid var(--line)}
+.pillar{
+  border-right:1px solid var(--line);
+  padding:44px 28px 52px;position:relative;overflow:hidden;
+  transition:background .4s;
+  clip-path:inset(100% 0% 0% 0%);
+}
+.pillar:hover{background:var(--surf)}
+.pillar::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,var(--gold),transparent);
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .45s var(--ease-out);
+}
+.pillar:hover::before{transform:scaleX(1)}
+.pillar-num{
+  font-family:var(--mono);font-size:8px;letter-spacing:0.32em;
+  color:var(--gold);margin-bottom:40px;
+}
+.pillar-icon{width:32px;height:32px;margin-bottom:20px;opacity:0.45;transform-origin:center;transition:opacity .3s var(--ease-out),transform .4s var(--ease-out)}
+.pillar:hover .pillar-icon{opacity:0.75;transform:scale(1.1)}
+.pillar-title{
+  font-family:var(--serif);font-size:clamp(22px,2.2vw,30px);font-weight:300;
+  color:var(--t1);margin-bottom:14px;line-height:1.1;
+}
+.pillar-desc{font-size:12px;line-height:1.9;color:var(--t2);letter-spacing:0.015em}
+.pillar::after{
+  content:attr(data-num);position:absolute;bottom:16px;right:20px;
+  font-family:var(--serif);font-weight:300;
+  font-size:clamp(52px,7vw,90px);line-height:1;
+  color:var(--t1);opacity:0.045;pointer-events:none;
+  letter-spacing:-0.02em;
+  transition:opacity .4s var(--ease-out);
+}
+.pillar:hover::after{opacity:0.1}
+.pillar-bar{margin-top:36px;height:1px;background:var(--line);overflow:hidden}
+.pillar-bar-fill{
+  height:100%;width:0;
+  background:linear-gradient(90deg,var(--gold),rgba(196,169,124,0.15));
+}
+
+/* ── TIERS ─────────────────────────────────────────────── */
+.access{padding:var(--sv) var(--sh);max-width:1400px;margin:0 auto}
+.access-header{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:72px;margin-bottom:80px;align-items:end;
+}
+.access-headline{
+  font-family:var(--serif);font-size:clamp(38px,5.5vw,76px);
+  font-weight:300;line-height:1.05;color:var(--t1);overflow:hidden;
+  clip-path:inset(0 0 100% 0);
+}
+.access-sub{
+  font-size:13.5px;line-height:1.95;
+  color:var(--t2);letter-spacing:0.015em;
+}
+.tiers-list{border-top:1px solid var(--line)}
+.tier-row{border-bottom:1px solid var(--line);transition:background .3s}
+.tier-row:hover{background:var(--surf)}
+.tier-header{
+  display:grid;grid-template-columns:64px 1fr auto auto;
+  align-items:center;gap:28px;padding:24px 0;cursor:pointer;
+}
+.tier-num{font-family:var(--mono);font-size:8px;letter-spacing:0.3em;color:var(--gold)}
+.tier-name{
+  font-family:var(--serif);
+  font-size:clamp(20px,3vw,36px);
+  font-weight:300;color:var(--t1);
+}
+.tier-tag{
+  font-family:var(--mono);font-size:7px;letter-spacing:0.25em;text-transform:uppercase;
+  color:var(--void);background:var(--gold);padding:3px 9px;
+  opacity:0;transform:translateX(6px);
+  transition:opacity .2s,transform .2s;
+  white-space:nowrap;
+}
+.tier-row:hover .tier-tag,.tier-row.open .tier-tag{opacity:1;transform:translateX(0)}
+.tier-chevron{
+  width:16px;height:16px;position:relative;flex-shrink:0;
+  transition:transform .35s var(--ease-out);
+}
+.tier-chevron::before,.tier-chevron::after{
+  content:'';position:absolute;background:var(--t2);
+  transition:background .2s;
+}
+.tier-chevron::before{width:8px;height:1px;top:50%;right:0;transform:rotate(-40deg) translateY(-2px);transform-origin:right}
+.tier-chevron::after{width:8px;height:1px;top:50%;right:0;transform:rotate(40deg) translateY(2px);transform-origin:right}
+.tier-row.open .tier-chevron{transform:rotate(90deg)}
+.tier-row.open .tier-chevron::before,.tier-row.open .tier-chevron::after{background:var(--gold)}
+.tier-body{height:0;overflow:hidden}
+.tier-body-inner{
+  display:grid;grid-template-columns:64px 1fr 1fr auto;
+  gap:28px;padding-bottom:32px;align-items:start;
+}
+.tier-desc{font-size:13px;line-height:1.95;color:var(--t2);letter-spacing:0.015em}
+.tier-features{list-style:none;display:flex;flex-direction:column;gap:8px}
+.tier-features li{
+  font-family:var(--mono);font-size:9px;color:var(--t2);
+  letter-spacing:0.04em;display:flex;align-items:center;gap:10px;
+}
+.tier-features li::before{
+  content:'';width:12px;height:1px;
+  background:var(--gold);opacity:0.45;flex-shrink:0;
+}
+.tier-cta{
+  display:inline-block;font-family:var(--mono);font-size:8px;
+  letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--void);background:var(--t1);
+  padding:12px 22px;text-decoration:none;border:none;
+  transition:background .2s;white-space:nowrap;align-self:start;
+}
+.tier-cta:hover{background:var(--gold)}
+
+/* ── INTELLIGENCE STATS ────────────────────────────────── */
+.intel{background:var(--surf);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.intel-inner{
+  max-width:1400px;margin:0 auto;
+  display:grid;grid-template-columns:repeat(4,1fr);
+  gap:1px;background:var(--line);
+}
+.intel-stat{
+  background:var(--surf);padding:48px 36px;
+  position:relative;overflow:hidden;transition:background .3s;
+}
+.intel-stat::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:var(--gold);opacity:0;transition:opacity .3s;
+}
+.intel-stat:hover{background:var(--s2)}
+.intel-stat:hover::before{opacity:0.35}
+.intel-label{
+  font-family:var(--mono);font-size:7px;letter-spacing:0.44em;
+  text-transform:uppercase;color:var(--gold);margin-bottom:18px;
+}
+.intel-value{
+  font-family:var(--serif);
+  font-size:clamp(28px,3.5vw,50px);
+  font-weight:300;color:var(--t1);line-height:1;
+}
+.intel-unit{
+  font-family:var(--mono);font-size:8px;
+  letter-spacing:0.2em;color:var(--t3);margin-top:8px;
+}
+.intel-sparkline{
+  position:absolute;bottom:0;left:0;right:0;height:44px;
+  opacity:0.12;pointer-events:none;overflow:hidden;
+}
+.intel-stat:hover .intel-sparkline{opacity:0.22;transition:opacity .3s}
+
+/* ── WAITLIST ───────────────────────────────────────────── */
+.waitlist{
+  padding:var(--sv) var(--sh);
+  text-align:center;position:relative;overflow:hidden;
+}
+.waitlist-glow{
+  position:absolute;bottom:-120px;left:50%;transform:translateX(-50%);
+  width:800px;height:400px;
+  background:radial-gradient(ellipse,rgba(196,169,124,0.055) 0%,transparent 70%);
+  pointer-events:none;
+}
+.waitlist-rule{
+  width:1px;height:56px;margin:0 auto 44px;
+  background:linear-gradient(to bottom,transparent,var(--gold),transparent);
+  opacity:0;
+}
+.waitlist-eyebrow{
+  font-family:var(--mono);font-size:7px;letter-spacing:0.5em;
+  text-transform:uppercase;color:var(--gold);margin-bottom:28px;opacity:0;
+}
+.waitlist-headline{
+  font-family:var(--serif);
+  font-size:clamp(72px,13vw,180px);
+  font-weight:300;line-height:0.88;
+  color:var(--t1);max-width:1100px;
+  margin:0 auto 28px;overflow:hidden;opacity:0;
+}
+.waitlist-headline em{font-style:italic;color:var(--t2)}
+.waitlist-sub{
+  font-family:var(--mono);font-size:9px;
+  letter-spacing:0.22em;text-transform:uppercase;
+  color:var(--t3);margin-bottom:56px;opacity:0;
+}
+.waitlist-form{
+  display:flex;max-width:480px;margin:0 auto;
+  border:1px solid var(--line-hi);transition:border-color .3s;opacity:0;
+}
+.waitlist-form:focus-within{border-color:var(--gold-d)}
+.waitlist-input{
+  flex:1;background:transparent;border:none;outline:none;
+  padding:17px 20px;font-family:var(--mono);font-size:11px;
+  color:var(--t1);letter-spacing:0.06em;
+}
+.waitlist-input::placeholder{color:var(--t3);letter-spacing:0.1em}
+.waitlist-submit{
+  background:var(--t1);border:none;padding:17px 28px;
+  font-family:var(--mono);font-size:8px;letter-spacing:0.22em;
+  text-transform:uppercase;color:var(--void);cursor:none;
+  transition:background .2s;white-space:nowrap;
+}
+.waitlist-submit:hover{background:var(--gold)}
+.waitlist-submit:disabled{opacity:.4;cursor:not-allowed}
+.waitlist-note{
+  margin-top:14px;font-family:var(--mono);
+  font-size:8px;letter-spacing:0.15em;color:var(--t3);
+}
+.waitlist-error{
+  margin-top:12px;font-family:var(--mono);
+  font-size:8px;letter-spacing:0.1em;
+  color:rgba(200,80,80,.75);display:none;
+}
+.waitlist-success{display:none;text-align:center}
+.waitlist-success-title{
+  font-family:var(--serif);font-style:italic;
+  font-size:clamp(28px,4vw,52px);font-weight:300;
+  color:var(--gold);letter-spacing:0.04em;margin-bottom:10px;
+}
+.waitlist-success-note{
+  font-family:var(--mono);font-size:8px;
+  letter-spacing:0.2em;color:var(--t3);
+}
+
+/* ── FOOTER ────────────────────────────────────────────── */
+footer{
+  border-top:1px solid var(--line);padding:40px var(--sh);
+  display:grid;grid-template-columns:auto 1fr auto;
+  align-items:center;gap:28px;
+}
+.footer-logo{
+  font-family:var(--serif);font-size:14px;font-weight:300;
+  letter-spacing:0.48em;text-transform:uppercase;
+  color:var(--t3);padding-right:0.48em;
+}
+.footer-copy{
+  font-family:var(--mono);font-size:7px;
+  letter-spacing:0.18em;color:var(--t3);text-align:center;
+}
+.footer-status{display:flex;align-items:center;gap:6px}
+.footer-dot{
+  width:4px;height:4px;border-radius:50%;background:var(--gold);
+  animation:blink 2.2s ease-in-out infinite;
+}
+.footer-status-text{
+  font-family:var(--mono);font-size:7px;
+  letter-spacing:0.24em;text-transform:uppercase;color:var(--t3);
+}
+
+/* ── KEYFRAMES ─────────────────────────────────────────── */
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.1}}
+@keyframes scrollPulse{0%,100%{opacity:.2}50%{opacity:.7}}
+@keyframes glowBreathe{
+  0%,100%{opacity:0.55;transform:translate(-50%,-52%) scale(1)}
+  50%{opacity:1;transform:translate(-50%,-52%) scale(1.15)}
+}
+
+/* ── RESPONSIVE ────────────────────────────────────────── */
+@media(max-width:1100px){
+  .manifesto-split{grid-template-columns:1fr;gap:48px}
+  .orrery-wrap{max-width:320px}
+  .pillars{grid-template-columns:1fr 1fr}
+  .pillar{clip-path:inset(0)}
+  .access-header{grid-template-columns:1fr;gap:24px}
+  .tier-body-inner{grid-template-columns:64px 1fr 1fr}
+  .intel-inner{grid-template-columns:1fr 1fr}
+  footer{grid-template-columns:1fr 1fr}
+  .footer-copy{text-align:left}
+  .footer-status{justify-content:flex-end}
+}
+@media(max-width:680px){
+  .pillars{grid-template-columns:1fr;border-left:none}
+  .pillar{border-right:none;border-bottom:1px solid var(--line)}
+  .tier-header{grid-template-columns:48px 1fr auto}
+  .tier-tag{display:none}
+  .tier-body-inner{grid-template-columns:1fr;padding-left:0}
+  .intel-inner{grid-template-columns:1fr 1fr}
+  .waitlist-form{flex-direction:column}
+  .waitlist-submit{padding:14px}
+  nav{padding-left:20px;padding-right:20px}
+  .nav-link{display:none}
+  .nav-cta{padding:9px 14px;font-size:7.5px;letter-spacing:0.14em}
+  .hero-status,.hero-coords,.hero-access{display:none}
+  footer{grid-template-columns:1fr;text-align:center;gap:12px}
+  .footer-copy,.footer-status{justify-content:center;text-align:center}
+  .hud-tl,.hud-tr,.hud-bl,.hud-br,.loader-sys,.loader-clock{display:none}
+}
+
+/* ── SKIP LINK ─────────────────────────────────────────── */
+.skip-link{position:fixed;top:0;left:0;z-index:99999;background:var(--t1);color:var(--void);font-family:var(--mono);font-size:10px;letter-spacing:0.15em;text-transform:uppercase;padding:12px 20px;text-decoration:none;transform:translateY(-100%);transition:transform .2s}
+.skip-link:focus{transform:translateY(0)}
+
+/* ── SR-ONLY ───────────────────────────────────────────── */
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+
+/* ── SCROLLBAR ─────────────────────────────────────────── */
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-track{background:#000}
+::-webkit-scrollbar-thumb{background:rgba(196,169,124,0.22)}
+::-webkit-scrollbar-thumb:hover{background:rgba(196,169,124,0.44)}
+
+/* ── FOCUS VISIBLE ─────────────────────────────────────── */
+:focus{outline:none}
+:focus-visible{outline:1px solid var(--gold);outline-offset:3px}
+
+/* ── TOUCH DEVICES ─────────────────────────────────────── */
+@media(hover:none){
+  html,a,button{cursor:auto}
+  .cursor{display:none!important}
+  .pillar:hover{background:transparent}
+  .pillar:hover .pillar-icon{opacity:0.45;transform:none}
+  .tier-row:hover{background:transparent}
+  .nav-link:hover{color:var(--t2)}
+  .nav-link:hover::after{transform:scaleX(0)}
+}
+
+/* ── ACTIVE PRESS STATES ───────────────────────────────── */
+.nav-cta:active,.tier-cta:active,.waitlist-submit:active{transform:scale(0.97);transition:transform .08s}
+
+/* ── AGENT CARD INTERACTIVITY ──────────────────────────── */
+.agent-card{cursor:none}
+.agent-card::after{content:'VIEW';position:absolute;bottom:14px;right:18px;font-family:var(--mono);font-size:7px;letter-spacing:0.2em;color:rgba(196,169,124,0.35);opacity:0;transition:opacity .3s;pointer-events:none}
+.agent-card:hover::after{opacity:1}
+
+/* ── JARVIS ACTIVATE BUTTON ────────────────────────────── */
+.jarvis-activate-cta{display:inline-flex;align-items:center;gap:10px;margin-top:28px;background:none;border:1px solid rgba(196,169,124,0.28);color:rgba(196,169,124,0.8);font-family:var(--mono);font-size:8.5px;letter-spacing:0.25em;text-transform:uppercase;padding:12px 22px;cursor:none;transition:border-color .25s,color .25s,background .25s}
+.jarvis-activate-cta:hover{border-color:var(--gold);color:var(--gold);background:rgba(196,169,124,0.06)}
+.jarvis-activate-cta-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:jarvis-dot-pulse 2s ease-in-out infinite;flex-shrink:0}
+.vhud-frame{cursor:none}
+
+/* ── JARVIS FULL-SCREEN OVERLAY ────────────────────────── */
+#jarvis-overlay{position:fixed;inset:0;z-index:9000;background:#000;display:flex;flex-direction:column;opacity:0;pointer-events:none;transition:opacity .55s ease;overflow:hidden}
+#jarvis-overlay.active{opacity:1;pointer-events:all}
+.jarvis-bg{position:absolute;inset:0;background:radial-gradient(ellipse 65% 55% at 38% 52%,rgba(196,169,124,0.05) 0%,transparent 68%);pointer-events:none}
+.jarvis-grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(196,169,124,0.022) 1px,transparent 1px),linear-gradient(90deg,rgba(196,169,124,0.022) 1px,transparent 1px);background-size:56px 56px;pointer-events:none}
+.jarvis-header{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid rgba(196,169,124,0.1);flex-shrink:0}
+.jarvis-header-logo{font-family:var(--mono);font-size:10px;letter-spacing:0.38em;color:var(--gold)}
+.jarvis-header-status{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:8.5px;letter-spacing:0.22em;color:rgba(196,169,124,0.65);text-transform:uppercase}
+.jarvis-status-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:jarvis-dot-pulse 1.8s ease-in-out infinite;flex-shrink:0}
+@keyframes jarvis-dot-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.35;transform:scale(0.65)}}
+.jarvis-close{background:none;border:1px solid rgba(196,169,124,0.18);color:rgba(196,169,124,0.55);width:30px;height:30px;display:flex;align-items:center;justify-content:center;cursor:none;transition:border-color .2s,color .2s;flex-shrink:0}
+.jarvis-close:hover{border-color:var(--gold);color:var(--gold)}
+.jarvis-close svg{width:14px;height:14px}
+.jarvis-main{flex:1;display:grid;grid-template-columns:1fr 360px;min-height:0}
+.jarvis-ring-wrap{display:flex;align-items:center;justify-content:center;position:relative;padding:20px}
+.jarvis-ring-svg{width:min(360px,72vmin);height:min(360px,72vmin)}
+@keyframes jarvis-ring-pulse{0%,100%{opacity:.5}50%{opacity:.85}}
+@keyframes jarvis-core-pulse{0%,100%{opacity:.9}50%{opacity:1}}
+.jarvis-ring-pulse{animation:jarvis-ring-pulse 3s ease-in-out infinite}
+.jarvis-core-dot{animation:jarvis-core-pulse 1.8s ease-in-out infinite}
+.jarvis-wave{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:min(260px,55vmin);height:54px;z-index:2}
+.jarvis-panel{border-left:1px solid rgba(196,169,124,0.08);display:flex;flex-direction:column;padding:20px;gap:10px;overflow:hidden;min-height:0}
+.jarvis-panel-label{font-family:var(--mono);font-size:7.5px;letter-spacing:0.28em;color:rgba(196,169,124,0.3);text-transform:uppercase;flex-shrink:0}
+.jarvis-transcript{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:8px;scrollbar-width:thin;scrollbar-color:rgba(196,169,124,0.12) transparent;min-height:0}
+.jarvis-transcript::-webkit-scrollbar{width:2px}
+.jarvis-transcript::-webkit-scrollbar-thumb{background:rgba(196,169,124,0.15)}
+.jarvis-log-line{display:flex;gap:9px;align-items:flex-start;font-family:var(--mono);font-size:9px;letter-spacing:0.06em;line-height:1.65;text-transform:uppercase;animation:jlog-in .3s ease}
+@keyframes jlog-in{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+.jarvis-log-time{color:rgba(196,169,124,0.25);flex-shrink:0;font-size:7.5px;padding-top:1px}
+.jarvis-log-prefix{color:var(--gold);flex-shrink:0;font-size:11px;line-height:1.3}
+.jarvis-log-user .jarvis-log-text{color:rgba(240,237,232,0.65)}
+.jarvis-log-system .jarvis-log-text{color:rgba(196,169,124,0.8)}
+.jarvis-input-row{display:flex;gap:6px;flex-shrink:0}
+.jarvis-text-input{flex:1;background:rgba(196,169,124,0.04);border:1px solid rgba(196,169,124,0.16);color:var(--t1);font-family:var(--mono);font-size:8.5px;letter-spacing:0.1em;text-transform:uppercase;padding:10px 12px;outline:none;transition:border-color .2s;cursor:text}
+.jarvis-text-input::placeholder{color:rgba(196,169,124,0.22)}
+.jarvis-text-input:focus{border-color:rgba(196,169,124,0.45)}
+.jarvis-send-btn{background:rgba(196,169,124,0.07);border:1px solid rgba(196,169,124,0.16);color:rgba(196,169,124,0.6);width:36px;height:36px;display:flex;align-items:center;justify-content:center;cursor:none;flex-shrink:0;transition:background .2s,color .2s}
+.jarvis-send-btn:hover{background:rgba(196,169,124,0.14);color:var(--gold)}
+.jarvis-send-btn svg{width:13px;height:13px}
+.jarvis-agents-bar{border-top:1px solid rgba(196,169,124,0.07);display:flex;align-items:center;justify-content:center;gap:22px;padding:11px 28px;flex-shrink:0;flex-wrap:wrap}
+.jarvis-agent-chip{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:7.5px;letter-spacing:0.22em;color:rgba(196,169,124,0.38);text-transform:uppercase;cursor:none;transition:color .2s;user-select:none}
+.jarvis-agent-chip:hover{color:var(--gold)}
+.jac-dot{width:4px;height:4px;border-radius:50%;background:var(--gold);opacity:.45;flex-shrink:0;animation:jarvis-dot-pulse 2s ease-in-out infinite}
+.jarvis-agent-chip.active-chip{color:rgba(196,169,124,.75)}
+.jarvis-agent-chip.active-chip .jac-dot{opacity:1}
+.jarvis-esc-hint{position:absolute;bottom:52px;right:28px;font-family:var(--mono);font-size:7px;letter-spacing:0.18em;color:rgba(196,169,124,0.16);text-transform:uppercase;pointer-events:none}
+@media(max-width:768px){
+  .jarvis-main{grid-template-columns:1fr}
+  .jarvis-panel{display:none}
+  .jarvis-agents-bar{gap:12px;padding:10px 16px}
+}
+
+/* ── AGENT MODAL ───────────────────────────────────────── */
+#agent-modal{position:fixed;inset:0;z-index:8500;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .35s ease}
+#agent-modal.active{opacity:1;pointer-events:all}
+.agent-modal-backdrop{position:absolute;inset:0;background:rgba(0,0,0,0.75);backdrop-filter:blur(6px)}
+.agent-modal-panel{position:relative;width:min(540px,92vw);max-height:80vh;background:#050505;border:1px solid rgba(196,169,124,0.18);display:flex;flex-direction:column;overflow:hidden;animation:modal-up .35s ease both}
+@keyframes modal-up{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.agent-modal-header{padding:20px 22px 16px;border-bottom:1px solid rgba(196,169,124,0.08);display:flex;align-items:flex-start;gap:16px;flex-shrink:0}
+.agent-modal-id{font-family:var(--mono);font-size:10px;letter-spacing:0.32em;color:var(--gold);text-transform:uppercase}
+.agent-modal-role{font-size:12px;font-weight:300;color:rgba(240,237,232,0.55);letter-spacing:0.04em;flex:1}
+.agent-modal-status{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:7.5px;letter-spacing:0.2em;color:rgba(196,169,124,0.5);text-transform:uppercase;flex-shrink:0}
+.agent-modal-dot{width:4px;height:4px;border-radius:50%;background:var(--gold);opacity:.7;flex-shrink:0;animation:jarvis-dot-pulse 2s ease-in-out infinite}
+.agent-modal-close{background:none;border:none;color:rgba(196,169,124,0.4);width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:none;flex-shrink:0;transition:color .2s;margin-left:auto}
+.agent-modal-close:hover{color:var(--gold)}
+.agent-modal-close svg{width:13px;height:13px}
+.agent-modal-last-action{padding:12px 22px;border-bottom:1px solid rgba(196,169,124,0.06);font-family:var(--mono);font-size:8px;letter-spacing:0.1em;color:rgba(196,169,124,0.3);text-transform:uppercase;display:flex;gap:12px;align-items:baseline;flex-shrink:0}
+.agent-modal-la-label{color:rgba(196,169,124,0.18);font-size:7px;letter-spacing:0.22em;flex-shrink:0}
+.agent-modal-response{flex:1;overflow-y:auto;padding:16px 22px;min-height:120px;max-height:280px;display:flex;flex-direction:column;gap:10px;scrollbar-width:thin;scrollbar-color:rgba(196,169,124,0.12) transparent}
+.agent-modal-response::-webkit-scrollbar{width:2px}
+.agent-modal-response::-webkit-scrollbar-thumb{background:rgba(196,169,124,0.15)}
+.modal-log-line{font-family:var(--mono);font-size:9px;letter-spacing:0.07em;line-height:1.7;text-transform:uppercase;display:flex;gap:9px;align-items:flex-start;animation:jlog-in .3s ease}
+.modal-log-user .modal-log-text{color:rgba(240,237,232,0.55)}
+.modal-log-system .modal-log-text{color:rgba(196,169,124,0.8)}
+.modal-log-prefix{color:var(--gold);flex-shrink:0;font-size:10px;line-height:1.4}
+.agent-modal-input-row{padding:14px 22px;border-top:1px solid rgba(196,169,124,0.08);display:flex;gap:8px;flex-shrink:0}
+.agent-modal-input{flex:1;background:rgba(196,169,124,0.04);border:1px solid rgba(196,169,124,0.16);color:var(--t1);font-family:var(--mono);font-size:8.5px;letter-spacing:0.1em;text-transform:uppercase;padding:10px 12px;outline:none;transition:border-color .2s;cursor:text}
+.agent-modal-input::placeholder{color:rgba(196,169,124,0.2)}
+.agent-modal-input:focus{border-color:rgba(196,169,124,0.42)}
+.agent-modal-send{background:rgba(196,169,124,0.08);border:1px solid rgba(196,169,124,0.22);color:rgba(196,169,124,0.7);font-family:var(--mono);font-size:7.5px;letter-spacing:0.18em;text-transform:uppercase;padding:0 16px;cursor:none;transition:background .2s,color .2s,border-color .2s;white-space:nowrap}
+.agent-modal-send:hover{background:rgba(196,169,124,0.16);color:var(--gold);border-color:rgba(196,169,124,0.4)}
+.agent-modal-thinking{display:flex;gap:5px;align-items:center;padding:4px 0}
+.agent-modal-thinking span{width:4px;height:4px;border-radius:50%;background:var(--gold);opacity:.4;animation:think-bounce .9s ease-in-out infinite}
+.agent-modal-thinking span:nth-child(2){animation-delay:.15s}
+.agent-modal-thinking span:nth-child(3){animation-delay:.3s}
+@keyframes think-bounce{0%,100%{transform:translateY(0);opacity:.4}50%{transform:translateY(-4px);opacity:.9}}
+
+/* ── REDUCED MOTION ────────────────────────────────────── */
+@media(prefers-reduced-motion:reduce){
+  .hero-scan,.hero-status-dot,.footer-dot{animation:none!important}
+  .hero-glow{animation:none!important;opacity:0.55}
+  .hero-scroll-line{animation:none!important;opacity:0.4}
+  .hero-char{opacity:1!important;transform:translateY(0)!important}
+  .hero-eyebrow,.hero-subtitle,.hero-status,.hero-access,.hero-coords,.hero-scroll{opacity:1!important;transform:none!important}
+  .hero-hud-tl,.hero-hud-tr,.hero-hud-bl,.hero-hud-br{opacity:0.12!important}
+  .hero-rule{transform:scaleX(1)!important}
+  .manifesto-headline,.system-headline,.access-headline{clip-path:inset(0 0 0% 0)!important}
+  .sec-label,.manifesto-body,.orrery-wrap,.pillar,.pillar-title,.pillar-desc,.pillar-num,.pillar-icon,.access-sub,.tier-row,.intel-stat{opacity:1!important;transform:none!important;clip-path:none!important}
+  .agents-headline,.voice-headline{clip-path:inset(0 0 0% 0)!important}
+  .agent-card,.voice-body,.voice-features,.vhud-frame{opacity:1!important;transform:none!important}
+  .waitlist-rule,.waitlist-eyebrow,.waitlist-headline,.waitlist-sub,.waitlist-form{opacity:1!important;transform:none!important}
+}
+
+/* ── 480PX SMALL PHONES ────────────────────────────────── */
+@media(max-width:480px){
+  .hero-title{font-size:clamp(68px,23vw,124px)}
+  .hero-content{padding:100px 20px 70px}
+  .manifesto{padding:clamp(60px,10vw,100px) 20px}
+  .manifesto-headline{font-size:clamp(26px,7vw,40px)}
+  .system-inner{padding:clamp(60px,10vw,100px) 20px}
+  .system-headline{font-size:clamp(28px,8vw,42px)}
+  .access{padding:clamp(60px,10vw,100px) 20px}
+  .access-headline{font-size:clamp(28px,8vw,42px)}
+  .intel-stat{padding:32px 20px}
+  .intel-value{font-size:clamp(22px,6vw,34px)}
+  .waitlist{padding:clamp(60px,10vw,100px) 20px}
+  .waitlist-headline{font-size:clamp(38px,13vw,64px)}
+  .tier-name{font-size:clamp(16px,5vw,24px)}
+  .tier-header{gap:14px;padding:18px 0}
+  footer{padding:28px 20px}
+}
+
+/* ── AGENT NETWORK ─────────────────────────────────────── */
+.agents-section{padding:clamp(80px,12vw,140px) clamp(24px,6vw,80px)}
+.agents-inner{max-width:1100px;margin:0 auto}
+.agents-headline{font-size:clamp(32px,5vw,58px);font-weight:300;letter-spacing:-0.02em;line-height:1.1;color:var(--t1);margin:28px 0 16px;clip-path:inset(0 0 100% 0)}
+.agents-sub{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;color:var(--t3);text-transform:uppercase;margin-bottom:52px;max-width:520px}
+.agents-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:rgba(196,169,124,0.1);border:1px solid rgba(196,169,124,0.1)}
+.agent-card{background:var(--bg);padding:36px 28px;position:relative;transition:background .3s}
+.agent-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:1px;background:linear-gradient(90deg,transparent,rgba(196,169,124,0.3),transparent);opacity:0;transition:opacity .4s}
+.agent-card:hover{background:rgba(196,169,124,0.03)}
+.agent-card:hover::before{opacity:1}
+.agent-id{font-family:var(--mono);font-size:9px;letter-spacing:0.3em;color:var(--gold);text-transform:uppercase;margin-bottom:10px}
+.agent-role{font-size:clamp(13px,1.2vw,15px);font-weight:400;color:var(--t1);letter-spacing:0.02em;margin-bottom:14px;line-height:1.3}
+.agent-desc{font-family:var(--mono);font-size:10px;letter-spacing:0.06em;color:var(--t4);line-height:1.7;text-transform:uppercase}
+@media(max-width:768px){
+  .agents-grid{grid-template-columns:repeat(2,1fr)}
+  .agents-section{padding:clamp(60px,10vw,100px) 24px}
+}
+@media(max-width:480px){
+  .agents-grid{grid-template-columns:1fr}
+  .agents-headline{font-size:clamp(28px,8vw,42px)}
+}
+
+/* ── VOICE OS ──────────────────────────────────────────── */
+.voice-section{padding:clamp(80px,12vw,140px) clamp(24px,6vw,80px);border-top:1px solid rgba(196,169,124,0.08)}
+.voice-inner{max-width:1100px;margin:0 auto}
+.voice-split{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;margin-top:40px}
+.voice-headline{font-size:clamp(32px,4vw,54px);font-weight:300;letter-spacing:-0.02em;line-height:1.1;color:var(--t1);margin:0 0 22px;clip-path:inset(0 0 100% 0)}
+.voice-body{font-family:var(--mono);font-size:10.5px;letter-spacing:0.07em;color:var(--t3);line-height:1.9;text-transform:uppercase;margin-bottom:32px;max-width:440px}
+.voice-features{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:14px}
+.voice-features li{font-family:var(--mono);font-size:9.5px;letter-spacing:0.08em;color:var(--t4);text-transform:uppercase;display:flex;gap:14px;align-items:flex-start;line-height:1.6;padding-bottom:14px;border-bottom:1px solid rgba(196,169,124,0.07)}
+.voice-features li:last-child{border-bottom:none}
+.vf-label{color:var(--gold);min-width:110px;flex-shrink:0}
+.vhud-frame{position:relative;border:1px solid rgba(196,169,124,0.18);padding:32px;display:flex;flex-direction:column;align-items:center;gap:16px;background:rgba(196,169,124,0.02)}
+.vhud-corner{position:absolute;width:10px;height:10px;border-color:rgba(196,169,124,0.5)}
+.vhud-corner.vhud-tl{top:8px;left:8px;border-top:1px solid;border-left:1px solid}
+.vhud-corner.vhud-tr{top:8px;right:8px;border-top:1px solid;border-right:1px solid}
+.vhud-corner.vhud-bl{bottom:8px;left:8px;border-bottom:1px solid;border-left:1px solid}
+.vhud-corner.vhud-br{bottom:8px;right:8px;border-bottom:1px solid;border-right:1px solid}
+.vhud-label{font-family:var(--mono);font-size:8px;letter-spacing:0.22em;color:var(--gold);text-transform:uppercase;opacity:0.7}
+.vhud-ring{width:180px;height:180px}
+.vhud-status{font-family:var(--mono);font-size:8px;letter-spacing:0.28em;color:rgba(196,169,124,0.6);text-transform:uppercase}
+@media(max-width:768px){
+  .voice-split{grid-template-columns:1fr;gap:48px}
+  .voice-hud-preview{display:none}
+}
+</style>
+</head>
+<body>
+<a href="#about" class="skip-link">Skip to content</a>
+
+<!-- GRAIN -->
+<div id="grain" aria-hidden="true"></div>
+
+<!-- CURSOR -->
+<div class="cursor" id="cursor" aria-hidden="true">
+  <div class="cursor-dot"></div>
+  <div class="cursor-ring"></div>
+</div>
+
+<!-- LOADER -->
+<div class="loader" id="loader">
+  <div class="hud-tl"></div><div class="hud-tr"></div>
+  <div class="hud-bl"></div><div class="hud-br"></div>
+  <div class="loader-sys">SYS.BOOT / NYX.01</div>
+  <div class="loader-clock" id="loader-clock">—</div>
+  <div class="loader-logo" id="loader-logo">NYX</div>
+  <div class="loader-sub" id="loader-sub">Autonomous AI Operating System</div>
+  <div class="loader-progress">
+    <div class="loader-bar-track">
+      <div class="loader-bar-fill" id="loader-bar"></div>
+    </div>
+    <div class="loader-pct" id="loader-pct">0%</div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="nav" aria-label="Main navigation">
+  <a href="#" class="nav-logo">NYX</a>
+  <div class="nav-links">
+    <a href="#system" class="nav-link">001 — System</a>
+    <a href="#agents" class="nav-link">002 — Agents</a>
+    <a href="#access" class="nav-link">003 — Access</a>
+    <a href="#waitlist" class="nav-cta" data-magnetic>Request Access</a>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <canvas id="hero-canvas" aria-hidden="true"></canvas>
+  <div class="hero-glow"></div>
+  <div class="hero-scan"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-hud">
+    <div class="hero-hud-tl"></div><div class="hero-hud-tr"></div>
+    <div class="hero-hud-bl"></div><div class="hero-hud-br"></div>
+  </div>
+  <div class="hero-status">
+    <div class="hero-status-dot"></div>
+    <span class="hero-status-label">Intelligence Active</span>
+  </div>
+  <div class="hero-access">
+    <p>ACCESS.STATUS / CLOSED</p>
+    <p id="hero-time">—</p>
+  </div>
+  <div class="hero-content">
+    <p class="hero-eyebrow">Autonomous AI Operating System</p>
+    <h1 class="hero-title">
+      <span class="hero-char">N</span>
+      <span class="hero-char">Y</span>
+      <span class="hero-char">X</span>
+    </h1>
+    <div class="hero-rule"></div>
+    <p class="hero-subtitle">What operates in the dark<br>controls what happens in the light.</p>
+  </div>
+  <div class="hero-coords">
+    <p>40.7128° N / 74.0060° W</p>
+    <p id="hero-date">—</p>
+  </div>
+  <div class="hero-scroll">
+    <div class="hero-scroll-line"></div>
+    <span class="hero-scroll-text">Scroll</span>
+  </div>
+</section>
+
+<!-- MANIFESTO -->
+<section id="about" aria-label="The System">
+  <div class="manifesto">
+    <div class="sec-label">
+      <span class="sec-label-line"></span>001 — The System
+    </div>
+    <h2 class="manifesto-headline">
+      Not a tool.<br>
+      <em>Not a service.</em><br>
+      An operating system<br>
+      for performance.
+    </h2>
+    <div class="manifesto-split">
+      <div class="manifesto-body">
+        <p>NYX is a six-agent autonomous operating system. APEX, ORACLE, SIGNAL, CONVERT, FORGE, and LEDGER — each a specialist, each always running. They coordinate, delegate, and execute across every domain of your operation.</p>
+        <p>A persistent memory layer knows your goals, your decisions, your history. A voice-native interface — Jarvis Mode — lets you command the system in plain language. An autonomous workflow engine acts without instruction when you authorize it to.</p>
+        <p>Access is not purchased. It is earned through the willingness to operate at a different level entirely.</p>
+      </div>
+      <div class="orrery-wrap">
+        <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%" aria-hidden="true">
+          <!-- Outermost slow-spin dotted ring -->
+          <circle cx="200" cy="200" r="178" stroke="#C4A97C" stroke-width="0.25" stroke-dasharray="1.5 10" opacity="0.13">
+            <animateTransform attributeName="transform" type="rotate" from="0 200 200" to="360 200 200" dur="120s" repeatCount="indefinite"/>
+          </circle>
+          <!-- Counter-spin tick ring -->
+          <circle cx="200" cy="200" r="163" stroke="#C4A97C" stroke-width="0.35" stroke-dasharray="1 22" opacity="0.18">
+            <animateTransform attributeName="transform" type="rotate" from="360 200 200" to="0 200 200" dur="70s" repeatCount="indefinite"/>
+          </circle>
+          <!-- Cardinal tick marks -->
+          <line x1="200" y1="37" x2="200" y2="26" stroke="#C4A97C" stroke-width="0.7" opacity="0.3"/>
+          <line x1="363" y1="200" x2="374" y2="200" stroke="#C4A97C" stroke-width="0.7" opacity="0.3"/>
+          <line x1="200" y1="363" x2="200" y2="374" stroke="#C4A97C" stroke-width="0.7" opacity="0.3"/>
+          <line x1="37" y1="200" x2="26" y2="200" stroke="#C4A97C" stroke-width="0.7" opacity="0.3"/>
+          <!-- Radial spokes -->
+          <line x1="200" y1="200" x2="200" y2="46" stroke="#C4A97C" stroke-width="0.25" opacity="0.09"/>
+          <line x1="200" y1="200" x2="354" y2="200" stroke="#C4A97C" stroke-width="0.25" opacity="0.09"/>
+          <line x1="200" y1="200" x2="200" y2="354" stroke="#C4A97C" stroke-width="0.25" opacity="0.06"/>
+          <line x1="200" y1="200" x2="46" y2="200" stroke="#C4A97C" stroke-width="0.25" opacity="0.06"/>
+          <!-- Diagonal spokes -->
+          <line x1="200" y1="200" x2="78" y2="78" stroke="#C4A97C" stroke-width="0.2" opacity="0.05"/>
+          <line x1="200" y1="200" x2="322" y2="78" stroke="#C4A97C" stroke-width="0.2" opacity="0.05"/>
+          <!-- Outer elliptical orbit -->
+          <ellipse cx="200" cy="200" rx="152" ry="53" stroke="#C4A97C" stroke-width="0.4" opacity="0.17" transform="rotate(-7 200 200)"/>
+          <!-- Mid elliptical orbit A -->
+          <ellipse cx="200" cy="200" rx="104" ry="36" stroke="#C4A97C" stroke-width="0.4" opacity="0.24" transform="rotate(13 200 200)"/>
+          <!-- Mid elliptical orbit B (dashed counter) -->
+          <ellipse cx="200" cy="200" rx="86" ry="29" stroke="#C4A97C" stroke-width="0.3" stroke-dasharray="3 8" opacity="0.14" transform="rotate(-18 200 200)"/>
+          <!-- Inner orbit -->
+          <ellipse cx="200" cy="200" rx="54" ry="18" stroke="#C4A97C" stroke-width="0.5" opacity="0.32"/>
+          <!-- Core crosshair -->
+          <line x1="188" y1="200" x2="196" y2="200" stroke="#C4A97C" stroke-width="0.7" opacity="0.45"/>
+          <line x1="204" y1="200" x2="212" y2="200" stroke="#C4A97C" stroke-width="0.7" opacity="0.45"/>
+          <line x1="200" y1="188" x2="200" y2="196" stroke="#C4A97C" stroke-width="0.7" opacity="0.45"/>
+          <line x1="200" y1="204" x2="200" y2="212" stroke="#C4A97C" stroke-width="0.7" opacity="0.45"/>
+          <!-- Core pulsing rings -->
+          <circle cx="200" cy="200" r="9" stroke="#C4A97C" stroke-width="0.6" opacity="0.3">
+            <animate attributeName="r" values="9;13;9" dur="4s" repeatCount="indefinite"/>
+            <animate attributeName="opacity" values="0.3;0.1;0.3" dur="4s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="200" cy="200" r="4.5" stroke="#C4A97C" stroke-width="0.8" opacity="0.5">
+            <animate attributeName="r" values="4.5;6;4.5" dur="2.8s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="200" cy="200" r="1.8" fill="#C4A97C" opacity="0.9">
+            <animate attributeName="opacity" values="0.9;1;0.9" dur="1.8s" repeatCount="indefinite"/>
+          </circle>
+          <!-- Outer orbit node 1 -->
+          <circle r="3.5" fill="#C4A97C" opacity="0">
+            <animate attributeName="opacity" values="0;0;0.9;0.9;0" dur="13s" repeatCount="indefinite" keyTimes="0;0.08;0.15;0.85;1"/>
+            <animateMotion dur="13s" repeatCount="indefinite" path="M 200,200 m -152,0 a 152,53 0 1,1 304,0 a 152,53 0 1,1 -304,0"/>
+          </circle>
+          <!-- Outer orbit node 2 (offset) -->
+          <circle r="2.5" fill="#C4A97C" opacity="0">
+            <animate attributeName="opacity" values="0;0;0.7;0.7;0" dur="13s" begin="6.5s" repeatCount="indefinite" keyTimes="0;0.08;0.15;0.85;1"/>
+            <animateMotion dur="13s" begin="6.5s" repeatCount="indefinite" path="M 200,200 m -152,0 a 152,53 0 1,1 304,0 a 152,53 0 1,1 -304,0"/>
+          </circle>
+          <!-- Mid orbit node -->
+          <circle r="3" fill="#C4A97C" opacity="0">
+            <animate attributeName="opacity" values="0;0.9;0.9;0" dur="8.5s" repeatCount="indefinite" keyTimes="0;0.05;0.92;1"/>
+            <animateMotion dur="8.5s" repeatCount="indefinite" path="M 200,200 m -104,0 a 104,36 0 1,1 208,0 a 104,36 0 1,1 -208,0"/>
+          </circle>
+          <!-- Mid orbit node B (counter-clockwise) -->
+          <circle r="2" fill="#C4A97C" opacity="0">
+            <animate attributeName="opacity" values="0;0.7;0.7;0" dur="6.5s" begin="3s" repeatCount="indefinite" keyTimes="0;0.05;0.92;1"/>
+            <animateMotion dur="6.5s" begin="3s" repeatCount="indefinite" path="M 200,200 m 86,0 a 86,29 0 1,0 -172,0 a 86,29 0 1,0 172,0"/>
+          </circle>
+          <!-- Inner orbit node (fast) -->
+          <circle r="2.2" fill="#C4A97C">
+            <animate attributeName="opacity" values="0.45;0.95;0.45" dur="4.2s" repeatCount="indefinite"/>
+            <animateMotion dur="4.2s" repeatCount="indefinite" path="M 200,200 m -54,0 a 54,18 0 1,1 108,0 a 54,18 0 1,1 -108,0"/>
+          </circle>
+          <!-- Data pulses along spokes -->
+          <circle r="1.5" fill="#C4A97C" opacity="0">
+            <animate attributeName="opacity" values="0;0.85;0" dur="3.8s" repeatCount="indefinite"/>
+            <animateMotion dur="3.8s" repeatCount="indefinite" path="M 200,200 L 200,46"/>
+          </circle>
+          <circle r="1.5" fill="#C4A97C" opacity="0">
+            <animate attributeName="opacity" values="0;0.75;0" dur="4.5s" begin="1.8s" repeatCount="indefinite"/>
+            <animateMotion dur="4.5s" begin="1.8s" repeatCount="indefinite" path="M 200,200 L 354,200"/>
+          </circle>
+          <!-- Data points at spoke ends -->
+          <circle cx="200" cy="46" r="2.5" stroke="#C4A97C" stroke-width="0.6" opacity="0.45">
+            <animate attributeName="opacity" values="0.45;0.9;0.45" dur="4.2s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="354" cy="200" r="2" stroke="#C4A97C" stroke-width="0.5" opacity="0.35">
+            <animate attributeName="opacity" values="0.35;0.8;0.35" dur="5.8s" begin="0.9s" repeatCount="indefinite"/>
+          </circle>
+          <circle cx="200" cy="354" r="1.8" stroke="#C4A97C" stroke-width="0.5" opacity="0.28">
+            <animate attributeName="opacity" values="0.28;0.65;0.28" dur="7s" begin="2.2s" repeatCount="indefinite"/>
+          </circle>
+          <!-- HUD brackets at SVG corners -->
+          <path d="M 16,16 L 16,40 M 16,16 L 40,16" stroke="#C4A97C" stroke-width="0.6" opacity="0.18"/>
+          <path d="M 384,16 L 384,40 M 384,16 L 360,16" stroke="#C4A97C" stroke-width="0.6" opacity="0.18"/>
+          <path d="M 16,384 L 16,360 M 16,384 L 40,384" stroke="#C4A97C" stroke-width="0.6" opacity="0.18"/>
+          <path d="M 384,384 L 384,360 M 384,384 L 360,384" stroke="#C4A97C" stroke-width="0.6" opacity="0.18"/>
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SYSTEM PILLARS -->
+<section class="system" id="system" aria-label="Architecture">
+  <div class="system-inner">
+    <div class="sec-label"><span class="sec-label-line"></span>002 — Architecture</div>
+    <h2 class="system-headline">Four principles.<br>One operating system.</h2>
+    <div class="pillars">
+      <div class="pillar" data-num="01">
+        <div class="pillar-num">01</div>
+        <div class="pillar-icon">
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Targeting reticle: outer arc segments -->
+            <path d="M 4,16 A 12,12 0 0 1 10,5.4" stroke="#C4A97C" stroke-width="0.7" opacity="0.5"/>
+            <path d="M 22,5.4 A 12,12 0 0 1 28,16" stroke="#C4A97C" stroke-width="0.7" opacity="0.5"/>
+            <path d="M 28,16 A 12,12 0 0 1 22,26.6" stroke="#C4A97C" stroke-width="0.7" opacity="0.3"/>
+            <path d="M 10,26.6 A 12,12 0 0 1 4,16" stroke="#C4A97C" stroke-width="0.7" opacity="0.3"/>
+            <!-- Inner arc segments -->
+            <path d="M 10,16 A 6,6 0 0 1 13.1,8.8" stroke="#C4A97C" stroke-width="0.6" opacity="0.65"/>
+            <path d="M 18.9,8.8 A 6,6 0 0 1 22,16" stroke="#C4A97C" stroke-width="0.6" opacity="0.65"/>
+            <!-- Crosshair -->
+            <line x1="16" y1="1" x2="16" y2="7" stroke="#C4A97C" stroke-width="0.6" opacity="0.4"/>
+            <line x1="16" y1="25" x2="16" y2="31" stroke="#C4A97C" stroke-width="0.6" opacity="0.4"/>
+            <line x1="1" y1="16" x2="7" y2="16" stroke="#C4A97C" stroke-width="0.6" opacity="0.4"/>
+            <line x1="25" y1="16" x2="31" y2="16" stroke="#C4A97C" stroke-width="0.6" opacity="0.4"/>
+            <!-- Center diamond -->
+            <path d="M 16,13 L 19,16 L 16,19 L 13,16 Z" stroke="#C4A97C" stroke-width="0.7" opacity="0.85"/>
+            <circle cx="16" cy="16" r="1" fill="#C4A97C" opacity="0.9"/>
+          </svg>
+        </div>
+        <div class="pillar-title">Observe</div>
+        <div class="pillar-desc">Data enters the system continuously. Every signal captured, nothing lost, nothing ignored.</div>
+        <div class="pillar-bar"><div class="pillar-bar-fill"></div></div>
+      </div>
+      <div class="pillar" data-num="02">
+        <div class="pillar-num">02</div>
+        <div class="pillar-icon">
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Signal topology: central hub + satellite nodes -->
+            <circle cx="16" cy="16" r="2.5" stroke="#C4A97C" stroke-width="0.7" opacity="0.85"/>
+            <circle cx="5" cy="8" r="1.5" stroke="#C4A97C" stroke-width="0.6" opacity="0.5"/>
+            <circle cx="26" cy="7" r="1.5" stroke="#C4A97C" stroke-width="0.6" opacity="0.7"/>
+            <circle cx="28" cy="22" r="1.5" stroke="#C4A97C" stroke-width="0.6" opacity="0.5"/>
+            <circle cx="6" cy="25" r="1.5" stroke="#C4A97C" stroke-width="0.6" opacity="0.55"/>
+            <circle cx="20" cy="28" r="1.2" stroke="#C4A97C" stroke-width="0.5" opacity="0.4"/>
+            <!-- Connections to hub -->
+            <line x1="16" y1="16" x2="5" y2="8" stroke="#C4A97C" stroke-width="0.4" opacity="0.28"/>
+            <line x1="16" y1="16" x2="26" y2="7" stroke="#C4A97C" stroke-width="0.4" opacity="0.32"/>
+            <line x1="16" y1="16" x2="28" y2="22" stroke="#C4A97C" stroke-width="0.4" opacity="0.28"/>
+            <line x1="16" y1="16" x2="6" y2="25" stroke="#C4A97C" stroke-width="0.4" opacity="0.28"/>
+            <line x1="16" y1="16" x2="20" y2="28" stroke="#C4A97C" stroke-width="0.4" opacity="0.22"/>
+            <!-- Secondary link (mesh) -->
+            <line x1="26" y1="7" x2="28" y2="22" stroke="#C4A97C" stroke-width="0.3" stroke-dasharray="1 3" opacity="0.2"/>
+            <line x1="5" y1="8" x2="6" y2="25" stroke="#C4A97C" stroke-width="0.3" stroke-dasharray="1 3" opacity="0.15"/>
+          </svg>
+        </div>
+        <div class="pillar-title">Analyze</div>
+        <div class="pillar-desc">AI processes performance patterns across every domain simultaneously, in real time.</div>
+        <div class="pillar-bar"><div class="pillar-bar-fill"></div></div>
+      </div>
+      <div class="pillar" data-num="03">
+        <div class="pillar-num">03</div>
+        <div class="pillar-icon">
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Trajectory: suboptimal dashed vs optimal curve -->
+            <path d="M 3,28 L 9,18 L 16,22 L 23,10 L 29,5" stroke="#C4A97C" stroke-width="0.35" stroke-dasharray="1.5 2.5" opacity="0.2"/>
+            <!-- Optimal Bezier path -->
+            <path d="M 3,28 Q 14,10 29,5" stroke="#C4A97C" stroke-width="0.8" opacity="0.8"/>
+            <!-- Waypoints -->
+            <circle cx="3" cy="28" r="1.8" fill="#C4A97C" opacity="0.45"/>
+            <circle cx="16" cy="16.5" r="2" stroke="#C4A97C" stroke-width="0.7" opacity="0.78"/>
+            <circle cx="29" cy="5" r="2.2" fill="#C4A97C" opacity="0.9"/>
+            <!-- Arrowhead at destination -->
+            <line x1="26.2" y1="5.8" x2="29" y2="5" stroke="#C4A97C" stroke-width="0.7" opacity="0.7"/>
+            <line x1="29" y1="5" x2="28.6" y2="7.8" stroke="#C4A97C" stroke-width="0.7" opacity="0.7"/>
+            <!-- Coordinate axes -->
+            <line x1="1" y1="30" x2="31" y2="30" stroke="#C4A97C" stroke-width="0.3" opacity="0.14"/>
+            <line x1="1" y1="30" x2="1" y2="1" stroke="#C4A97C" stroke-width="0.3" opacity="0.14"/>
+          </svg>
+        </div>
+        <div class="pillar-title">Optimize</div>
+        <div class="pillar-desc">Precision recommendations. Automated actions. Compounding results across every vector.</div>
+        <div class="pillar-bar"><div class="pillar-bar-fill"></div></div>
+      </div>
+      <div class="pillar" data-num="04">
+        <div class="pillar-num">04</div>
+        <div class="pillar-icon">
+          <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Growth spiral (logarithmic approximation) -->
+            <path d="M 16,16 Q 16,11 21,11 Q 26,11 26,16 Q 26,23 16,24 Q 6,24 5,14 Q 4,4 17,3" stroke="#C4A97C" stroke-width="0.7" opacity="0.7"/>
+            <!-- Outer continuation -->
+            <path d="M 17,3 Q 28,2 29,13 Q 30,27 13,29" stroke="#C4A97C" stroke-width="0.45" opacity="0.38"/>
+            <!-- Data points at loop intersections -->
+            <circle cx="16" cy="16" r="1.5" fill="#C4A97C" opacity="0.9"/>
+            <circle cx="26" cy="16" r="1.2" stroke="#C4A97C" stroke-width="0.6" opacity="0.7"/>
+            <circle cx="16" cy="24" r="1" stroke="#C4A97C" stroke-width="0.6" opacity="0.55"/>
+            <circle cx="5" cy="14" r="1" stroke="#C4A97C" stroke-width="0.6" opacity="0.4"/>
+            <circle cx="29" cy="13" r="1.4" stroke="#C4A97C" stroke-width="0.6" opacity="0.5"/>
+          </svg>
+        </div>
+        <div class="pillar-title">Compound</div>
+        <div class="pillar-desc">The longer you operate within NYX, the stronger the system becomes. Intelligence amplifies.</div>
+        <div class="pillar-bar"><div class="pillar-bar-fill"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AGENT NETWORK -->
+<section class="agents-section" id="agents" aria-label="Agent Network">
+  <div class="agents-inner">
+    <div class="sec-label"><span class="sec-label-line"></span>003 — Agent Network</div>
+    <h2 class="agents-headline">Six minds.<br>One operating system.</h2>
+    <p class="agents-sub">Each agent operates as a specialist. They coordinate, delegate, and execute — continuously, without instruction.</p>
+    <div class="agents-grid">
+      <div class="agent-card" data-agent="apex" data-role="Chief Executive Officer" role="button" tabindex="0" aria-label="Open APEX agent">
+        <div class="agent-id">APEX</div>
+        <div class="agent-role">Chief Executive Officer</div>
+        <div class="agent-desc">Strategic oversight. Routes intelligence across the entire network. The only agent with authority to delegate to all others.</div>
+      </div>
+      <div class="agent-card" data-agent="oracle" data-role="Research Intelligence" role="button" tabindex="0" aria-label="Open ORACLE agent">
+        <div class="agent-id">ORACLE</div>
+        <div class="agent-role">Research Intelligence</div>
+        <div class="agent-desc">Continuous market scanning. Processes competitive signals and synthesizes intelligence reports on demand.</div>
+      </div>
+      <div class="agent-card" data-agent="signal" data-role="Marketing Operations" role="button" tabindex="0" aria-label="Open SIGNAL agent">
+        <div class="agent-id">SIGNAL</div>
+        <div class="agent-role">Marketing Operations</div>
+        <div class="agent-desc">Audience intelligence and content strategy. Operates across channels with precision timing and message calibration.</div>
+      </div>
+      <div class="agent-card" data-agent="convert" data-role="Revenue Intelligence" role="button" tabindex="0" aria-label="Open CONVERT agent">
+        <div class="agent-id">CONVERT</div>
+        <div class="agent-role">Revenue Intelligence</div>
+        <div class="agent-desc">Pipeline analysis and conversion optimization. Identifies leverage points across the entire revenue system.</div>
+      </div>
+      <div class="agent-card" data-agent="forge" data-role="Systems Engineering" role="button" tabindex="0" aria-label="Open FORGE agent">
+        <div class="agent-id">FORGE</div>
+        <div class="agent-role">Systems Engineering</div>
+        <div class="agent-desc">Technical architecture and build execution. Monitors system health, automates infrastructure decisions.</div>
+      </div>
+      <div class="agent-card" data-agent="ledger" data-role="Financial Intelligence" role="button" tabindex="0" aria-label="Open LEDGER agent">
+        <div class="agent-id">LEDGER</div>
+        <div class="agent-role">Financial Intelligence</div>
+        <div class="agent-desc">Cash flow modeling, burn analysis, and financial forecasting. Runs continuously against live operational data.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VOICE OS -->
+<section class="voice-section" id="voice-os" aria-label="Voice Operating System">
+  <div class="voice-inner">
+    <div class="sec-label"><span class="sec-label-line"></span>004 — Voice OS</div>
+    <div class="voice-split">
+      <div class="voice-copy">
+        <h2 class="voice-headline">Speak.<br>The system executes.</h2>
+        <p class="voice-body">Jarvis Mode transforms NYX into a voice-native operating system. Full-screen HUD. Push-to-talk or continuous listening. Your agents respond, act, and report in real time.</p>
+        <ul class="voice-features">
+          <li><span class="vf-label">JARVIS HUD</span> Full-screen tactical interface with live agent status and waveform visualization</li>
+          <li><span class="vf-label">VOICE COMMANDS</span> Natural language triggers across all six agents, logged and indexed</li>
+          <li><span class="vf-label">MEMORY CONTEXT</span> Every conversation stored, recalled, and linked to decisions</li>
+          <li><span class="vf-label">DEVICE AWARE</span> Optimized for desktop, mobile, and wearable input</li>
+        </ul>
+        <button class="jarvis-activate-cta" id="jarvis-activate-main" data-magnetic aria-label="Activate Jarvis Mode">
+          <span class="jarvis-activate-cta-dot"></span>
+          Activate Jarvis Mode
+        </button>
+      </div>
+      <div class="voice-hud-preview">
+        <div class="vhud-frame" id="jarvis-activate-hud" role="button" tabindex="0" aria-label="Activate Jarvis Mode">
+          <div class="vhud-corner vhud-tl"></div>
+          <div class="vhud-corner vhud-tr"></div>
+          <div class="vhud-corner vhud-bl"></div>
+          <div class="vhud-corner vhud-br"></div>
+          <div class="vhud-label">JARVIS.MODE / ACTIVE</div>
+          <div class="vhud-ring">
+            <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="100" cy="100" r="88" stroke="#C4A97C" stroke-width="0.3" opacity="0.12"/>
+              <circle cx="100" cy="100" r="70" stroke="#C4A97C" stroke-width="0.5" opacity="0.18" stroke-dasharray="3 9">
+                <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="30s" repeatCount="indefinite"/>
+              </circle>
+              <circle cx="100" cy="100" r="50" stroke="#C4A97C" stroke-width="0.9" opacity="0.35" stroke-dasharray="2 6">
+                <animateTransform attributeName="transform" type="rotate" from="360 100 100" to="0 100 100" dur="18s" repeatCount="indefinite"/>
+              </circle>
+              <circle cx="100" cy="100" r="32" stroke="#C4A97C" stroke-width="1.2" opacity="0.55">
+                <animate attributeName="r" values="32;36;32" dur="3s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.55;0.8;0.55" dur="3s" repeatCount="indefinite"/>
+              </circle>
+              <circle cx="100" cy="100" r="9" fill="#C4A97C" opacity="0.92">
+                <animate attributeName="opacity" values="0.92;1;0.92" dur="1.6s" repeatCount="indefinite"/>
+              </circle>
+              <line x1="100" y1="12" x2="100" y2="28" stroke="#C4A97C" stroke-width="0.7" opacity="0.35"/>
+              <line x1="100" y1="172" x2="100" y2="188" stroke="#C4A97C" stroke-width="0.7" opacity="0.35"/>
+              <line x1="12" y1="100" x2="28" y2="100" stroke="#C4A97C" stroke-width="0.7" opacity="0.35"/>
+              <line x1="172" y1="100" x2="188" y2="100" stroke="#C4A97C" stroke-width="0.7" opacity="0.35"/>
+              <path d="M 20,20 L 20,34 M 20,20 L 34,20" stroke="#C4A97C" stroke-width="0.6" opacity="0.2"/>
+              <path d="M 180,20 L 180,34 M 180,20 L 166,20" stroke="#C4A97C" stroke-width="0.6" opacity="0.2"/>
+              <path d="M 20,180 L 20,166 M 20,180 L 34,180" stroke="#C4A97C" stroke-width="0.6" opacity="0.2"/>
+              <path d="M 180,180 L 180,166 M 180,180 L 166,180" stroke="#C4A97C" stroke-width="0.6" opacity="0.2"/>
+            </svg>
+          </div>
+          <div class="vhud-status">LISTENING</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ACCESS TIERS -->
+<section id="access" aria-label="Access Tiers">
+  <div class="access">
+    <div class="sec-label"><span class="sec-label-line"></span>005 — Access Tiers</div>
+    <div class="access-header">
+      <h2 class="access-headline">Structured access.<br>Earned depth.</h2>
+      <div class="access-sub">
+        <p>Four levels. One ecosystem. Access expands as your operation deepens. Every tier is a commitment — not a subscription.</p>
+      </div>
+    </div>
+    <div class="tiers-list">
+      <div class="tier-row" data-tier="1">
+        <div class="tier-header">
+          <span class="tier-num">01</span>
+          <span class="tier-name">Core Access</span>
+          <span class="tier-tag">Entry Point</span>
+          <div class="tier-chevron"></div>
+        </div>
+        <div class="tier-body">
+          <div class="tier-body-inner">
+            <div></div>
+            <p class="tier-desc">The foundation. Full visibility into the NYX intelligence system. Begin to understand how the operating system works against your goals.</p>
+            <ul class="tier-features">
+              <li>Workflow dashboard</li><li>Agent status monitoring</li>
+              <li>Execution logs</li><li>Briefings &amp; reports</li>
+            </ul>
+            <button class="tier-cta" data-magnetic onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'})">Request Access</button>
+          </div>
+        </div>
+      </div>
+      <div class="tier-row" data-tier="2">
+        <div class="tier-header">
+          <span class="tier-num">02</span>
+          <span class="tier-name">Performance Layer</span>
+          <span class="tier-tag">Most Active</span>
+          <div class="tier-chevron"></div>
+        </div>
+        <div class="tier-body">
+          <div class="tier-body-inner">
+            <div></div>
+            <p class="tier-desc">The optimization level. Six specialist agents operating continuously on your behalf. Autonomous workflows that act while you focus on what matters.</p>
+            <ul class="tier-features">
+              <li>Autonomous workflow engine</li><li>Six-agent coordination</li>
+              <li>Persistent memory layer</li><li>Multi-domain intelligence</li><li>Autonomy mode controls</li>
+            </ul>
+            <button class="tier-cta" data-magnetic onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'})">Request Access</button>
+          </div>
+        </div>
+      </div>
+      <div class="tier-row" data-tier="3">
+        <div class="tier-header">
+          <span class="tier-num">03</span>
+          <span class="tier-name">Operator Level</span>
+          <span class="tier-tag">Full System</span>
+          <div class="tier-chevron"></div>
+        </div>
+        <div class="tier-body">
+          <div class="tier-body-inner">
+            <div></div>
+            <p class="tier-desc">For founders and executives. The complete AI operating system — APEX, ORACLE, SIGNAL, CONVERT, FORGE, and LEDGER fully active with voice control and strategic automation at every layer.</p>
+            <ul class="tier-features">
+              <li>Full agent network (6 agents)</li><li>Voice OS &amp; Jarvis Mode</li>
+              <li>Persistent memory system</li><li>Control Center &amp; autonomy modes</li><li>Webhook &amp; trigger automation</li>
+            </ul>
+            <button class="tier-cta" data-magnetic onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'})">Request Access</button>
+          </div>
+        </div>
+      </div>
+      <div class="tier-row" data-tier="4">
+        <div class="tier-header">
+          <span class="tier-num">04</span>
+          <span class="tier-name">Private Access</span>
+          <span class="tier-tag">By Invitation</span>
+          <div class="tier-chevron"></div>
+        </div>
+        <div class="tier-body">
+          <div class="tier-body-inner">
+            <div></div>
+            <p class="tier-desc">By invitation only. Custom deployments for organizations that demand more than any off-the-shelf system can provide. We build the operating system around you.</p>
+            <ul class="tier-features">
+              <li>White-glove onboarding</li><li>Custom deployments</li>
+              <li>Private infrastructure</li><li>Undisclosed capabilities</li><li>Dedicated channel</li>
+            </ul>
+            <button class="tier-cta" data-magnetic onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'})">Inquire</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- INTELLIGENCE STATS -->
+<section class="intel" aria-label="Intelligence Statistics">
+  <div class="intel-inner">
+    <div class="intel-stat">
+      <div class="intel-label">Operators Enrolled</div>
+      <div class="intel-value" id="stat-enrolled">1,247</div>
+      <div class="intel-unit">and growing</div>
+      <svg class="intel-sparkline" viewBox="0 0 100 44" preserveAspectRatio="none">
+        <polyline points="0,38 12,32 22,35 34,24 44,28 56,16 66,20 78,10 88,14 100,8" stroke="#C4A97C" stroke-width="1.2" fill="none"/>
+      </svg>
+    </div>
+    <div class="intel-stat">
+      <div class="intel-label">System Uptime</div>
+      <div class="intel-value">99.97%</div>
+      <div class="intel-unit">all time</div>
+      <svg class="intel-sparkline" viewBox="0 0 100 44" preserveAspectRatio="none">
+        <polyline points="0,40 10,38 20,40 30,37 40,39 50,36 60,38 70,36 80,37 90,35 100,36" stroke="#C4A97C" stroke-width="1.2" fill="none"/>
+      </svg>
+    </div>
+    <div class="intel-stat">
+      <div class="intel-label">Signals Processed</div>
+      <div class="intel-value" id="stat-signals">14.2M</div>
+      <div class="intel-unit">this month</div>
+      <svg class="intel-sparkline" viewBox="0 0 100 44" preserveAspectRatio="none">
+        <polyline points="0,42 8,38 16,34 28,30 36,26 46,20 58,16 68,12 80,8 90,6 100,4" stroke="#C4A97C" stroke-width="1.2" fill="none"/>
+      </svg>
+    </div>
+    <div class="intel-stat">
+      <div class="intel-label">Autonomous Actions</div>
+      <div class="intel-value" id="stat-actions">94K+</div>
+      <div class="intel-unit">executed to date</div>
+      <svg class="intel-sparkline" viewBox="0 0 100 44" preserveAspectRatio="none">
+        <polyline points="0,40 8,36 18,38 28,28 38,32 50,18 62,22 72,10 84,14 94,6 100,8" stroke="#C4A97C" stroke-width="1.2" fill="none"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- WAITLIST -->
+<section class="waitlist" id="waitlist" aria-label="Request Access">
+  <div class="waitlist-glow"></div>
+  <div class="waitlist-rule"></div>
+  <p class="waitlist-eyebrow">Selective Access</p>
+  <h2 class="waitlist-headline">
+    Access is not<br>for everyone.<br><em>It is for the right ones.</em>
+  </h2>
+  <p class="waitlist-sub">Reviewed manually. Not granted by algorithm.</p>
+  <div id="form-wrap">
+    <div class="waitlist-form">
+      <label for="email-input" class="sr-only">Email address</label>
+      <input type="email" id="email-input" class="waitlist-input" placeholder="your@email.com" autocomplete="email" inputmode="email" aria-describedby="waitlist-note-text"/>
+      <button id="submit-btn" class="waitlist-submit" data-magnetic>Request Access</button>
+    </div>
+    <p class="waitlist-note" id="waitlist-note-text">No spam. No noise. Just the system, when you are ready.</p>
+    <p class="waitlist-error" id="error-msg" role="alert" aria-live="assertive"></p>
+  </div>
+  <div class="waitlist-success" id="success-wrap" role="status" aria-live="polite">
+    <p class="waitlist-success-title">You are on the list.</p>
+    <p class="waitlist-success-note">Check your inbox. The system is already watching.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">NYX</div>
+  <div class="footer-copy">© 2026 NYX Systems. All systems private.</div>
+  <div class="footer-status">
+    <div class="footer-dot"></div>
+    <span class="footer-status-text">Online</span>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+<script>
+'use strict';
+gsap.registerPlugin(ScrollTrigger);
+const _touch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+const _pRM   = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+/* ── GRAIN TEXTURE ──────────────────────────────────── */
+(function(){
+  const S  = 200;
+  const el = document.getElementById('grain');
+  const pRM = window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+
+  function makeGrain(alpha){
+    const c = document.createElement('canvas');
+    c.width = S; c.height = S;
+    const ctx = c.getContext('2d');
+    const img = ctx.createImageData(S, S);
+    for(let i = 0; i < img.data.length; i += 4){
+      const v = Math.random() * 255 | 0;
+      img.data[i] = img.data[i+1] = img.data[i+2] = v;
+      img.data[i+3] = alpha;
+    }
+    ctx.putImageData(img, 0, 0);
+    return c.toDataURL();
+  }
+
+  if(pRM){
+    el.style.backgroundImage = `url(${makeGrain(18)})`;
+  } else {
+    const frames = [makeGrain(18), makeGrain(22), makeGrain(15)];
+    let idx = 0;
+    el.style.backgroundImage = `url(${frames[0]})`;
+    setInterval(() => {
+      idx = (idx + 1) % 3;
+      el.style.backgroundImage = `url(${frames[idx]})`;
+    }, 200);
+  }
+})();
+
+/* ── CURSOR ─────────────────────────────────────────── */
+(function(){
+  if(_touch){ document.getElementById('cursor').style.display='none'; return; }
+  const el  = document.getElementById('cursor');
+  const dot = el.querySelector('.cursor-dot');
+  const ring = el.querySelector('.cursor-ring');
+  let cx=0,cy=0,tx=0,ty=0,rx=0,ry=0;
+
+  window.addEventListener('mousemove', e => { tx=e.clientX; ty=e.clientY; }, {passive:true});
+
+  document.querySelectorAll('a,button,[data-magnetic],.tier-header,.intel-stat,.pillar').forEach(el => {
+    el.addEventListener('mouseenter', () => document.getElementById('cursor').classList.add('on'));
+    el.addEventListener('mouseleave', () => document.getElementById('cursor').classList.remove('on'));
+  });
+
+  (function loop(){
+    cx += (tx-cx)*0.14; cy += (ty-cy)*0.14;
+    rx += (tx-rx)*0.07; ry += (ty-ry)*0.07;
+    dot.style.transform  = `translate(${cx}px,${cy}px) translate(-50%,-50%)`;
+    ring.style.transform = `translate(${rx}px,${ry}px) translate(-50%,-50%)`;
+    requestAnimationFrame(loop);
+  })();
+})();
+
+/* ── LIVE CLOCK ─────────────────────────────────────── */
+(function(){
+  function pad(n){ return String(n).padStart(2,'0'); }
+  function tick(){
+    const d = new Date();
+    const utc = `${pad(d.getUTCHours())}:${pad(d.getUTCMinutes())}:${pad(d.getUTCSeconds())}`;
+    const date = `${d.getUTCFullYear()}.${pad(d.getUTCMonth()+1)}.${pad(d.getUTCDate())}`;
+    const lc = document.getElementById('loader-clock');
+    const ht = document.getElementById('hero-time');
+    const st = document.getElementById('stat-time');
+    const hd = document.getElementById('hero-date');
+    if(lc) lc.textContent = utc + ' UTC';
+    if(ht) ht.textContent = utc + ' UTC';
+    if(st) st.textContent = utc;
+    if(hd) hd.textContent = date;
+  }
+  tick(); setInterval(tick, 1000);
+})();
+
+/* ── THREE.JS NEURAL TOPOLOGY ───────────────────────── */
+function initThree(){
+  try{
+    const canvas = document.getElementById('hero-canvas');
+    let W = canvas.offsetWidth, H = canvas.offsetHeight;
+
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:false });
+    renderer.setSize(W, H);
+    renderer.setPixelRatio(Math.min(devicePixelRatio, _touch ? 1 : 1.5));
+
+    const scene  = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(50, W/H, 1, 3000);
+    camera.position.z = 620;
+
+    const group = new THREE.Group();
+    scene.add(group);
+
+    // ── Node positions: scattered volumetric ellipsoid ──
+    const N = _touch ? 44 : 88;
+    const npos = [];
+    const SX = _touch ? 280 : 360, SY = _touch ? 200 : 260, SZ = _touch ? 140 : 180;
+
+    for(let i = 0; i < N; i++){
+      const theta = Math.random() * Math.PI * 2;
+      const phi   = Math.acos(2 * Math.random() - 1);
+      const r     = 0.22 + 0.78 * Math.cbrt(Math.random());
+      npos.push([
+        SX * r * Math.sin(phi) * Math.cos(theta),
+        SY * r * Math.sin(phi) * Math.sin(theta),
+        SZ * r * Math.cos(phi)
+      ]);
+    }
+
+    // ── Small background nodes (white) ──
+    const smallArr = new Float32Array(N * 3);
+    npos.forEach((p,i) => { smallArr[i*3]=p[0]; smallArr[i*3+1]=p[1]; smallArr[i*3+2]=p[2]; });
+    const smallGeo = new THREE.BufferGeometry();
+    smallGeo.setAttribute('position', new THREE.BufferAttribute(smallArr, 3));
+    group.add(new THREE.Points(smallGeo,
+      new THREE.PointsMaterial({ color:0xffffff, size:1.9, transparent:true, opacity:0.3, sizeAttenuation:true })
+    ));
+
+    // ── Hub nodes (gold, larger) ──
+    const HUB_N = 14;
+    const hubArr = new Float32Array(HUB_N * 3);
+    for(let i = 0; i < HUB_N; i++){
+      const idx = Math.floor((i / HUB_N) * N);
+      hubArr[i*3]=npos[idx][0]; hubArr[i*3+1]=npos[idx][1]; hubArr[i*3+2]=npos[idx][2];
+    }
+    const hubGeo = new THREE.BufferGeometry();
+    hubGeo.setAttribute('position', new THREE.BufferAttribute(hubArr, 3));
+    group.add(new THREE.Points(hubGeo,
+      new THREE.PointsMaterial({ color:0xC4A97C, size:4.8, transparent:true, opacity:0.62, sizeAttenuation:true })
+    ));
+
+    // ── Edges ──
+    const MAX_D = 138;
+    const adj = Array.from({length:N}, () => []);
+    const edgeVerts = [];
+
+    for(let i = 0; i < N; i++){
+      let c = 0;
+      for(let j = i+1; j < N && c < 4; j++){
+        const dx=npos[i][0]-npos[j][0], dy=npos[i][1]-npos[j][1], dz=npos[i][2]-npos[j][2];
+        if(dx*dx+dy*dy+dz*dz < MAX_D*MAX_D){
+          edgeVerts.push(...npos[i], ...npos[j]);
+          adj[i].push(j); adj[j].push(i); c++;
+        }
+      }
+    }
+    const edgeGeo = new THREE.BufferGeometry();
+    edgeGeo.setAttribute('position', new THREE.Float32BufferAttribute(edgeVerts, 3));
+    group.add(new THREE.LineSegments(edgeGeo,
+      new THREE.LineBasicMaterial({ color:0xffffff, transparent:true, opacity:0.052 })
+    ));
+
+    // ── Activation pulses traveling along edges ──
+    const PULSES = _touch ? 5 : 9;
+    const pulses = [];
+
+    for(let p = 0; p < PULSES; p++){
+      const geo = new THREE.BufferGeometry();
+      geo.setAttribute('position', new THREE.Float32BufferAttribute([0,0,0], 3));
+      const mat = new THREE.PointsMaterial({ color:0xC4A97C, size:5.5, transparent:true, opacity:0, sizeAttenuation:true });
+      const mesh = new THREE.Points(geo, mat);
+      group.add(mesh);
+      const src = Math.floor(Math.random() * N);
+      const nbrs = adj[src];
+      const dst = nbrs.length > 0 ? nbrs[Math.floor(Math.random()*nbrs.length)] : (src+1)%N;
+      pulses.push({ mesh, src, dst, t: Math.random(), speed: 0.005+Math.random()*0.007 });
+    }
+
+    // ── Mouse + auto rotation ──
+    const mouse = {x:0, y:0};
+    let rotY = 0, mX = 0, mY = 0;
+
+    window.addEventListener('mousemove', e => {
+      mouse.x=(e.clientX/W-0.5)*2; mouse.y=(e.clientY/H-0.5)*2;
+    }, {passive:true});
+
+    let _rt;
+    window.addEventListener('resize', () => {
+      clearTimeout(_rt);
+      _rt = setTimeout(() => {
+        W=canvas.offsetWidth; H=canvas.offsetHeight;
+        camera.aspect=W/H; camera.updateProjectionMatrix();
+        renderer.setSize(W,H);
+      }, 100);
+    }, {passive:true});
+
+    let _vis = !document.hidden;
+    document.addEventListener('visibilitychange', () => { _vis = !document.hidden; });
+
+    (function tick(){
+      requestAnimationFrame(tick);
+      if(!_vis) return;
+      rotY += 0.00014;
+      mX += (mouse.y*0.11 - mX)*0.024;
+      mY += (mouse.x*0.11 - mY)*0.024;
+      group.rotation.x = mX;
+      group.rotation.y = rotY + mY;
+
+      pulses.forEach(pulse => {
+        pulse.t += pulse.speed;
+        if(pulse.t >= 1){
+          pulse.src = pulse.dst;
+          const nbrs = adj[pulse.src];
+          pulse.dst = nbrs.length > 0 ? nbrs[Math.floor(Math.random()*nbrs.length)] : (pulse.src+1)%N;
+          pulse.t = 0;
+          pulse.speed = 0.005 + Math.random()*0.007;
+        }
+        const a = npos[pulse.src], b = npos[pulse.dst];
+        const pa = pulse.mesh.geometry.attributes.position;
+        pa.setXYZ(0,
+          a[0]+(b[0]-a[0])*pulse.t,
+          a[1]+(b[1]-a[1])*pulse.t,
+          a[2]+(b[2]-a[2])*pulse.t
+        );
+        pa.needsUpdate = true;
+        pulse.mesh.material.opacity = Math.sin(pulse.t * Math.PI) * 0.88;
+      });
+
+      renderer.render(scene, camera);
+    })();
+
+  } catch(e){ console.warn('NYX 3D unavailable',e); }
+}
+
+/* ── LOADER + HERO SEQUENCE ─────────────────────────── */
+(function(){
+  initThree(); // Init early, canvas stays at opacity:0
+
+  const loader  = document.getElementById('loader');
+  const logo    = document.getElementById('loader-logo');
+  const sub     = document.getElementById('loader-sub');
+  const bar     = document.getElementById('loader-bar');
+  const pct     = document.getElementById('loader-pct');
+
+  // Animate percentage counter
+  let prog = 0;
+  const pctInterval = setInterval(() => {
+    prog = Math.min(prog + Math.random()*4 + 1, 99);
+    if(pct) pct.textContent = Math.floor(prog) + '%';
+  }, 60);
+
+  const tl = gsap.timeline();
+
+  tl.to(logo, { opacity:1, scale:1, duration:0.9, ease:'power3.out' }, 0.2)
+    .to(sub,  { opacity:1, duration:0.6 }, 0.8)
+    .to(bar,  { scaleX:1, duration:1.9, ease:'power2.inOut' }, 0.25)
+    .add(() => { clearInterval(pctInterval); if(pct) pct.textContent='100%'; }, 2.15)
+    .to(loader, { opacity:0, duration:0.7, ease:'power2.inOut' }, 2.2)
+    .set(loader, { display:'none' })
+    .call(revealHero);
+
+  function revealHero(){
+    document.getElementById('hero-canvas').classList.add('show');
+    startScanLine();
+
+    gsap.timeline()
+      .fromTo('.hero-eyebrow',
+        { opacity:0, y:14 },
+        { opacity:1, y:0, duration:0.7, ease:'power3.out' }, 0.05)
+      .to('.hero-char',
+        { y:'0%', opacity:1, stagger:{ amount:0.28 }, duration:1.4, ease:'expo.out' }, 0.12)
+      .fromTo('.hero-rule',
+        { scaleX:0 },
+        { scaleX:1, duration:0.8, ease:'power3.out' }, 0.72)
+      .fromTo('.hero-subtitle',
+        { opacity:0, y:18 },
+        { opacity:1, y:0, duration:0.9, ease:'power3.out' }, 0.86)
+      .fromTo(['.hero-hud-tl','.hero-hud-tr','.hero-hud-bl','.hero-hud-br'],
+        { opacity:0 },
+        { opacity:1, stagger:0.09, duration:0.5 }, 0.4)
+      .fromTo('.hero-status',
+        { opacity:0, x:-14 },
+        { opacity:1, x:0, duration:0.6, ease:'power3.out' }, 0.78)
+      .fromTo('.hero-access',
+        { opacity:0, x:14 },
+        { opacity:1, x:0, duration:0.6, ease:'power3.out' }, 0.83)
+      .fromTo('.hero-coords',
+        { opacity:0, x:-14 },
+        { opacity:1, x:0, duration:0.6, ease:'power3.out' }, 0.88)
+      .fromTo('.hero-scroll',
+        { opacity:0, y:12 },
+        { opacity:1, y:0, duration:0.5, ease:'power3.out' }, 1.05);
+  }
+})();
+
+/* ── HERO SCAN LINE ─────────────────────────────────── */
+function startScanLine(){
+  const scan = document.querySelector('.hero-scan');
+  const hero = document.getElementById('hero');
+  if(!scan || !hero) return;
+  (function loop(){
+    const h = hero.offsetHeight;
+    gsap.timeline({ onComplete: () => setTimeout(loop, 3200) })
+      .set(scan,  { top:0, opacity:0 })
+      .to(scan,   { opacity:0.5, duration:0.3, ease:'none' })
+      .to(scan,   { top:h, duration:4.2, ease:'none' }, 0)
+      .to(scan,   { opacity:0, duration:0.45 }, '-=0.5');
+  })();
+}
+
+/* ── NAV SCROLL ─────────────────────────────────────── */
+(function(){
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 50);
+  }, {passive:true});
+})();
+
+/* ── HERO PARALLAX (multi-layer, scrub) ─────────────── */
+(function(){
+  const tl = gsap.timeline({
+    scrollTrigger:{
+      trigger:'#hero', start:'top top', end:'bottom top', scrub:true
+    }
+  });
+  tl.to('#hero-canvas',  { y:120, ease:'none' }, 0)
+    .to('.hero-glow',    { y:90,  ease:'none' }, 0)
+    .to('.hero-grid',    { y:60,  ease:'none' }, 0)
+    .to('.hero-content', { y:-140, opacity:0,  ease:'none' }, 0)
+    .to('.hero-hud',     { y:50,  opacity:0,   ease:'none' }, 0)
+    .to('.hero-status',  { y:-40, opacity:0,   ease:'none' }, 0)
+    .to('.hero-access',  { y:-40, opacity:0,   ease:'none' }, 0)
+    .to('.hero-coords',  { y:40,  opacity:0,   ease:'none' }, 0)
+    .to('.hero-scroll',  { y:30,  opacity:0,   ease:'none' }, 0);
+})();
+
+/* ── GSAP SCROLL REVEALS ────────────────────────────── */
+(function(){
+  // Section labels
+  gsap.utils.toArray('.sec-label').forEach(el => {
+    gsap.fromTo(el,
+      { opacity:0, x:-20 },
+      { opacity:1, x:0, duration:0.8, ease:'power3.out',
+        scrollTrigger:{ trigger:el, start:'top 80%' }
+      }
+    );
+  });
+
+  // Manifesto headline — clip-path wipe reveal
+  gsap.to('.manifesto-headline', {
+    clipPath:'inset(0 0 0% 0)', duration:1.2, ease:'power4.out',
+    scrollTrigger:{ trigger:'.manifesto-headline', start:'top 78%' }
+  });
+
+  // Manifesto body
+  gsap.fromTo('.manifesto-body',
+    { opacity:0, y:30 },
+    { opacity:1, y:0, duration:0.9, ease:'power3.out',
+      scrollTrigger:{ trigger:'.manifesto-body', start:'top 78%' }
+    }
+  );
+
+  // Orrery
+  gsap.to('.orrery-wrap', {
+    opacity:0.88, duration:1.4, ease:'power2.out',
+    scrollTrigger:{ trigger:'.orrery-wrap', start:'top 80%' }
+  });
+
+  // System headline — clip-path wipe
+  gsap.to('.system-headline', {
+    clipPath:'inset(0 0 0% 0)', duration:1.1, ease:'power4.out',
+    scrollTrigger:{ trigger:'.system-headline', start:'top 78%' }
+  });
+
+  // Pillars — clip-path stagger reveal
+  gsap.to('.pillar', {
+    clipPath:'inset(0% 0% 0% 0%)',
+    duration:1.1, stagger:0.13, ease:'power3.inOut',
+    scrollTrigger:{ trigger:'.pillars', start:'top 68%' }
+  });
+
+  // Pillar inner content
+  gsap.fromTo('.pillar-title, .pillar-desc, .pillar-num, .pillar-icon',
+    { opacity:0, y:16 },
+    { opacity:1, y:0, duration:0.7, stagger:0.05,
+      scrollTrigger:{ trigger:'.pillars', start:'top 60%' }
+    }
+  );
+
+  // Pillar progress bars
+  const barWidths = ['68%','83%','76%','91%'];
+  ScrollTrigger.create({
+    trigger:'.pillars', start:'top 58%', once:true,
+    onEnter:() => {
+      document.querySelectorAll('.pillar-bar-fill').forEach((bar,i) => {
+        gsap.to(bar, {
+          width: barWidths[i] || '75%',
+          duration:1.6, ease:'power3.out', delay:0.18 + i*0.18
+        });
+      });
+    }
+  });
+
+  // Agent network headline — clip-path wipe
+  gsap.to('.agents-headline', {
+    clipPath:'inset(0 0 0% 0)', duration:1.1, ease:'power4.out',
+    scrollTrigger:{ trigger:'.agents-headline', start:'top 78%' }
+  });
+
+  // Agent cards stagger
+  gsap.fromTo('.agent-card',
+    { opacity:0, y:24 },
+    { opacity:1, y:0, stagger:0.1, duration:0.8, ease:'power3.out',
+      scrollTrigger:{ trigger:'.agents-grid', start:'top 72%' }
+    }
+  );
+
+  // Voice OS headline — clip-path wipe
+  gsap.to('.voice-headline', {
+    clipPath:'inset(0 0 0% 0)', duration:1.1, ease:'power4.out',
+    scrollTrigger:{ trigger:'.voice-headline', start:'top 78%' }
+  });
+
+  // Voice copy + features
+  gsap.fromTo(['.voice-body', '.voice-features'],
+    { opacity:0, y:22 },
+    { opacity:1, y:0, stagger:0.15, duration:0.9, ease:'power3.out',
+      scrollTrigger:{ trigger:'.voice-copy', start:'top 72%' }
+    }
+  );
+
+  // Voice HUD preview
+  gsap.fromTo('.vhud-frame',
+    { opacity:0, scale:0.95 },
+    { opacity:1, scale:1, duration:1.2, ease:'power3.out',
+      scrollTrigger:{ trigger:'.voice-hud-preview', start:'top 75%' }
+    }
+  );
+
+  // Access headline — clip-path wipe
+  gsap.to('.access-headline', {
+    clipPath:'inset(0 0 0% 0)', duration:1.1, ease:'power4.out',
+    scrollTrigger:{ trigger:'.access-headline', start:'top 78%' }
+  });
+  gsap.fromTo('.access-sub',
+    { opacity:0, y:24 },
+    { opacity:1, y:0, duration:0.8, ease:'power3.out',
+      scrollTrigger:{ trigger:'.access-sub', start:'top 80%' }
+    }
+  );
+
+  // Tier rows
+  gsap.fromTo('.tier-row',
+    { opacity:0, y:20 },
+    { opacity:1, y:0, stagger:0.1, duration:0.8, ease:'power3.out',
+      scrollTrigger:{ trigger:'.tiers-list', start:'top 75%' }
+    }
+  );
+
+  // Intel stats
+  gsap.fromTo('.intel-stat',
+    { opacity:0, y:30 },
+    { opacity:1, y:0, stagger:0.1, duration:0.9, ease:'power3.out',
+      scrollTrigger:{ trigger:'.intel', start:'top 75%' }
+    }
+  );
+
+  // Waitlist — single fromTo, includes rule
+  gsap.fromTo(
+    ['.waitlist-rule','.waitlist-eyebrow','.waitlist-headline','.waitlist-sub','.waitlist-form'],
+    { opacity:0, y:44 },
+    { opacity:1, y:0, stagger:0.14, duration:1.1, ease:'power3.out',
+      scrollTrigger:{ trigger:'.waitlist', start:'top 70%' }
+    }
+  );
+
+  // Footer
+  gsap.fromTo('.footer-logo, .footer-copy, .footer-status',
+    { opacity:0, y:14 },
+    { opacity:1, y:0, stagger:0.1, duration:0.7, ease:'power3.out',
+      scrollTrigger:{ trigger:'footer', start:'top 94%' }
+    }
+  );
+})();
+
+/* ── COUNTER ANIMATION ──────────────────────────────── */
+(function(){
+  function countTo(el, target, suffix, dur){
+    gsap.to({v:0}, {
+      v: target, duration: dur, ease:'power2.out',
+      onUpdate: function(){ el.textContent = Math.round(this.targets()[0].v).toLocaleString() + (suffix||''); }
+    });
+  }
+
+  ScrollTrigger.create({
+    trigger: '.intel',
+    start: 'top 70%',
+    once: true,
+    onEnter: () => {
+      const enrolled = document.getElementById('stat-enrolled');
+      const signals  = document.getElementById('stat-signals');
+      if(enrolled) countTo(enrolled, 1247, '', 2.5);
+      if(signals){
+        countTo(signals, 14200000, '', 2.5);
+        setTimeout(() => { signals.textContent = '14.2M'; }, 2600);
+      }
+    }
+  });
+})();
+
+/* ── MAGNETIC BUTTONS ───────────────────────────────── */
+(function(){
+  document.querySelectorAll('[data-magnetic]').forEach(btn => {
+    btn.addEventListener('mousemove', e => {
+      const r = btn.getBoundingClientRect();
+      const x = e.clientX - r.left - r.width/2;
+      const y = e.clientY - r.top  - r.height/2;
+      gsap.to(btn, { x:x*0.38, y:y*0.38, duration:0.35, ease:'power2.out' });
+    });
+    btn.addEventListener('mouseleave', () => {
+      gsap.to(btn, { x:0, y:0, duration:0.7, ease:'elastic.out(1,0.4)' });
+    });
+  });
+})();
+
+/* ── TIER ACCORDION ─────────────────────────────────── */
+(function(){
+  const headers = document.querySelectorAll('.tier-header');
+  headers.forEach(h => {
+    h.setAttribute('role','button');
+    h.setAttribute('tabindex','0');
+    h.setAttribute('aria-expanded','false');
+  });
+
+  function toggleTier(header){
+    const row   = header.closest('.tier-row');
+    const body  = row.querySelector('.tier-body');
+    const inner = body.querySelector('.tier-body-inner');
+    const isOpen = row.classList.contains('open');
+
+    document.querySelectorAll('.tier-row.open').forEach(r => {
+      r.classList.remove('open');
+      r.querySelector('.tier-header').setAttribute('aria-expanded','false');
+      gsap.to(r.querySelector('.tier-body'), { height:0, duration:0.4, ease:'power3.inOut' });
+    });
+
+    if(!isOpen){
+      row.classList.add('open');
+      header.setAttribute('aria-expanded','true');
+      gsap.fromTo(body, { height:0 }, { height:inner.scrollHeight, duration:0.55, ease:'power3.inOut' });
+    }
+  }
+
+  headers.forEach(header => {
+    header.addEventListener('click', () => toggleTier(header));
+    header.addEventListener('keydown', e => {
+      if(e.key==='Enter'||e.key===' '){ e.preventDefault(); toggleTier(header); }
+    });
+  });
+})();
+
+/* ── WAITLIST FORM ──────────────────────────────────── */
+(function(){
+  const btn  = document.getElementById('submit-btn');
+  const inp  = document.getElementById('email-input');
+  const err  = document.getElementById('error-msg');
+  const wrap = document.getElementById('form-wrap');
+  const succ = document.getElementById('success-wrap');
+  const re   = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+
+  async function submit(){
+    const email = inp.value.trim();
+    if(!re.test(email)){
+      err.textContent = 'Please enter a valid email address.';
+      err.style.display = 'block'; return;
+    }
+    btn.disabled = true; btn.textContent = 'Submitting...';
+    err.style.display = 'none';
+    try{
+      const res = await fetch('/.netlify/functions/waitlist', {
+        method:'POST', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ email })
+      });
+      if(res.ok){
+        gsap.to(wrap, { opacity:0, y:-16, duration:0.4, onComplete: () => {
+          wrap.style.display = 'none';
+          succ.style.display = 'block';
+          gsap.from(succ, { opacity:0, y:16, duration:0.6, ease:'power3.out' });
+        }});
+      } else { throw new Error(); }
+    } catch{
+      btn.disabled=false; btn.textContent='Request Access';
+      err.textContent='Something went wrong. Please try again.';
+      err.style.display='block';
+    }
+  }
+
+  if(btn) btn.addEventListener('click', submit);
+  if(inp) inp.addEventListener('keydown', e => { if(e.key==='Enter') submit(); });
+})();
+
+/* ════════════════════════════════════════════════════════════
+   PHASE 1 — JARVIS VOICE MODE
+   ════════════════════════════════════════════════════════════ */
+(function(){
+  const overlay   = document.getElementById('jarvis-overlay');
+  if(!overlay) return;
+
+  const closeBtn    = document.getElementById('jarvis-close');
+  const statusEl    = document.getElementById('jarvis-status-text');
+  const logEl       = document.getElementById('jarvis-transcript');
+  const waveCanvas  = document.getElementById('jarvis-wave');
+  const textInput   = document.getElementById('jarvis-text-input');
+  const sendBtn     = document.getElementById('jarvis-send-btn');
+  const activateMain = document.getElementById('jarvis-activate-main');
+  const activateHud  = document.getElementById('jarvis-activate-hud');
+
+  let recognition = null;
+  let audioCtx    = null;
+  let analyser    = null;
+  let micStream   = null;
+  let waveAnim    = null;
+  let isOpen      = false;
+  let isSpeaking  = false;
+  let isListening = false;
+
+  // ── Scripted command map ──
+  const CMDS = {
+    'system status':    'All systems operational. Six agents online — APEX, ORACLE, SIGNAL, CONVERT, FORGE, and LEDGER. No critical alerts. System efficiency at 91 percent.',
+    'status':           'Six agents online. No critical alerts detected.',
+    'who are you':      'I am NYX. An autonomous operating system built for high-performance operators. Six specialist agents coordinate research, marketing, revenue, engineering, and finance — running continuously.',
+    'what are you':     'NYX. Autonomous AI operating system. Six agents. One mission.',
+    'hello':            'NYX online. Awaiting your command.',
+    'hi':               'Online. Standing by.',
+    'help':             'Available commands: system status, who are you, list agents, activate followed by agent name, or shutdown.',
+    'commands':         'You can say: system status, who are you, list agents, activate apex, activate oracle, activate signal, activate convert, activate forge, activate ledger, or shutdown.',
+    'list agents':      'Agent network: APEX, Chief Executive. ORACLE, Research. SIGNAL, Marketing. CONVERT, Revenue. FORGE, Engineering. LEDGER, Finance. All six are online.',
+    'activate apex':    'APEX online. Chief Executive routing strategic intelligence across the network. Standing by for directives.',
+    'apex':             'APEX online. Standing by.',
+    'activate oracle':  'ORACLE online. Research module active. Scanning signals. Ready to synthesize intelligence.',
+    'oracle':           'ORACLE online. Scanning.',
+    'activate signal':  'SIGNAL online. Marketing operations active. Audience intelligence calibrated.',
+    'signal':           'SIGNAL online. Marketing active.',
+    'activate convert': 'CONVERT online. Revenue intelligence active. Pipeline analysis running.',
+    'convert':          'CONVERT online. Revenue systems active.',
+    'activate forge':   'FORGE online. Systems engineering active. Infrastructure monitoring engaged.',
+    'forge':            'FORGE online. Engineering active.',
+    'activate ledger':  'LEDGER online. Financial intelligence active. Cash flow modeling running.',
+    'ledger':           'LEDGER online. Finance active.',
+    'shutdown':  '__CLOSE__',
+    'exit':      '__CLOSE__',
+    'close':     '__CLOSE__',
+    'deactivate':'__CLOSE__',
+    'goodbye':   '__CLOSE__',
+    'bye':       '__CLOSE__',
+  };
+
+  function resolve(raw) {
+    const input = raw.toLowerCase().trim().replace(/[.,!?;:]/g,'').replace(/\s+/g,' ');
+    if(CMDS[input] !== undefined) return CMDS[input];
+    for(const key of Object.keys(CMDS)) {
+      if(input.includes(key)) return CMDS[key];
+    }
+    return 'Understood: "' + raw + '". Command not in current response set. Try: system status, list agents, or activate followed by an agent name.';
+  }
+
+  // ── Speech synthesis ──
+  function speak(text, cb) {
+    if(!('speechSynthesis' in window)) { cb && cb(); return; }
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.rate   = 0.9;
+    utt.pitch  = 0.82;
+    utt.volume = 1;
+    const voices = window.speechSynthesis.getVoices();
+    const v = voices.find(v => v.name === 'Google UK English Male')
+           || voices.find(v => /daniel|male|uk|british/i.test(v.name))
+           || voices.find(v => v.lang === 'en-GB')
+           || voices.find(v => v.lang.startsWith('en'));
+    if(v) utt.voice = v;
+    isSpeaking = true;
+    setStatus('PROCESSING');
+    utt.onend  = () => { isSpeaking = false; isListening ? setStatus('LISTENING') : setStatus('STANDBY'); cb && cb(); };
+    utt.onerror = () => { isSpeaking = false; cb && cb(); };
+    window.speechSynthesis.speak(utt);
+  }
+
+  function setStatus(s) { if(statusEl) statusEl.textContent = s; }
+
+  function log(text, type) {
+    if(!logEl) return;
+    const row  = document.createElement('div');
+    row.className = 'jarvis-log-line jarvis-log-' + type;
+    const t = new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+    row.innerHTML = '<span class="jarvis-log-time">' + t + '</span>'
+      + '<span class="jarvis-log-prefix">' + (type==='user'?'>':'◈') + '</span>'
+      + '<span class="jarvis-log-text">' + text + '</span>';
+    logEl.appendChild(row);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function handleCmd(text) {
+    log(text, 'user');
+    const resp = resolve(text);
+    if(resp === '__CLOSE__') {
+      log('Deactivating. Goodbye.', 'system');
+      speak('Deactivating. Goodbye.', closeJarvis);
+      return;
+    }
+    log(resp, 'system');
+    speak(resp);
+    // highlight agent chip if activating one
+    const match = text.toLowerCase().match(/activate (\w+)|^(\w+)$/);
+    if(match) {
+      const name = (match[1]||match[2]).toLowerCase();
+      document.querySelectorAll('.jarvis-agent-chip').forEach(c => {
+        c.classList.toggle('active-chip', c.dataset.agent === name);
+      });
+    }
+  }
+
+  // ── Waveform ──
+  function startWave(stream) {
+    if(!waveCanvas) return;
+    try {
+      audioCtx  = new (window.AudioContext || window.webkitAudioContext)();
+      analyser  = audioCtx.createAnalyser();
+      analyser.fftSize = 256;
+      audioCtx.createMediaStreamSource(stream).connect(analyser);
+      drawWave();
+    } catch(e) { drawFlat(); }
+  }
+
+  function drawWave() {
+    if(!waveCanvas || !analyser) { drawFlat(); return; }
+    const ctx = waveCanvas.getContext('2d');
+    const W = waveCanvas.width  = waveCanvas.offsetWidth  * devicePixelRatio;
+    const H = waveCanvas.height = waveCanvas.offsetHeight * devicePixelRatio;
+    const data = new Uint8Array(analyser.frequencyBinCount);
+    analyser.getByteFrequencyData(data);
+    ctx.clearRect(0,0,W,H);
+    const bw = (W / data.length) * 2.2;
+    let x = 0;
+    for(let i=0;i<data.length;i++) {
+      const bh = (data[i]/255)*H*0.88;
+      ctx.fillStyle = 'rgba(196,169,124,' + (0.28 + (data[i]/255)*0.72) + ')';
+      ctx.fillRect(x, H-bh, Math.max(bw-1,1), bh);
+      x += bw + 0.8;
+    }
+    waveAnim = requestAnimationFrame(drawWave);
+  }
+
+  function drawFlat() {
+    if(!waveCanvas) return;
+    const ctx = waveCanvas.getContext('2d');
+    const W = waveCanvas.width  = waveCanvas.offsetWidth  * devicePixelRatio;
+    const H = waveCanvas.height = waveCanvas.offsetHeight * devicePixelRatio;
+    ctx.clearRect(0,0,W,H);
+    ctx.strokeStyle = 'rgba(196,169,124,0.15)';
+    ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(0,H/2); ctx.lineTo(W,H/2); ctx.stroke();
+  }
+
+  function stopWave() {
+    if(waveAnim) { cancelAnimationFrame(waveAnim); waveAnim = null; }
+    drawFlat();
+  }
+
+  // ── SpeechRecognition ──
+  function startListening() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if(!SR) {
+      log('Voice recognition unavailable in this browser. Use the text input.', 'system');
+      setStatus('TEXT MODE');
+      return;
+    }
+    if(recognition) { try { recognition.stop(); } catch(e){} }
+    recognition = new SR();
+    recognition.continuous     = false;
+    recognition.interimResults = true;
+    recognition.lang           = 'en-US';
+
+    recognition.onstart = () => { isListening = true; setStatus('LISTENING'); };
+
+    recognition.onresult = (e) => {
+      let interim='', final='';
+      for(let i=e.resultIndex;i<e.results.length;i++) {
+        if(e.results[i].isFinal) final += e.results[i][0].transcript;
+        else interim += e.results[i][0].transcript;
+      }
+      if(interim && statusEl) setStatus('HEARING: ' + interim.substring(0,40).toUpperCase());
+      if(final.trim()) { setStatus('PROCESSING'); handleCmd(final.trim()); }
+    };
+
+    recognition.onend = () => {
+      isListening = false;
+      if(!isSpeaking && isOpen) {
+        setStatus('STANDBY');
+        setTimeout(() => { if(isOpen && !isSpeaking) startListening(); }, 900);
+      }
+    };
+
+    recognition.onerror = (e) => {
+      if(e.error === 'not-allowed') {
+        log('Microphone access denied. Use the text input below.', 'system');
+        setStatus('TEXT MODE');
+        speak('Microphone access denied. Please type your commands.');
+        return;
+      }
+      if(e.error !== 'no-speech') setStatus('STANDBY');
+    };
+
+    try { recognition.start(); } catch(e){}
+  }
+
+  // ── Open / Close ──
+  function openJarvis() {
+    if(isOpen) return;
+    isOpen = true;
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    setStatus('INITIALIZING');
+    log('NYX Jarvis Mode activated. Awaiting command.', 'system');
+
+    speak('NYX online. Jarvis Mode active. Awaiting your command.', () => startListening());
+
+    if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+      navigator.mediaDevices.getUserMedia({audio:true,video:false})
+        .then(s => { micStream = s; startWave(s); })
+        .catch(() => drawFlat());
+    } else { drawFlat(); }
+  }
+
+  function closeJarvis() {
+    isOpen = false;
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+    isListening = false; isSpeaking = false;
+    if(recognition) { try { recognition.abort(); } catch(e){} recognition = null; }
+    if(micStream)   { micStream.getTracks().forEach(t=>t.stop()); micStream = null; }
+    stopWave();
+    if(audioCtx)    { audioCtx.close().catch(()=>{}); audioCtx = null; analyser = null; }
+    if('speechSynthesis' in window) window.speechSynthesis.cancel();
+    document.querySelectorAll('.jarvis-agent-chip').forEach(c => c.classList.remove('active-chip'));
+  }
+
+  // ── Bindings ──
+  if(activateMain) activateMain.addEventListener('click', openJarvis);
+  if(activateHud)  {
+    activateHud.addEventListener('click', openJarvis);
+    activateHud.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' ') { e.preventDefault(); openJarvis(); } });
+  }
+  if(closeBtn) closeBtn.addEventListener('click', closeJarvis);
+  document.addEventListener('keydown', e => { if(e.key==='Escape' && isOpen) closeJarvis(); });
+
+  function sendText() {
+    const v = textInput && textInput.value.trim();
+    if(!v) return;
+    textInput.value = '';
+    handleCmd(v);
+  }
+  if(sendBtn)   sendBtn.addEventListener('click', sendText);
+  if(textInput) textInput.addEventListener('keydown', e => { if(e.key==='Enter') sendText(); });
+
+  // ensure voices are loaded
+  if('speechSynthesis' in window) window.speechSynthesis.getVoices();
+})();
+
+/* ════════════════════════════════════════════════════════════
+   PHASE 2 — LIVE AGENT CARDS + CLAUDE API
+   ════════════════════════════════════════════════════════════ */
+(function(){
+  const modal     = document.getElementById('agent-modal');
+  const backdrop  = document.getElementById('agent-modal-backdrop');
+  const closeBtn  = document.getElementById('agent-modal-close');
+  const agentIdEl = document.getElementById('modal-agent-id');
+  const roleEl    = document.getElementById('modal-agent-role');
+  const laText    = document.getElementById('modal-la-text');
+  const responseEl= document.getElementById('modal-response');
+  const cmdInput  = document.getElementById('modal-command-input');
+  const sendBtn   = document.getElementById('modal-send-btn');
+  if(!modal) return;
+
+  let currentAgent = null;
+  let history      = [];   // [{role, content}] — last 6 entries
+  let busy         = false;
+
+  const LAST_ACTIONS = {
+    apex:    'Monitoring network-wide strategic objectives.',
+    oracle:  'Running competitive signal scan.',
+    signal:  'Analyzing audience engagement patterns.',
+    convert: 'Processing pipeline conversion metrics.',
+    forge:   'Infrastructure health check completed.',
+    ledger:  'Cash flow projection updated.',
+  };
+
+  function openModal(agentKey, role) {
+    currentAgent = agentKey;
+    history = [];
+    if(agentIdEl) agentIdEl.textContent = agentKey.toUpperCase();
+    if(roleEl)    roleEl.textContent    = role;
+    if(laText)    laText.textContent    = LAST_ACTIONS[agentKey] || 'Standing by.';
+    if(responseEl) responseEl.innerHTML = '';
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    setTimeout(() => cmdInput && cmdInput.focus(), 50);
+  }
+
+  function closeModal() {
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+    currentAgent = null;
+    history = [];
+    busy = false;
+  }
+
+  function logLine(text, type) {
+    if(!responseEl) return;
+    const row = document.createElement('div');
+    row.className = 'modal-log-line modal-log-' + type;
+    row.innerHTML = '<span class="modal-log-prefix">' + (type==='user'?'>':'◈') + '</span>'
+      + '<span class="modal-log-text">' + text + '</span>';
+    responseEl.appendChild(row);
+    responseEl.scrollTop = responseEl.scrollHeight;
+  }
+
+  function showThinking() {
+    const el = document.createElement('div');
+    el.className = 'agent-modal-thinking';
+    el.id = 'modal-thinking';
+    el.innerHTML = '<span></span><span></span><span></span>';
+    responseEl.appendChild(el);
+    responseEl.scrollTop = responseEl.scrollHeight;
+    return el;
+  }
+
+  function typeOut(el, text, cb) {
+    let i = 0;
+    el.textContent = '';
+    const tick = () => {
+      el.textContent += text[i++];
+      responseEl.scrollTop = responseEl.scrollHeight;
+      if(i < text.length) setTimeout(tick, 14);
+      else if(cb) cb();
+    };
+    tick();
+  }
+
+  async function sendCommand() {
+    if(busy || !currentAgent) return;
+    const cmd = cmdInput && cmdInput.value.trim();
+    if(!cmd) return;
+    cmdInput.value = '';
+    busy = true;
+    sendBtn && (sendBtn.disabled = true);
+
+    logLine(cmd, 'user');
+    history.push({ role: 'user', content: cmd });
+
+    const thinking = showThinking();
+
+    try {
+      const res = await fetch('/.netlify/functions/agent', {
+        method:  'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body:    JSON.stringify({ agent: currentAgent, command: cmd, history: history.slice(-6) }),
+      });
+
+      thinking.remove();
+
+      if(!res.ok) throw new Error('Agent returned ' + res.status);
+      const data = await res.json();
+      const text = data.response || 'No response.';
+
+      history.push({ role: 'assistant', content: text });
+      if(laText) laText.textContent = cmd.substring(0,80) + (cmd.length > 80 ? '…' : '');
+
+      // add row then type into it
+      const row = document.createElement('div');
+      row.className = 'modal-log-line modal-log-system';
+      const prefix = document.createElement('span');
+      prefix.className = 'modal-log-prefix';
+      prefix.textContent = '◈';
+      const textSpan = document.createElement('span');
+      textSpan.className = 'modal-log-text';
+      row.appendChild(prefix);
+      row.appendChild(textSpan);
+      responseEl.appendChild(row);
+
+      typeOut(textSpan, text, () => { busy = false; sendBtn && (sendBtn.disabled = false); });
+
+    } catch(err) {
+      thinking.remove();
+      logLine('Agent unreachable. Ensure the Netlify function is deployed and ANTHROPIC_API_KEY is set.', 'system');
+      busy = false;
+      sendBtn && (sendBtn.disabled = false);
+    }
+  }
+
+  // wire agent cards
+  document.querySelectorAll('.agent-card[data-agent]').forEach(card => {
+    card.addEventListener('click', () => openModal(card.dataset.agent, card.dataset.role));
+    card.addEventListener('keydown', e => {
+      if(e.key==='Enter'||e.key===' ') { e.preventDefault(); openModal(card.dataset.agent, card.dataset.role); }
+    });
+  });
+
+  if(closeBtn)  closeBtn.addEventListener('click', closeModal);
+  if(backdrop)  backdrop.addEventListener('click', closeModal);
+  document.addEventListener('keydown', e => { if(e.key==='Escape' && modal.classList.contains('active')) closeModal(); });
+  if(sendBtn)   sendBtn.addEventListener('click', sendCommand);
+  if(cmdInput)  cmdInput.addEventListener('keydown', e => { if(e.key==='Enter') sendCommand(); });
+})();
+</script>
+<!-- ═══════════════════════════════════════════════════════
+     PHASE 1 — JARVIS FULL-SCREEN VOICE OVERLAY
+     ═══════════════════════════════════════════════════════ -->
+<div id="jarvis-overlay" role="dialog" aria-modal="true" aria-label="Jarvis Mode — NYX Voice OS">
+  <div class="jarvis-bg"></div>
+  <div class="jarvis-grid-bg"></div>
+  <!-- Header -->
+  <div class="jarvis-header">
+    <div class="jarvis-header-logo">NYX</div>
+    <div class="jarvis-header-status">
+      <span class="jarvis-status-dot"></span>
+      <span id="jarvis-status-text">STANDBY</span>
+    </div>
+    <button id="jarvis-close" class="jarvis-close" aria-label="Close Jarvis Mode">
+      <svg viewBox="0 0 14 14" fill="none"><line x1="2" y1="2" x2="12" y2="12" stroke="currentColor" stroke-width="0.8"/><line x1="12" y1="2" x2="2" y2="12" stroke="currentColor" stroke-width="0.8"/></svg>
+    </button>
+  </div>
+  <!-- Main: ring + panel -->
+  <div class="jarvis-main">
+    <div class="jarvis-ring-wrap">
+      <svg class="jarvis-ring-svg" viewBox="0 0 400 400" fill="none" aria-hidden="true">
+        <circle cx="200" cy="200" r="188" stroke="#C4A97C" stroke-width="0.3" opacity="0.08"/>
+        <circle cx="200" cy="200" r="168" stroke="#C4A97C" stroke-width="0.4" opacity="0.12" stroke-dasharray="1.5 11">
+          <animateTransform attributeName="transform" type="rotate" from="0 200 200" to="360 200 200" dur="80s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="200" cy="200" r="142" stroke="#C4A97C" stroke-width="0.6" opacity="0.18" stroke-dasharray="2 9">
+          <animateTransform attributeName="transform" type="rotate" from="360 200 200" to="0 200 200" dur="55s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="200" cy="200" r="110" stroke="#C4A97C" stroke-width="0.9" opacity="0.26" stroke-dasharray="3 7">
+          <animateTransform attributeName="transform" type="rotate" from="0 200 200" to="360 200 200" dur="35s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="200" cy="200" r="76" stroke="#C4A97C" stroke-width="1.3" opacity="0.42" class="jarvis-ring-pulse"/>
+        <circle cx="200" cy="200" r="44" stroke="#C4A97C" stroke-width="1.8" opacity="0.62"/>
+        <circle cx="200" cy="200" r="13" fill="#C4A97C" opacity="0.88" class="jarvis-core-dot"/>
+        <line x1="200" y1="12" x2="200" y2="36" stroke="#C4A97C" stroke-width="0.7" opacity="0.3"/>
+        <line x1="200" y1="364" x2="200" y2="388" stroke="#C4A97C" stroke-width="0.7" opacity="0.3"/>
+        <line x1="12" y1="200" x2="36" y2="200" stroke="#C4A97C" stroke-width="0.7" opacity="0.3"/>
+        <line x1="364" y1="200" x2="388" y2="200" stroke="#C4A97C" stroke-width="0.7" opacity="0.3"/>
+        <path d="M 28,28 L 28,52 M 28,28 L 52,28" stroke="#C4A97C" stroke-width="0.7" opacity="0.22"/>
+        <path d="M 372,28 L 372,52 M 372,28 L 348,28" stroke="#C4A97C" stroke-width="0.7" opacity="0.22"/>
+        <path d="M 28,372 L 28,348 M 28,372 L 52,372" stroke="#C4A97C" stroke-width="0.7" opacity="0.22"/>
+        <path d="M 372,372 L 372,348 M 372,372 L 348,372" stroke="#C4A97C" stroke-width="0.7" opacity="0.22"/>
+      </svg>
+      <canvas id="jarvis-wave" class="jarvis-wave" aria-hidden="true"></canvas>
+    </div>
+    <div class="jarvis-panel">
+      <div class="jarvis-panel-label">Command Log</div>
+      <div id="jarvis-transcript" class="jarvis-transcript" aria-live="polite" aria-label="Command log"></div>
+      <div class="jarvis-input-row">
+        <input id="jarvis-text-input" class="jarvis-text-input" type="text" placeholder="Type a command..." autocomplete="off" spellcheck="false" aria-label="Text command input"/>
+        <button id="jarvis-send-btn" class="jarvis-send-btn" aria-label="Send command">
+          <svg viewBox="0 0 14 14" fill="none"><polyline points="2,7 11,7" stroke="currentColor" stroke-width="0.85"/><polyline points="7.5,3 11,7 7.5,11" stroke="currentColor" stroke-width="0.85"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Agent status bar -->
+  <div class="jarvis-agents-bar" aria-label="Agent status">
+    <div class="jarvis-agent-chip" data-agent="apex"><span class="jac-dot"></span><span>APEX</span></div>
+    <div class="jarvis-agent-chip" data-agent="oracle"><span class="jac-dot"></span><span>ORACLE</span></div>
+    <div class="jarvis-agent-chip" data-agent="signal"><span class="jac-dot"></span><span>SIGNAL</span></div>
+    <div class="jarvis-agent-chip" data-agent="convert"><span class="jac-dot"></span><span>CONVERT</span></div>
+    <div class="jarvis-agent-chip" data-agent="forge"><span class="jac-dot"></span><span>FORGE</span></div>
+    <div class="jarvis-agent-chip" data-agent="ledger"><span class="jac-dot"></span><span>LEDGER</span></div>
+  </div>
+  <div class="jarvis-esc-hint">ESC — DEACTIVATE</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     PHASE 2 — AGENT MODAL
+     ═══════════════════════════════════════════════════════ -->
+<div id="agent-modal" role="dialog" aria-modal="true" aria-label="Agent interface">
+  <div class="agent-modal-backdrop" id="agent-modal-backdrop"></div>
+  <div class="agent-modal-panel">
+    <div class="agent-modal-header">
+      <div>
+        <div class="agent-modal-id" id="modal-agent-id">APEX</div>
+        <div class="agent-modal-role" id="modal-agent-role">Chief Executive Officer</div>
+      </div>
+      <div class="agent-modal-status">
+        <span class="agent-modal-dot"></span>
+        <span>ONLINE</span>
+      </div>
+      <button id="agent-modal-close" class="agent-modal-close" aria-label="Close agent modal">
+        <svg viewBox="0 0 14 14" fill="none"><line x1="2" y1="2" x2="12" y2="12" stroke="currentColor" stroke-width="0.8"/><line x1="12" y1="2" x2="2" y2="12" stroke="currentColor" stroke-width="0.8"/></svg>
+      </button>
+    </div>
+    <div class="agent-modal-last-action">
+      <span class="agent-modal-la-label">Context</span>
+      <span id="modal-la-text">Send a command to activate this agent.</span>
+    </div>
+    <div id="modal-response" class="agent-modal-response" aria-live="polite"></div>
+    <div class="agent-modal-input-row">
+      <input id="modal-command-input" class="agent-modal-input" type="text" placeholder="Send a command..." autocomplete="off" spellcheck="false" aria-label="Command input"/>
+      <button id="modal-send-btn" class="agent-modal-send">Execute</button>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
