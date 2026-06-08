@@ -1248,7 +1248,7 @@ footer{
           <div class="vhud-corner vhud-tr"></div>
           <div class="vhud-corner vhud-bl"></div>
           <div class="vhud-corner vhud-br"></div>
-          <div class="vhud-label">JARVIS.MODE / ACTIVE</div>
+          <div class="vhud-label">ALFRED.MODE / ACTIVE</div>
           <div class="vhud-ring">
             <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="100" cy="100" r="88" stroke="#C4A97C" stroke-width="0.3" opacity="0.12"/>
@@ -2248,17 +2248,17 @@ function startScanLine(){
   style.textContent = `
     #alfred-overlay{
       position:fixed;inset:0;z-index:99998;background:#000;
-      display:flex;flex-direction:column;
-      opacity:0;pointer-events:none;transition:opacity 0.7s cubic-bezier(0.16,1,0.3,1);
+      opacity:0;pointer-events:none;
+      transition:opacity 0.7s cubic-bezier(0.16,1,0.3,1);
       overflow:hidden;
     }
     #alfred-overlay.active{opacity:1;pointer-events:all}
 
-    /* particle canvas — full background */
-    #af-net-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+    /* full-screen ring canvas — the hero visual */
+    #af-ring-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1}
 
     /* HUD corners */
-    .af-corner{position:absolute;width:36px;height:36px;border-color:rgba(196,169,124,0.35);border-style:solid;z-index:2}
+    .af-corner{position:absolute;width:40px;height:40px;border-color:rgba(196,169,124,0.3);border-style:solid;z-index:4}
     .af-corner.tl{top:24px;left:24px;border-width:1px 0 0 1px}
     .af-corner.tr{top:24px;right:24px;border-width:1px 1px 0 0}
     .af-corner.bl{bottom:24px;left:24px;border-width:0 0 1px 1px}
@@ -2266,89 +2266,81 @@ function startScanLine(){
 
     /* header */
     .af-header{
-      position:relative;z-index:2;
+      position:absolute;top:0;left:0;right:0;z-index:4;
       display:flex;align-items:center;justify-content:space-between;
-      padding:20px 32px;border-bottom:1px solid rgba(196,169,124,0.08);flex-shrink:0;
+      padding:22px 36px;
     }
-    .af-logo{font-family:var(--mono);font-size:9px;letter-spacing:0.45em;color:rgba(196,169,124,0.7);text-transform:uppercase}
-    .af-header-status{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:8px;letter-spacing:0.28em;color:rgba(196,169,124,0.4);text-transform:uppercase}
+    .af-logo{font-family:var(--mono);font-size:9px;letter-spacing:0.45em;color:rgba(196,169,124,0.65);text-transform:uppercase}
+    .af-header-mid{font-family:var(--mono);font-size:8px;letter-spacing:0.32em;color:rgba(196,169,124,0.35);text-transform:uppercase;display:flex;align-items:center;gap:8px}
     .af-status-dot{width:5px;height:5px;border-radius:50%;background:#C4A97C;animation:af-dot-pulse 1.8s ease-in-out infinite;flex-shrink:0}
     @keyframes af-dot-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.3;transform:scale(0.6)}}
-    .af-close-btn{font-family:var(--mono);font-size:8px;letter-spacing:0.25em;color:rgba(240,237,232,0.2);text-transform:uppercase;cursor:pointer;transition:color .2s;user-select:none;background:none;border:none;padding:0}
-    .af-close-btn:hover{color:rgba(240,237,232,0.6)}
+    .af-close-btn{font-family:var(--mono);font-size:8px;letter-spacing:0.25em;color:rgba(240,237,232,0.18);text-transform:uppercase;cursor:pointer;transition:color .2s;user-select:none;background:none;border:none;padding:0}
+    .af-close-btn:hover{color:rgba(240,237,232,0.55)}
 
-    /* main content */
-    .af-body{
-      position:relative;z-index:2;flex:1;
-      display:flex;flex-direction:column;align-items:center;justify-content:center;
-      padding:24px;gap:0;min-height:0;
+    /* center UI — overlaid on top of the big ring */
+    .af-center{
+      position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+      z-index:3;display:flex;flex-direction:column;align-items:center;
+      width:min(600px,88vw);text-align:center;pointer-events:none;
     }
-
-    /* scan line ring — replaces old SVG orb */
-    .af-ring-wrap{position:relative;width:180px;height:180px;flex-shrink:0;margin-bottom:36px}
-    .af-ring-wrap canvas{position:absolute;inset:0;width:100%;height:100%}
-    .af-ring-label{
-      position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);
-      font-family:var(--mono);font-size:8px;letter-spacing:0.3em;
-      color:rgba(196,169,124,0.45);text-transform:uppercase;white-space:nowrap;
+    .af-orb-label{
+      font-family:var(--mono);font-size:8px;letter-spacing:0.38em;
+      color:rgba(196,169,124,0.5);text-transform:uppercase;margin-bottom:0;
+      transition:color .3s;min-height:14px;
     }
-
-    /* response text */
+    .af-orb-label.on{color:#C4A97C}
     .af-response{
-      max-width:600px;width:90%;text-align:center;
       font-family:'Cormorant Garamond',Georgia,serif;
-      font-size:clamp(17px,2.1vw,24px);font-weight:300;font-style:italic;
-      color:rgba(240,237,232,0.85);line-height:1.7;letter-spacing:0.02em;
-      opacity:0;transition:opacity 0.6s ease;min-height:56px;padding:0 20px;
+      font-size:clamp(18px,2.4vw,28px);font-weight:300;font-style:italic;
+      color:rgba(240,237,232,0.9);line-height:1.65;letter-spacing:0.02em;
+      opacity:0;transition:opacity 0.6s ease;min-height:60px;padding:0 24px;
+      margin-top:12px;
     }
     .af-response.show{opacity:1}
+    .af-transcript{
+      font-family:var(--mono);font-size:9px;letter-spacing:0.12em;
+      color:rgba(196,169,124,0.28);text-transform:uppercase;
+      margin-top:14px;min-height:14px;max-width:440px;line-height:1.5;
+    }
 
-    /* divider */
-    .af-rule{width:36px;height:1px;background:rgba(196,169,124,0.2);margin:22px auto}
-
-    /* status + transcript */
+    /* bottom bar — status + input */
+    .af-bottom{
+      position:absolute;bottom:60px;left:50%;transform:translateX(-50%);
+      z-index:4;display:flex;flex-direction:column;align-items:center;gap:14px;
+      width:min(520px,88vw);
+    }
     .af-status{
-      font-family:var(--mono);font-size:8px;letter-spacing:0.38em;
-      color:rgba(196,169,124,0.35);text-transform:uppercase;text-align:center;
-      transition:color .3s;min-height:13px;
+      font-family:var(--mono);font-size:7.5px;letter-spacing:0.38em;
+      color:rgba(196,169,124,0.28);text-transform:uppercase;text-align:center;
+      transition:color .3s;
     }
     .af-status.on{color:#C4A97C}
-    .af-transcript{
-      font-family:var(--mono);font-size:8.5px;letter-spacing:0.1em;
-      color:rgba(240,237,232,0.2);text-transform:uppercase;text-align:center;
-      margin-top:8px;min-height:13px;max-width:480px;line-height:1.5;
-    }
-
-    /* text input row */
-    .af-input-row{
-      display:flex;gap:6px;margin-top:20px;width:min(480px,86vw);flex-shrink:0;
-    }
+    .af-input-row{display:flex;gap:6px;width:100%}
     .af-text-in{
-      flex:1;background:rgba(196,169,124,0.04);border:1px solid rgba(196,169,124,0.14);
+      flex:1;background:rgba(0,0,0,0.6);border:1px solid rgba(196,169,124,0.16);
       color:rgba(240,237,232,0.8);font-family:var(--mono);font-size:8.5px;
-      letter-spacing:0.1em;text-transform:uppercase;padding:10px 14px;
-      outline:none;transition:border-color .2s;
+      letter-spacing:0.1em;text-transform:uppercase;padding:11px 14px;
+      outline:none;transition:border-color .2s;pointer-events:all;
     }
     .af-text-in::placeholder{color:rgba(196,169,124,0.2)}
-    .af-text-in:focus{border-color:rgba(196,169,124,0.38)}
+    .af-text-in:focus{border-color:rgba(196,169,124,0.4)}
     .af-send{
-      background:rgba(196,169,124,0.07);border:1px solid rgba(196,169,124,0.18);
+      background:rgba(196,169,124,0.08);border:1px solid rgba(196,169,124,0.2);
       color:rgba(196,169,124,0.6);font-family:var(--mono);font-size:7.5px;
-      letter-spacing:0.2em;text-transform:uppercase;padding:0 16px;
-      cursor:pointer;transition:background .2s,color .2s;white-space:nowrap;
+      letter-spacing:0.2em;text-transform:uppercase;padding:0 18px;
+      cursor:pointer;transition:background .2s,color .2s;white-space:nowrap;pointer-events:all;
     }
-    .af-send:hover{background:rgba(196,169,124,0.14);color:#C4A97C}
+    .af-send:hover{background:rgba(196,169,124,0.16);color:#C4A97C}
 
-    /* hint bar */
     .af-hint{
-      position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+      position:absolute;bottom:24px;left:50%;transform:translateX(-50%);
       font-family:var(--mono);font-size:7.5px;letter-spacing:0.22em;
-      color:rgba(240,237,232,0.1);text-transform:uppercase;white-space:nowrap;z-index:2;
+      color:rgba(240,237,232,0.08);text-transform:uppercase;white-space:nowrap;z-index:4;
     }
     @media(max-width:600px){
-      .af-ring-wrap{width:140px;height:140px}
-      .af-response{font-size:15px}
+      .af-response{font-size:16px}
       .af-header{padding:16px 20px}
+      .af-bottom{bottom:50px}
     }
   `;
   document.head.appendChild(style);
@@ -2357,28 +2349,27 @@ function startScanLine(){
   const overlay = document.createElement('div');
   overlay.id = 'alfred-overlay';
   overlay.innerHTML = `
-    <canvas id="af-net-canvas"></canvas>
+    <canvas id="af-ring-canvas"></canvas>
     <div class="af-corner tl"></div><div class="af-corner tr"></div>
     <div class="af-corner bl"></div><div class="af-corner br"></div>
     <div class="af-header">
       <div class="af-logo">NYX</div>
-      <div class="af-header-status"><span class="af-status-dot"></span><span id="af-status">STANDBY</span></div>
+      <div class="af-header-mid"><span class="af-status-dot"></span>ALFRED.MODE / ACTIVE</div>
       <button class="af-close-btn" id="af-close">ESC — EXIT</button>
     </div>
-    <div class="af-body">
-      <div class="af-ring-wrap">
-        <canvas id="af-orb-canvas"></canvas>
-        <div class="af-ring-label" id="af-orb-label">STANDBY</div>
-      </div>
+    <div class="af-center">
+      <div class="af-orb-label" id="af-orb-label">STANDBY</div>
       <div class="af-response" id="af-response"></div>
-      <div class="af-rule"></div>
       <div class="af-transcript" id="af-transcript"></div>
+    </div>
+    <div class="af-bottom">
+      <div class="af-status" id="af-status">INITIALISING</div>
       <div class="af-input-row">
         <input id="af-text-in" class="af-text-in" type="text" placeholder="Or type a question..." autocomplete="off" spellcheck="false"/>
         <button class="af-send" id="af-send">SEND</button>
       </div>
     </div>
-    <div class="af-hint">SPEAK NATURALLY OR TYPE — ASK ANYTHING</div>
+    <div class="af-hint">SPEAK OR TYPE — ENGLISH &amp; ARABIC SUPPORTED</div>
   `;
   document.body.appendChild(overlay);
 
@@ -2391,12 +2382,11 @@ function startScanLine(){
   let recognition = null, listening = false, alfredOpen = false, speaking = false;
   let netState = 'standby'; // 'standby' | 'listening' | 'speaking'
 
-  // ── PARTICLE NETWORK (background canvas) ─────────────────
-  (function initNet(){
-    const canvas = document.getElementById('af-net-canvas');
+  // ── BIG RING CANVAS (hero fullscreen animation) ──────────
+  (function initRing(){
+    const canvas = document.getElementById('af-ring-canvas');
     const ctx = canvas.getContext('2d');
-    let W, H, particles = [];
-    const COUNT = 130, CONNECT_DIST = 150, GOLD = '196,169,124';
+    let W, H;
 
     function resize(){
       W = canvas.width  = window.innerWidth;
@@ -2405,146 +2395,134 @@ function startScanLine(){
     resize();
     window.addEventListener('resize', resize);
 
-    function randBetween(a, b){ return a + Math.random()*(b-a); }
+    // Wave rings emitted on word boundaries
+    const waves = []; // {r, maxR, alpha}
 
-    for(let i=0;i<COUNT;i++){
-      particles.push({
-        x: Math.random()*1000,
-        y: Math.random()*800,
-        vx: randBetween(-0.28, 0.28),
-        vy: randBetween(-0.28, 0.28),
-        r:  randBetween(1.0, 2.0),
-        op: randBetween(0.3, 0.75),
-      });
-    }
+    // Expose emitter so speak() can trigger it
+    window._alfredEmitWave = function() {
+      const R = Math.min(W, H) * 0.5;
+      waves.push({ r: R * 0.18, maxR: R * 0.9, alpha: 0.7 });
+    };
+
+    let angle1 = 0, angle2 = 0, angle3 = 0;
+    let pulse = 0;
+    let smoothPulse = 0;
 
     function tick(){
       if(!alfredOpen){ requestAnimationFrame(tick); return; }
       ctx.clearRect(0,0,W,H);
 
-      const speedMult = netState === 'listening' ? 2.5 : netState === 'speaking' ? 1.6 : 1.0;
-      const glowMult  = netState === 'listening' ? 1.4 : netState === 'speaking' ? 1.2 : 0.7;
+      const cx = W/2, cy = H/2;
+      const R = Math.min(W, H) * 0.5; // base radius unit
 
-      particles.forEach(p => {
-        p.x += p.vx * speedMult;
-        p.y += p.vy * speedMult;
-        if(p.x < 0) p.x = W;
-        if(p.x > W) p.x = 0;
-        if(p.y < 0) p.y = H;
-        if(p.y > H) p.y = 0;
-      });
+      // decay pulse
+      orbPulse *= 0.75;
+      smoothPulse += (orbPulse - smoothPulse) * 0.22;
 
-      // draw connections
-      for(let i=0;i<COUNT;i++){
-        for(let j=i+1;j<COUNT;j++){
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const d = Math.sqrt(dx*dx+dy*dy);
-          if(d < CONNECT_DIST){
-            const a = (1 - d/CONNECT_DIST) * 0.18 * glowMult;
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `rgba(${GOLD},${a})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        }
-      }
+      const isSpeaking  = netState === 'speaking';
+      const isListening = netState === 'listening';
 
-      // draw dots
-      particles.forEach(p => {
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-        ctx.fillStyle = `rgba(${GOLD},${p.op * glowMult})`;
-        ctx.fill();
-      });
+      pulse += 0.04;
+      const spinBase = isSpeaking ? 0.012 : isListening ? 0.009 : 0.004;
+      const spinBoost = smoothPulse * 0.035;
+      angle1 +=  spinBase + spinBoost;
+      angle2 -= (spinBase * 0.7) + spinBoost * 0.8;
+      angle3 +=  spinBase * 0.4;
 
-      requestAnimationFrame(tick);
-    }
-    tick();
-  })();
+      const baseGlow = isListening ? 0.9 : isSpeaking ? 0.75 : 0.45;
+      const glow = Math.min(1.0, baseGlow + smoothPulse * 0.4);
 
-  // ── ORB CANVAS (ring visualiser — voice-reactive) ─────────
-  (function initOrb(){
-    const canvas = document.getElementById('af-orb-canvas');
-    const ctx = canvas.getContext('2d');
-    canvas.width = 180; canvas.height = 180;
-    const cx = 90, cy = 90;
-    let angle1 = 0, angle2 = 0, pulse = 0;
-    let smoothPulse = 0; // smoothed version of orbPulse
+      // ── radial glow at center ─────────────────────────────
+      const glowR = R * (0.45 + smoothPulse * 0.25 + (isSpeaking ? Math.sin(pulse*2)*0.03 : 0));
+      const radGrad = ctx.createRadialGradient(cx,cy,0,cx,cy,glowR);
+      radGrad.addColorStop(0,   `rgba(196,169,124,${0.06 * glow})`);
+      radGrad.addColorStop(0.5, `rgba(196,169,124,${0.03 * glow})`);
+      radGrad.addColorStop(1,   'rgba(196,169,124,0)');
+      ctx.beginPath(); ctx.arc(cx,cy,glowR,0,Math.PI*2);
+      ctx.fillStyle = radGrad; ctx.fill();
 
-    function tick(){
-      if(!alfredOpen){ requestAnimationFrame(tick); return; }
-      ctx.clearRect(0,0,180,180);
-
-      // Decay orbPulse each frame; smooth it
-      orbPulse *= 0.78;
-      smoothPulse += (orbPulse - smoothPulse) * 0.25;
-
-      const isSpeakingNow = netState === 'speaking';
-      const isListeningNow = netState === 'listening';
-
-      // Base glow + word-boundary boost
-      const baseGlow = isListeningNow ? 0.85 : isSpeakingNow ? 0.65 : 0.42;
-      const glow = baseGlow + smoothPulse * 0.5;
-
-      pulse += 0.045;
-      // Rings spin faster when talking / listening, and jolt on word boundaries
-      const spinBoost = smoothPulse * 0.04;
-      angle1 += (isListeningNow ? 0.028 : isSpeakingNow ? 0.018 : 0.007) + spinBoost;
-      angle2 -= (isSpeakingNow  ? 0.024 : isListeningNow ? 0.014 : 0.005) + spinBoost;
-
-      // outer ghost ring — scales slightly on word boundary
-      const outerR = 82 + smoothPulse * 6;
-      ctx.beginPath(); ctx.arc(cx, cy, outerR, 0, Math.PI*2);
-      ctx.strokeStyle = `rgba(196,169,124,${0.07 * glow})`;
-      ctx.lineWidth = 0.5; ctx.stroke();
-
-      // rotating dashed ring 1
-      ctx.save(); ctx.translate(cx,cy); ctx.rotate(angle1);
-      ctx.beginPath(); ctx.arc(0,0,68 + smoothPulse*4,0,Math.PI*2);
-      ctx.setLineDash([4,12]);
-      ctx.strokeStyle = `rgba(196,169,124,${0.26 * glow})`;
+      // ── outermost ghost ring ──────────────────────────────
+      const r0 = R * (0.78 + smoothPulse * 0.06);
+      ctx.beginPath(); ctx.arc(cx,cy,r0,0,Math.PI*2);
+      ctx.strokeStyle = `rgba(196,169,124,${0.06 * glow})`;
       ctx.lineWidth = 0.8; ctx.stroke();
+
+      // ── large rotating dashed ring ────────────────────────
+      const r1 = R * (0.65 + smoothPulse * 0.08 + (isSpeaking ? Math.sin(pulse*1.5)*0.015 : 0));
+      ctx.save(); ctx.translate(cx,cy); ctx.rotate(angle1);
+      ctx.beginPath(); ctx.arc(0,0,r1,0,Math.PI*2);
+      ctx.setLineDash([8,22]); ctx.lineWidth = 1;
+      ctx.strokeStyle = `rgba(196,169,124,${0.22 * glow})`; ctx.stroke();
       ctx.restore();
 
-      // rotating dashed ring 2
+      // ── medium counter-rotating dashed ring ───────────────
+      const r2 = R * (0.50 + smoothPulse * 0.10 + (isListening ? Math.sin(pulse*2)*0.012 : 0));
       ctx.save(); ctx.translate(cx,cy); ctx.rotate(angle2);
-      ctx.beginPath(); ctx.arc(0,0,50 + smoothPulse*3,0,Math.PI*2);
-      ctx.setLineDash([2,8]);
-      ctx.strokeStyle = `rgba(196,169,124,${0.38 * glow})`;
-      ctx.lineWidth = 1; ctx.stroke();
-      ctx.restore(); ctx.setLineDash([]);
+      ctx.beginPath(); ctx.arc(0,0,r2,0,Math.PI*2);
+      ctx.setLineDash([5,14]); ctx.lineWidth = 1.2;
+      ctx.strokeStyle = `rgba(196,169,124,${0.32 * glow})`; ctx.stroke();
+      ctx.restore();
 
-      // solid inner ring — breathes with voice
-      const innerR = 32 + (isSpeakingNow ? Math.sin(pulse * 2.5) * 3 : 0) + smoothPulse * 5;
-      ctx.beginPath(); ctx.arc(cx,cy,innerR,0,Math.PI*2);
-      ctx.strokeStyle = `rgba(196,169,124,${0.55 * glow})`;
-      ctx.lineWidth = 1.1; ctx.stroke();
+      // ── solid breathing ring — the main hero ring ─────────
+      const breathe = isSpeaking  ? Math.sin(pulse * 2.8) * R * 0.025
+                    : isListening ? Math.sin(pulse * 1.8) * R * 0.015
+                    : Math.sin(pulse * 0.9) * R * 0.008;
+      const r3 = R * 0.36 + breathe + smoothPulse * R * 0.10;
+      ctx.save(); ctx.translate(cx,cy); ctx.rotate(angle3);
+      ctx.beginPath(); ctx.arc(0,0,r3,0,Math.PI*2);
+      ctx.setLineDash([]); ctx.lineWidth = 1.5;
+      ctx.strokeStyle = `rgba(196,169,124,${0.55 * glow})`; ctx.stroke();
+      // tick marks on this ring
+      for(let i=0;i<12;i++){
+        const a = (i/12)*Math.PI*2;
+        const x1 = Math.cos(a)*r3, y1 = Math.sin(a)*r3;
+        const x2 = Math.cos(a)*(r3+8), y2 = Math.sin(a)*(r3+8);
+        ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
+        ctx.strokeStyle = `rgba(196,169,124,${(i%3===0 ? 0.5 : 0.2) * glow})`;
+        ctx.lineWidth = i%3===0 ? 1 : 0.5; ctx.stroke();
+      }
+      ctx.restore();
 
-      // core — expands on each word boundary
-      const baseR = isSpeakingNow ? 7 + Math.sin(pulse * 3) * 2.5 : isListeningNow ? 7 + Math.sin(pulse)*2 : 6;
-      const coreR = baseR + smoothPulse * 9;
-      // glow halo
-      const grad = ctx.createRadialGradient(cx,cy,0,cx,cy,coreR*3);
-      grad.addColorStop(0, `rgba(196,169,124,${Math.min(1, 0.9*glow)})`);
-      grad.addColorStop(0.5, `rgba(196,169,124,${0.2*glow})`);
-      grad.addColorStop(1, 'rgba(196,169,124,0)');
-      ctx.beginPath(); ctx.arc(cx,cy,coreR*3,0,Math.PI*2);
-      ctx.fillStyle = grad; ctx.fill();
-      // solid core
+      // ── inner solid ring ──────────────────────────────────
+      const r4 = R * (0.22 + smoothPulse * 0.06 + (isSpeaking ? Math.sin(pulse*3)*0.01 : 0));
+      ctx.beginPath(); ctx.arc(cx,cy,r4,0,Math.PI*2);
+      ctx.setLineDash([]); ctx.lineWidth = 1;
+      ctx.strokeStyle = `rgba(196,169,124,${0.38 * glow})`; ctx.stroke();
+
+      // ── core dot with halo ────────────────────────────────
+      const coreBaseR = R * 0.04;
+      const coreR = coreBaseR + smoothPulse * R * 0.07 +
+                    (isSpeaking ? Math.sin(pulse*4)*coreBaseR*0.5 : 0);
+      const coreGrad = ctx.createRadialGradient(cx,cy,0,cx,cy,coreR*3.5);
+      coreGrad.addColorStop(0,   `rgba(196,169,124,${Math.min(1,0.95*glow)})`);
+      coreGrad.addColorStop(0.4, `rgba(196,169,124,${0.3*glow})`);
+      coreGrad.addColorStop(1,   'rgba(196,169,124,0)');
+      ctx.beginPath(); ctx.arc(cx,cy,coreR*3.5,0,Math.PI*2);
+      ctx.fillStyle=coreGrad; ctx.fill();
       ctx.beginPath(); ctx.arc(cx,cy,coreR,0,Math.PI*2);
-      ctx.fillStyle = `rgba(196,169,124,${Math.min(1, 0.95*glow)})`; ctx.fill();
+      ctx.fillStyle=`rgba(196,169,124,${Math.min(1,glow)})`; ctx.fill();
 
-      // axis ticks
-      [[0,-82],[0,82],[-82,0],[82,0]].forEach(([dx,dy]) => {
+      // ── axis lines ────────────────────────────────────────
+      [[1,0],[-1,0],[0,1],[0,-1]].forEach(([dx,dy]) => {
+        const inner = R * 0.38, outer = R * 0.42;
         ctx.beginPath();
-        ctx.moveTo(cx+dx*0.88, cy+dy*0.88);
-        ctx.lineTo(cx+dx*1.0, cy+dy*1.0);
-        ctx.strokeStyle=`rgba(196,169,124,${0.18 + smoothPulse*0.3})`;
-        ctx.lineWidth=0.5; ctx.stroke();
+        ctx.moveTo(cx+dx*inner,cy+dy*inner);
+        ctx.lineTo(cx+dx*outer,cy+dy*outer);
+        ctx.strokeStyle=`rgba(196,169,124,${0.25*glow})`;
+        ctx.lineWidth=0.8; ctx.stroke();
       });
+
+      // ── outward wave rings (word boundary pulse) ──────────
+      ctx.setLineDash([]);
+      for(let i=waves.length-1;i>=0;i--){
+        const w = waves[i];
+        w.r += 4.5;
+        w.alpha *= 0.93;
+        if(w.r > w.maxR || w.alpha < 0.01){ waves.splice(i,1); continue; }
+        ctx.beginPath(); ctx.arc(cx,cy,w.r,0,Math.PI*2);
+        ctx.strokeStyle=`rgba(196,169,124,${w.alpha * glow})`;
+        ctx.lineWidth=1.5; ctx.stroke();
+      }
 
       requestAnimationFrame(tick);
     }
@@ -2565,9 +2543,12 @@ function startScanLine(){
     utt.rate = 0.88; utt.pitch = 0.82; utt.volume = 1;
     utt.onend  = () => { speaking = false; orbPulse = 0; onDone && onDone(); };
     utt.onerror= () => { speaking = false; orbPulse = 0; onDone && onDone(); };
-    // Fire orbPulse on every word boundary → drives animation
+    // Fire pulse + outward wave on every word boundary
     utt.onboundary = (e) => {
-      if (e.name === 'word') orbPulse = 0.85 + Math.random() * 0.15;
+      if (e.name === 'word') {
+        orbPulse = 0.85 + Math.random() * 0.15;
+        if (window._alfredEmitWave) window._alfredEmitWave();
+      }
     };
     const trySpeak = () => {
       const voices = window.speechSynthesis.getVoices();
@@ -2590,6 +2571,7 @@ function startScanLine(){
     statusEl.textContent = text;
     statusEl.classList.toggle('on', state === 'on');
     orbLabel.textContent = state === 'on' ? 'LISTENING' : text === 'PROCESSING' ? 'PROCESSING' : text === 'SPEAKING' ? 'SPEAKING' : 'STANDBY';
+    orbLabel.classList.toggle('on', state === 'on');
     netState = state === 'on' ? 'listening' : text === 'SPEAKING' ? 'speaking' : 'standby';
   }
 
@@ -2610,14 +2592,11 @@ function startScanLine(){
     });
   }
 
-  // ── DUAL-LANGUAGE RECOGNITION (Arabic + English) ─────────
-  // Runs two recognizers in parallel; first result wins.
-  // Always replies in English regardless of input language.
-  let recAr = null;
-
+  // ── RECOGNITION — single recognizer, Arabic detected via text ──
+  // Arabic characters in the result are normalised to English query strings.
+  // This avoids the mic conflict caused by running two recognizers simultaneously.
   function stopAllRecognition() {
     if (recognition) { try { recognition.stop(); } catch(e){} recognition = null; }
-    if (recAr)       { try { recAr.stop();       } catch(e){} recAr = null; }
   }
 
   function startListening() {
@@ -2625,53 +2604,71 @@ function startScanLine(){
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) { setStatus('USE CHROME OR SAFARI', ''); return; }
 
-    setStatus('LISTENING', 'on');
-    transcriptEl.textContent = '';
-    let resultHandled = false;
+    recognition = new SR();
+    // Use 'ar' to catch Arabic; if the result comes back in Arabic the
+    // normaliseArabic() function maps it to English query terms.
+    // Chrome's recognition handles mixed-language input reasonably well.
+    recognition.lang = 'ar-SA'; // primary: Arabic; falls back to English words too
+    recognition.continuous = false;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 2;
 
-    function handleResult(transcript, isFinal) {
-      if (!isFinal) { transcriptEl.textContent = transcript.toUpperCase(); return; }
-      if (resultHandled) return;
-      resultHandled = true;
-      stopAllRecognition();
-      listening = false;
-      processQuery(transcript);
-    }
+    recognition.onstart = () => {
+      listening = true;
+      setStatus('LISTENING', 'on');
+      transcriptEl.textContent = '';
+    };
 
-    function makeRec(lang) {
-      const r = new SR();
-      r.lang = lang;
-      r.continuous = false;
-      r.interimResults = true;
-      r.maxAlternatives = 1;
-      r.onstart = () => { listening = true; };
-      r.onresult = (e) => {
-        let interim = '', finalText = '';
-        for (let i = e.resultIndex; i < e.results.length; i++) {
-          if (e.results[i].isFinal) finalText += e.results[i][0].transcript;
-          else interim += e.results[i][0].transcript;
-        }
-        if (finalText) handleResult(finalText, true);
-        else handleResult(interim, false);
-      };
-      r.onend = () => {
+    recognition.onresult = (e) => {
+      let interim = '', finalText = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) {
+        // Pick best alternative
+        const best = e.results[i][0].transcript;
+        if (e.results[i].isFinal) finalText += best;
+        else interim += best;
+      }
+      transcriptEl.textContent = (finalText || interim).toUpperCase();
+      if (finalText) {
         listening = false;
-        if (!resultHandled && alfredOpen && !speaking) {
-          setTimeout(() => { if (alfredOpen && !speaking && !resultHandled) startListening(); }, 400);
-        }
-      };
-      r.onerror = (e) => {
-        if (e.error === 'not-allowed') { setStatus('ALLOW MIC ACCESS', ''); resultHandled = true; }
-      };
-      return r;
-    }
+        processQuery(finalText);
+      }
+    };
 
-    recognition = makeRec('en-US');
-    recAr       = makeRec('ar-SA');
+    recognition.onend = () => {
+      listening = false;
+      if (alfredOpen && !speaking) {
+        setTimeout(() => { if (alfredOpen && !speaking) startListening(); }, 450);
+      } else {
+        setStatus('STANDBY', '');
+      }
+    };
+
+    recognition.onerror = (e) => {
+      listening = false;
+      if (e.error === 'no-speech' && alfredOpen) { setTimeout(startListening, 450); return; }
+      if (e.error === 'not-allowed') { setStatus('ALLOW MICROPHONE ACCESS', ''); return; }
+      if (e.error === 'network') {
+        // Fallback to en-US on network error (common for ar-SA on some browsers)
+        recognition = null;
+        const r2 = new SR(); r2.lang='en-US'; r2.continuous=false; r2.interimResults=true;
+        r2.onstart=()=>{listening=true; setStatus('LISTENING','on');};
+        r2.onresult=(ev)=>{
+          let f='',x='';
+          for(let i=ev.resultIndex;i<ev.results.length;i++){
+            if(ev.results[i].isFinal)f+=ev.results[i][0].transcript; else x+=ev.results[i][0].transcript;
+          }
+          transcriptEl.textContent=(f||x).toUpperCase();
+          if(f){listening=false;processQuery(f);}
+        };
+        r2.onend=()=>{listening=false;if(alfredOpen&&!speaking)setTimeout(startListening,450);};
+        r2.onerror=()=>{listening=false;if(alfredOpen&&!speaking)setTimeout(startListening,600);};
+        recognition=r2; try{r2.start();}catch(e2){}
+        return;
+      }
+      if (alfredOpen && !speaking) setTimeout(startListening, 600);
+    };
 
     try { recognition.start(); } catch(e) {}
-    // Start Arabic recognizer 80ms after English to avoid mic conflict
-    setTimeout(() => { try { if (recAr) recAr.start(); } catch(e){} }, 80);
   }
 
   // ── TEXT INPUT ─────────────────────────────────────────────
