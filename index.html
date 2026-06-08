@@ -322,6 +322,33 @@ nav.scrolled{
   margin:0 auto;opacity:0;
 }
 
+/* ── ENGINE ─────────────────────────────────────────────── */
+.engine-section{padding:clamp(80px,11vw,140px) 0;overflow:hidden;border-top:1px solid var(--line)}
+.engine-inner{max-width:1400px;margin:0 auto;padding:0 var(--sh);display:grid;grid-template-columns:1fr 1fr;gap:clamp(40px,6vw,100px);align-items:center}
+.engine-headline{font-family:var(--serif);font-size:clamp(36px,5vw,68px);font-weight:300;line-height:1.08;letter-spacing:-0.02em;color:var(--t1);margin:20px 0 24px}
+.engine-headline em{font-style:italic;color:var(--t2)}
+.engine-body{font-family:var(--mono);font-size:10.5px;letter-spacing:0.08em;color:var(--t3);line-height:1.85;text-transform:uppercase;max-width:380px;margin-bottom:36px}
+.engine-specs{display:flex;gap:32px}
+.engine-spec{display:flex;flex-direction:column;gap:6px}
+.es-label{font-family:var(--mono);font-size:8px;letter-spacing:0.35em;color:rgba(196,169,124,0.45);text-transform:uppercase}
+.es-val{font-family:var(--mono);font-size:22px;letter-spacing:0.1em;color:var(--t1)}
+.engine-canvas-wrap{position:relative;width:100%;aspect-ratio:1/1;max-width:560px;justify-self:center}
+#engine-canvas{width:100%;height:100%;display:block}
+.engine-hud-tl,.engine-hud-tr,.engine-hud-bl,.engine-hud-br{position:absolute;width:22px;height:22px;border-color:rgba(196,169,124,0.3);border-style:solid}
+.engine-hud-tl{top:0;left:0;border-width:1px 0 0 1px}
+.engine-hud-tr{top:0;right:0;border-width:1px 1px 0 0}
+.engine-hud-bl{bottom:0;left:0;border-width:0 0 1px 1px}
+.engine-hud-br{bottom:0;right:0;border-width:0 1px 1px 0}
+.engine-label-tl{position:absolute;top:-20px;left:0;font-family:var(--mono);font-size:8px;letter-spacing:0.3em;color:rgba(196,169,124,0.35);text-transform:uppercase}
+.engine-label-br{position:absolute;bottom:-20px;right:0;font-family:var(--mono);font-size:8px;letter-spacing:0.3em;color:rgba(196,169,124,0.35);text-transform:uppercase}
+@media(max-width:900px){
+  .engine-inner{grid-template-columns:1fr}
+  .engine-canvas-wrap{max-width:340px;margin:0 auto}
+  .engine-copy{text-align:center}
+  .engine-specs{justify-content:center}
+  .engine-body{margin:0 auto 36px}
+}
+
 /* ── SYSTEM PILLARS ────────────────────────────────────── */
 .system{border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .system-inner{max-width:1400px;margin:0 auto;padding:var(--sv) var(--sh)}
@@ -1024,10 +1051,35 @@ footer{
   </div>
 </section>
 
+<!-- ENGINE -->
+<section class="engine-section" id="engine" aria-label="The Engine">
+  <div class="engine-inner">
+    <div class="engine-copy">
+      <div class="sec-label"><span class="sec-label-line"></span>002 — The Engine</div>
+      <h2 class="engine-headline">Precision<br><em>in motion.</em></h2>
+      <p class="engine-body">NYX operates as a self-regulating system. Six agents. Continuous rotation. No part stops so another can move — every layer runs simultaneously, without instruction.</p>
+      <div class="engine-specs">
+        <div class="engine-spec"><span class="es-label">AGENTS</span><span class="es-val">06</span></div>
+        <div class="engine-spec"><span class="es-label">LAYERS</span><span class="es-val">04</span></div>
+        <div class="engine-spec"><span class="es-label">UPTIME</span><span class="es-val">99.97%</span></div>
+      </div>
+    </div>
+    <div class="engine-canvas-wrap">
+      <canvas id="engine-canvas"></canvas>
+      <div class="engine-hud-tl"></div>
+      <div class="engine-hud-tr"></div>
+      <div class="engine-hud-bl"></div>
+      <div class="engine-hud-br"></div>
+      <div class="engine-label-tl">NYX.ENGINE / v3.0</div>
+      <div class="engine-label-br">SIX.AGENTS / ACTIVE</div>
+    </div>
+  </div>
+</section>
+
 <!-- SYSTEM PILLARS -->
 <section class="system" id="system" aria-label="Architecture">
   <div class="system-inner">
-    <div class="sec-label"><span class="sec-label-line"></span>002 — Architecture</div>
+    <div class="sec-label"><span class="sec-label-line"></span>003 — Architecture</div>
     <h2 class="system-headline">Four principles.<br>One operating system.</h2>
     <div class="pillars">
       <div class="pillar" data-num="01">
@@ -1133,7 +1185,7 @@ footer{
 <!-- AGENT NETWORK -->
 <section class="agents-section" id="agents" aria-label="Agent Network">
   <div class="agents-inner">
-    <div class="sec-label"><span class="sec-label-line"></span>003 — Agent Network</div>
+    <div class="sec-label"><span class="sec-label-line"></span>004 — Agent Network</div>
     <h2 class="agents-headline">Six minds.<br>One operating system.</h2>
     <p class="agents-sub">Each agent operates as a specialist. They coordinate, delegate, and execute — continuously, without instruction.</p>
     <div class="agents-grid">
@@ -1174,7 +1226,7 @@ footer{
 <!-- VOICE OS -->
 <section class="voice-section" id="voice-os" aria-label="Voice Operating System">
   <div class="voice-inner">
-    <div class="sec-label"><span class="sec-label-line"></span>004 — Voice OS</div>
+    <div class="sec-label"><span class="sec-label-line"></span>005 — Voice OS</div>
     <div class="voice-split">
       <div class="voice-copy">
         <h2 class="voice-headline">Speak.<br>The system executes.</h2>
@@ -1233,7 +1285,7 @@ footer{
 <!-- ACCESS TIERS -->
 <section id="access" aria-label="Access Tiers">
   <div class="access">
-    <div class="sec-label"><span class="sec-label-line"></span>005 — Access Tiers</div>
+    <div class="sec-label"><span class="sec-label-line"></span>006 — Access Tiers</div>
     <div class="access-header">
       <h2 class="access-headline">Structured access.<br>Earned depth.</h2>
       <div class="access-sub">
@@ -2834,6 +2886,191 @@ function startScanLine(){
   document.addEventListener('keydown', e => { if(e.key==='Escape' && modal.classList.contains('active')) closeModal(); });
   if(sendBtn)   sendBtn.addEventListener('click', sendCommand);
   if(cmdInput)  cmdInput.addEventListener('keydown', e => { if(e.key==='Enter') sendCommand(); });
+})();
+
+/* ── NYX ENGINE — 3D PRECISION INSTRUMENT ───────────── */
+(function(){
+  const canvas = document.getElementById('engine-canvas');
+  if (!canvas) return;
+
+  const wrap = canvas.parentElement;
+  let W = wrap.clientWidth, H = wrap.clientHeight;
+  canvas.width = W * window.devicePixelRatio;
+  canvas.height = H * window.devicePixelRatio;
+
+  const scene    = new THREE.Scene();
+  const camera   = new THREE.PerspectiveCamera(38, W / H, 0.1, 100);
+  camera.position.set(0, 0, 7.5);
+
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(W, H);
+  renderer.setClearColor(0x000000, 0);
+
+  // ── MATERIALS ─────────────────────────────────────────
+  const gold     = new THREE.LineBasicMaterial({ color: 0xC4A97C, transparent: true, opacity: 0.75 });
+  const goldDim  = new THREE.LineBasicMaterial({ color: 0xC4A97C, transparent: true, opacity: 0.25 });
+  const goldFade = new THREE.LineBasicMaterial({ color: 0xC4A97C, transparent: true, opacity: 0.12 });
+  const white    = new THREE.LineBasicMaterial({ color: 0xF0EDE8, transparent: true, opacity: 0.18 });
+
+  // ── HELPER: edges from geometry ───────────────────────
+  function edges(geo, mat) {
+    return new THREE.LineSegments(new THREE.EdgesGeometry(geo), mat);
+  }
+  function wireframe(geo, mat) {
+    return new THREE.LineSegments(new THREE.WireframeGeometry(geo), mat);
+  }
+
+  // ── ENGINE GROUP ──────────────────────────────────────
+  const engine = new THREE.Group();
+
+  // Outer gimbal — large ring, tilted 15°
+  const ring1 = new THREE.Group();
+  const r1 = edges(new THREE.TorusGeometry(2.8, 0.018, 6, 160), gold);
+  ring1.add(r1);
+  // Tick marks on outer ring
+  for (let i = 0; i < 24; i++) {
+    const a = (i / 24) * Math.PI * 2;
+    const len = i % 6 === 0 ? 0.14 : 0.07;
+    const g = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(Math.cos(a) * 2.8, Math.sin(a) * 2.8, 0),
+      new THREE.Vector3(Math.cos(a) * (2.8 + len), Math.sin(a) * (2.8 + len), 0),
+    ]);
+    ring1.add(new THREE.Line(g, i % 6 === 0 ? goldDim : goldFade));
+  }
+  ring1.rotation.x = 0.26;
+  engine.add(ring1);
+
+  // Middle gimbal — medium ring, perpendicular axis
+  const ring2 = new THREE.Group();
+  const r2 = edges(new THREE.TorusGeometry(2.1, 0.014, 6, 128), goldDim);
+  ring2.add(r2);
+  for (let i = 0; i < 16; i++) {
+    const a = (i / 16) * Math.PI * 2;
+    const g = new THREE.BufferGeometry().setFromPoints([
+      new THREE.Vector3(0, Math.cos(a) * 2.1, Math.sin(a) * 2.1),
+      new THREE.Vector3(0, Math.cos(a) * (2.1 + 0.08), Math.sin(a) * (2.1 + 0.08)),
+    ]);
+    ring2.add(new THREE.Line(g, goldFade));
+  }
+  engine.add(ring2);
+
+  // Inner gimbal — smaller ring, diagonal axis
+  const ring3 = new THREE.Group();
+  const r3 = edges(new THREE.TorusGeometry(1.4, 0.012, 6, 96), goldDim);
+  ring3.add(r3);
+  ring3.rotation.z = Math.PI / 4;
+  ring3.rotation.x = Math.PI / 6;
+  engine.add(ring3);
+
+  // Structural cross-axle lines
+  const axleGeo = new THREE.BufferGeometry().setFromPoints([
+    new THREE.Vector3(-3.1, 0, 0), new THREE.Vector3(3.1, 0, 0)
+  ]);
+  const axle1 = new THREE.Line(axleGeo, goldFade);
+  const axle2 = axle1.clone(); axle2.rotation.z = Math.PI / 2;
+  const axle3 = axle1.clone(); axle3.rotation.y = Math.PI / 2;
+  engine.add(axle1, axle2, axle3);
+
+  // Axis end caps (small spheres at axle tips)
+  [[-3.1,0,0],[3.1,0,0],[0,-3.1,0],[0,3.1,0],[0,0,-3.1],[0,0,3.1]].forEach(([x,y,z]) => {
+    const cap = edges(new THREE.SphereGeometry(0.06, 8, 6), goldDim);
+    cap.position.set(x, y, z);
+    engine.add(cap);
+  });
+
+  // Core sphere — latitude/longitude wireframe
+  const core = wireframe(new THREE.SphereGeometry(0.55, 16, 12), goldDim);
+  engine.add(core);
+
+  // Inner core glow ring
+  const coreRing = edges(new THREE.TorusGeometry(0.55, 0.008, 4, 64), gold);
+  engine.add(coreRing);
+
+  // Equatorial detail band
+  const equator = edges(new THREE.TorusGeometry(0.72, 0.005, 4, 80), goldDim);
+  engine.add(equator);
+
+  // Node spheres at ring intersections (6 agents)
+  const nodePositions = [
+    [2.8, 0, 0], [-2.8, 0, 0],
+    [0, 2.1, 0], [0, -2.1, 0],
+    [0, 0, 1.4], [0, 0, -1.4],
+  ];
+  nodePositions.forEach(([x,y,z]) => {
+    const node = edges(new THREE.SphereGeometry(0.1, 10, 8), gold);
+    node.position.set(x, y, z);
+    engine.add(node);
+  });
+
+  // Outer ghost sphere
+  const ghost = wireframe(new THREE.SphereGeometry(3.0, 24, 16), goldFade);
+  engine.add(ghost);
+
+  scene.add(engine);
+
+  // ── SCROLL REACTIVITY ─────────────────────────────────
+  let scrollSpeed = 0;
+  let baseRotY = 0, baseRotX = 0;
+  ScrollTrigger.create({
+    trigger: '#engine',
+    start: 'top bottom',
+    end: 'bottom top',
+    onUpdate: (self) => { scrollSpeed = self.getVelocity() * 0.00002; }
+  });
+
+  // Entrance animation
+  engine.scale.set(0, 0, 0);
+  ScrollTrigger.create({
+    trigger: '#engine',
+    start: 'top 75%',
+    once: true,
+    onEnter: () => {
+      gsap.to(engine.scale, { x: 1, y: 1, z: 1, duration: 1.8, ease: 'power3.out' });
+    }
+  });
+
+  // ── RENDER LOOP ───────────────────────────────────────
+  let rafId;
+  let visible = false;
+  const obs = new IntersectionObserver(entries => {
+    visible = entries[0].isIntersecting;
+    if (visible && !rafId) tick();
+  }, { threshold: 0.01 });
+  obs.observe(canvas);
+
+  let t = 0;
+  function tick() {
+    rafId = requestAnimationFrame(tick);
+    if (!visible) { rafId = null; return; }
+    t += 0.008;
+
+    // Independent ring rotations
+    ring1.rotation.y += 0.004 + scrollSpeed;
+    ring2.rotation.x += 0.006 + scrollSpeed * 0.8;
+    ring3.rotation.z += 0.009 + scrollSpeed * 1.2;
+    core.rotation.y  -= 0.003;
+    core.rotation.x  += 0.002;
+    coreRing.rotation.z += 0.005;
+    ghost.rotation.y -= 0.001;
+    ghost.rotation.x += 0.0015;
+
+    // Gentle overall drift
+    engine.rotation.y = Math.sin(t * 0.3) * 0.18;
+    engine.rotation.x = Math.sin(t * 0.2) * 0.1;
+
+    scrollSpeed *= 0.92; // dampen
+    renderer.render(scene, camera);
+  }
+
+  // ── RESIZE ────────────────────────────────────────────
+  const ro = new ResizeObserver(() => {
+    W = wrap.clientWidth; H = wrap.clientHeight;
+    camera.aspect = W / H;
+    camera.updateProjectionMatrix();
+    renderer.setSize(W, H);
+  });
+  ro.observe(wrap);
 })();
 </script>
 <!-- ═══════════════════════════════════════════════════════
