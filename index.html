@@ -1237,9 +1237,9 @@ footer{
           <li><span class="vf-label">MEMORY CONTEXT</span> Every conversation stored, recalled, and linked to decisions</li>
           <li><span class="vf-label">DEVICE AWARE</span> Optimized for desktop, mobile, and wearable input</li>
         </ul>
-        <button class="jarvis-activate-cta" id="jarvis-activate-main" data-magnetic aria-label="Activate Jarvis Mode">
+        <button class="jarvis-activate-cta" id="jarvis-activate-main" data-magnetic aria-label="Activate Alfred">
           <span class="jarvis-activate-cta-dot"></span>
-          Activate Jarvis Mode
+          Activate Alfred
         </button>
       </div>
       <div class="voice-hud-preview">
@@ -1958,7 +1958,9 @@ function startScanLine(){
 (function(){
   if (document.getElementById('alfred-overlay')) return;
 
-  // ── RESPONSES ────────────────────────────────────────────
+  // ═══════════════════════════════════════════════════════
+  //  RESPONSES & KNOWLEDGE BASE
+  // ═══════════════════════════════════════════════════════
   const R = {
     greet: [
       'Good to hear your voice. How may I be of service?',
@@ -2051,21 +2053,51 @@ function startScanLine(){
       "I don't have a live weather feed, I'm afraid. Weather.com or a glance out the window will serve you better than I can here.",
       "Weather data isn't something I pull in real time. Though I'd recommend dressing for performance regardless of conditions.",
     ],
+    // ── NYX CORE KNOWLEDGE (from brand docs) ─────────────
     nyx: [
-      "NYX is an autonomous AI operating system built for founders, executives, and elite performers. Six specialized agents. One unified system. Continuous intelligence — running whether you're watching or not.",
-      "NYX replaces the inefficiency of not having a system. It doesn't assist your process — it becomes the process. Silent, decisive, compounding.",
-      "Think of NYX as infrastructure for your mind and your business. The same way electricity powered the industrial era, NYX powers the performance era.",
+      "NYX Systems is the silent operating layer for high-performing businesses. It deploys a coordinated multi-agent backend that runs workflows end-to-end — lead handling, onboarding, retention, upsell timing, and operator support. Not a toolset. A system.",
+      "NYX is not a product. It is access, identity, and continuous optimization. Users don't buy NYX — they subscribe to it. The value isn't a tool you purchase; it's an environment you enter. Ownership is static. Subscription is compounding intelligence.",
+      "NYX is inspired by Nyx, the primordial goddess of the night. Night means control, silence, precision. Operations happen where others aren't looking. The brand principle is simple: intelligence felt before it's understood. Power that doesn't announce itself.",
+      "NYX replaces agencies — it doesn't compete with them. It installs as a backend layer that orchestrates specialized agents around your KPIs. The system is measurable, auditable, and intentionally scarce. Silent infrastructure. Elite outcomes.",
+      "NYX runs four core system layers: the Control Layer handles approvals and governance without slowing execution. The Inference Layer provides reasoning with guardrails and confidence gating. The Memory Layer handles knowledge retrieval with audited context. And the Operator Portal keeps humans in charge while automation handles the execution.",
     ],
+    tiers: [
+      "NYX has four access tiers. Tier One is Core Access — entry into the ecosystem, limited automation and basic insight. Tier Two is the Performance Layer — deeper integrations, priority processing, advanced analytics. Tier Three is the Operator Level — autonomous workflows, predictive intelligence, and white-glove support. The fourth is Private Access, which is invitation-only with custom infrastructure and undisclosed capabilities. Pricing is intentionally non-transparent at the upper tiers.",
+      "The subscription structure is designed to reinforce exclusivity. Higher access means more intelligence and less public information. Tier One gets you in. Tier Two deepens the integration. Tier Three gives you the full autonomous stack. Enterprise is custom, never advertised, and not publicly available.",
+      "NYX's commercial plans are Core, Growth, and Enterprise — all private pricing. Core is for operators who want leverage. Growth is for multi-site and aggressive expansion. Enterprise covers risk-heavy and compliance-heavy environments. You describe your workflow; NYX returns a plan within 48 hours.",
+    ],
+    pricing: [
+      "Pricing at NYX is intentionally private. NYX is not a mass-market product. Higher tiers come with more intelligence and less public information — that's by design. The best way to get pricing is to apply at nyxsystem.online and describe your workflow.",
+      "NYX doesn't publish pricing for the upper tiers. That's a deliberate strategy — scarcity reinforces value. Core access is the entry point. Operator Level and Enterprise are invitation-based. If you're asking about price, the right move is to request access at nyxsystem.online.",
+      "The subscription tiers ladder access and identity. Pricing is non-transparent by design — enterprise-grade builds are invitation-only and not publicly advertised. This isn't evasion; it's architecture. Visit nyxsystem.online to request access.",
+    ],
+    waitlist: [
+      "You can request access at nyxsystem.online. Scroll down to the Access section and submit your email. Applications are reviewed individually — NYX is selective about who it onboards. Access is scarce by design.",
+      "The waitlist is open at nyxsystem.online. Scroll to the Access Tiers section and submit your email. The team reviews each application personally. This is not a mass-market signup.",
+      "To get in, visit nyxsystem.online and apply in the Access section. You describe your workflow, and the team returns a plan within 48 hours. Then NYX proves it fast — limited scope, hard results.",
+    ],
+    architecture: [
+      "NYX is built on four layers. The Control Layer manages approvals and governance without creating drag. The Inference Layer applies reasoning discipline with confidence gating. The Memory Layer handles knowledge retrieval tied to context and auditability. And the Operator Portal ensures humans stay in decision-making control while the system handles execution.",
+      "NYX installs on top of your existing stack, then orchestrates agents around your core KPIs. The execution approach is three steps: map the workflow and approval points, connect data sources and communication channels with minimal disruption, then coordinate agents through an automation network you never have to babysit.",
+    ],
+    agents_detail: [
+      "The NYX agent network covers five delivery functions. The Sales agent handles lead follow-up, qualification, and appointment setting. The Onboarding agent manages goal capture, profile building, and program assignment. The Retention agent runs churn detection, re-engagement, and save offers. The Upsell agent delivers right-time recommendations based on behavior signals. All coordinated without instruction.",
+    ],
+    marketing: [
+      "NYX's marketing philosophy is controlled visibility. Minimal public-facing content, high-end dark aesthetic, strategic placement via select creators, founders, and operators. The product is seen, not explained. Growth is driven by scarcity, curiosity, and status signaling. If you know, you know.",
+      "NYX is built to be discovered, not advertised. No mass-market noise. No commodity pricing narratives. No oversaturation. The brand operates on the same principle as the system — unseen influence, visible outcomes.",
+    ],
+    // ── PERFORMANCE & GENERAL KNOWLEDGE ──────────────────
     productivity: [
       "The highest performers don't manage more — they eliminate what shouldn't be managed at all. That's the principle NYX is built on.",
       "Clarity and constraint are the engines of performance. Less decided in the moment means more executed with precision.",
       "Energy is finite. Systems are not. Build the system, then let it work. That's the entire philosophy.",
-      "The best productivity system is one you don't have to think about. It runs in the background and surfaces what matters.",
+      "The best system is one you don't have to think about. It runs in the background and surfaces what matters when it matters.",
     ],
     focus: [
       "Distraction is a design problem, not a willpower problem. The solution is architecture, not discipline.",
-      "Single-threaded focus beats multitasking every time. The research is settled. The execution, less so.",
-      "Deep work is the scarcest resource in a distracted economy. Whoever protects it longest wins.",
+      "Single-threaded focus beats multitasking every time. The research is settled. The application, less so.",
+      "Deep work is the scarcest resource in a distracted economy. Whoever protects it longest compounds the fastest.",
     ],
     leadership: [
       "The best leaders create systems that make their absence invisible. The organization runs — and improves — without them in the room.",
@@ -2084,22 +2116,22 @@ function startScanLine(){
     ],
     ai: [
       "Artificial intelligence is infrastructure now — like electricity in 1920. The question isn't whether to use it. It's whether you're using it better than everyone else.",
-      "Most people treat AI as a search engine with manners. The real advantage is using it as an autonomous execution layer — which is exactly what NYX does.",
-      "The AI adoption curve is steep. The people at the top aren't using it for email drafts. They're using it to replace entire operational layers.",
+      "Most people treat AI as a search engine with manners. The real advantage is deploying it as an autonomous execution layer — which is exactly what NYX does.",
+      "The AI adoption curve is steep. The operators at the top aren't using it for email drafts. They're using it to replace entire operational layers.",
     ],
     business: [
       "The highest-leverage business decision is always the one that makes future decisions unnecessary.",
       "Operators who scale do one thing differently — they build systems that produce results in their absence.",
       "Revenue is validation. Systems are the mechanism. The founder who understands both runs a different kind of company.",
-      "The fastest-growing companies aren't outworking the competition. They've made the competition irrelevant by operating on a different layer.",
+      "Clients don't need apps — they need outcomes. NYX installs on top of your existing stack and orchestrates toward your KPIs.",
     ],
     sleep: [
-      "Sleep is the most underrated performance variable. Every cognitive output degrades at a measurable rate below eight hours. The data is not ambiguous.",
-      "The ROI on a full night's sleep exceeds almost any other investment you can make in your performance. Founders who ignore this are operating at a structural disadvantage.",
+      "Sleep is the most underrated performance variable. Every cognitive output degrades at a measurable rate below eight hours. The data is unambiguous.",
+      "The ROI on a full night of sleep exceeds almost any other performance investment you can make. Founders who ignore this are operating at a structural disadvantage.",
     ],
     health: [
       "Physical capacity sets the ceiling for cognitive capacity. The body and mind aren't separate systems — they run on the same fuel.",
-      "High performance is a physical discipline before it's a mental one. The elite operators I've observed treat their health like infrastructure.",
+      "High performance is a physical discipline before it's a mental one. The operators who compound longest treat their health like infrastructure.",
     ],
     money: [
       "Wealth is not income — it's the gap between what flows in and what is deployed wisely. Most high earners confuse the two.",
@@ -2111,29 +2143,84 @@ function startScanLine(){
     ],
     hiring: [
       "Hire for the ceiling, not the floor. The question isn't whether someone can do the job today — it's whether they'll outgrow it in eighteen months.",
-      "Culture is determined by the worst behavior you tolerate, not the best behavior you promote. Hiring slowly and firing quickly isn't harsh — it's respectful.",
+      "Culture is determined by the worst behavior you tolerate, not the best behavior you promote. Hiring slowly and firing deliberately isn't harsh — it's respectful.",
     ],
     decision: [
-      "Most decisions aren't reversible — they're just slow to correct. Treat them accordingly. Move fast on reversible decisions, slow on irreversible ones.",
-      "The quality of your decisions is largely a function of the quality of the information you're operating on. Bad data, bad decisions. Simple arithmetic.",
+      "Most decisions aren't irreversible — they're just slow to correct. Move fast on reversible ones, slow on structural ones.",
+      "The quality of your decisions is largely a function of the quality of the information you're operating on. Bad data produces bad decisions. Simple arithmetic.",
     ],
   };
 
+  // ── Arabic detection & translation map ──────────────────
+  function isArabic(text) {
+    return /[؀-ۿ]/.test(text);
+  }
+
+  // Arabic keyword patterns → English query normalisation
+  const AR_MAP = [
+    [/ما.*الوقت|الساعة|كم الساعة/,           'what time is it'],
+    [/ما.*التاريخ|اليوم/,                      'what is today date'],
+    [/طقس|جو|حرارة|مطر/,                      'weather'],
+    [/ما.*نيكس|ما هو nyx|اشرح nyx|عن nyx/,   'what is nyx'],
+    [/الوكلاء|الوكيل|قائمة الوكلاء/,          'list agents'],
+    [/أبيكس|apex/i,                            'apex agent'],
+    [/أوراكل|oracle/i,                         'oracle agent'],
+    [/سيغنال|signal/i,                         'signal agent'],
+    [/كونفرت|convert/i,                        'convert agent'],
+    [/فورج|forge/i,                            'forge agent'],
+    [/ليدجر|ledger/i,                          'ledger agent'],
+    [/سعر|تسعير|اشتراك|خطة|تير|كم التكلفة/,  'pricing subscription'],
+    [/قائمة الانتظار|انضمام|وصول|سجل/,        'join waitlist'],
+    [/الحالة|كيف النظام|تقرير/,               'system status'],
+    [/من أنت|ما اسمك|عرّف نفسك|ألفريد/,      'who are you alfred'],
+    [/إنتاجية|كفاءة|إدارة الوقت/,             'productivity'],
+    [/تركيز|تشتت|انتباه/,                      'focus'],
+    [/قيادة|فريق|ثقافة/,                       'leadership'],
+    [/نجاح|أداء|متميز/,                        'success performance'],
+    [/تحفيز|انضباط|طموح/,                      'motivation discipline'],
+    [/ذكاء اصطناعي|AI|تعلم آلي/,              'artificial intelligence'],
+    [/أعمال|شركة|مشروع|إيرادات/,              'business startup'],
+    [/نوم|راحة|تعافي/,                         'sleep'],
+    [/صحة|لياقة|رياضة/,                        'health fitness'],
+    [/مال|ثروة|استثمار|مالية/,                'money wealth'],
+    [/قراءة|كتاب|تعلم/,                        'reading books'],
+    [/توظيف|مواهب|فريق/,                       'hiring talent'],
+    [/قرار|خيار|مخاطر/,                        'decision making'],
+    [/شكرا|ممتاز|عظيم/,                        'thank you'],
+    [/وداع|إنهاء|خروج|أوقف/,                  'goodbye shutdown'],
+    [/مساعدة|ماذا تعرف|ماذا تستطيع/,          'help capabilities'],
+    [/مرحبا|أهلا|صباح|مساء/,                  'hello greetings'],
+  ];
+
+  function normaliseArabic(text) {
+    const lower = text.toLowerCase();
+    for (const [pattern, replacement] of AR_MAP) {
+      if (pattern.test(lower)) return replacement;
+    }
+    return text; // pass through; will hit unknown fallback
+  }
+
   function getReply(query) {
-    const t = query.toLowerCase().trim();
+    let t = query.trim();
+    if (isArabic(t)) t = normaliseArabic(t);
+    t = t.toLowerCase();
+
     if (/what.*(time|clock)|current time|time is it|\btime\b/.test(t)) return pick(KB.time());
     if (/what.*(date|day)|today|day is it/.test(t)) return pick(KB.date());
     if (/weather|temperature|forecast|rain|sunny|cold|hot outside/.test(t)) return pick(KB.weather);
-    if (/what is nyx|what.*nyx do|nyx.*work|tell.*nyx|explain nyx|about nyx/.test(t)) return pick(KB.nyx);
+    if (/what is nyx|what.*nyx do|nyx.*work|tell.*nyx|explain nyx|about nyx|\bnyx\b/.test(t)) return pick(KB.nyx);
+    if (/layer|architecture|control layer|inference|memory layer|operator portal|how.*built|system.*built/.test(t)) return pick(KB.architecture);
+    if (/marketing|brand|how.*grow|demand|scarcity|visibility|audience/.test(t)) return pick(KB.marketing);
     if (/\bapex\b/.test(t)) return pick(R.apex);
     if (/\boracle\b/.test(t)) return pick(R.oracle);
     if (/\bsignal\b/.test(t)) return pick(R.signal);
     if (/\bconvert\b/.test(t)) return pick(R.convert);
     if (/\bforge\b/.test(t)) return pick(R.forge);
     if (/\bledger\b/.test(t)) return pick(R.ledger);
-    if (/agent|network|all.*agent|six.*agent|list.*agent/.test(t)) return pick(R.agents);
-    if (/price|pricing|cost|how much|tier|plan|subscription|sovereign|operator|executive/.test(t)) return pick(R.pricing);
-    if (/waitlist|join|sign up|access|register|early/.test(t)) return pick(R.waitlist);
+    if (/agent|network|all.*agent|six.*agent|list.*agent|what.*agent/.test(t)) return pick(R.agents) + ' ' + pick(KB.agents_detail);
+    if (/tier|subscription.*tier|tier.*one|tier.*two|tier.*three|core access|performance layer|operator level|enterprise|private access/.test(t)) return pick(KB.tiers);
+    if (/price|pricing|cost|how much|what.*cost|subscription.*cost/.test(t)) return pick(KB.pricing);
+    if (/waitlist|join|sign up|access|register|early|nyxsystem|how.*get in|apply/.test(t)) return pick(KB.waitlist);
     if (/status|how.*system|everything.*ok|all.*good|report/.test(t)) return pick(R.status);
     if (/who are you|what are you|your name|introduce|alfred/.test(t)) return pick(R.identity);
     if (/productiv|efficien|workflow|manage time|time management|output/.test(t)) return pick(KB.productivity);
@@ -2151,7 +2238,7 @@ function startScanLine(){
     if (/decid|decision|choice|choose|risk/.test(t)) return pick(KB.decision);
     if (/hello|hi\b|hey\b|good (morning|evening|afternoon)|wake/.test(t)) return pick(R.greet);
     if (/thank|thanks|appreciate|well done|good job/.test(t)) return pick(R.thanks);
-    if (/shutdown|stop|sleep|exit|bye|goodbye|close/.test(t)) return pick(R.shutdown);
+    if (/shutdown|stop|exit|bye|goodbye|close/.test(t)) return pick(R.shutdown);
     if (/help|what can|commands|options|what do you know|capabilities/.test(t)) return pick(R.help);
     return pick(R.unknown);
   }
@@ -2378,66 +2465,84 @@ function startScanLine(){
     tick();
   })();
 
-  // ── ORB CANVAS (ring visualiser in center) ────────────────
+  // ── ORB CANVAS (ring visualiser — voice-reactive) ─────────
   (function initOrb(){
     const canvas = document.getElementById('af-orb-canvas');
     const ctx = canvas.getContext('2d');
     canvas.width = 180; canvas.height = 180;
     const cx = 90, cy = 90;
     let angle1 = 0, angle2 = 0, pulse = 0;
+    let smoothPulse = 0; // smoothed version of orbPulse
 
     function tick(){
       if(!alfredOpen){ requestAnimationFrame(tick); return; }
       ctx.clearRect(0,0,180,180);
 
-      const glow = netState === 'listening' ? 0.9 : netState === 'speaking' ? 0.7 : 0.45;
-      pulse += 0.04;
-      angle1 += netState === 'listening' ? 0.025 : 0.008;
-      angle2 -= netState === 'speaking'  ? 0.022 : 0.006;
+      // Decay orbPulse each frame; smooth it
+      orbPulse *= 0.78;
+      smoothPulse += (orbPulse - smoothPulse) * 0.25;
 
-      // outer ghost ring
-      ctx.beginPath();
-      ctx.arc(cx, cy, 82, 0, Math.PI*2);
-      ctx.strokeStyle = `rgba(196,169,124,${0.06 * glow})`;
+      const isSpeakingNow = netState === 'speaking';
+      const isListeningNow = netState === 'listening';
+
+      // Base glow + word-boundary boost
+      const baseGlow = isListeningNow ? 0.85 : isSpeakingNow ? 0.65 : 0.42;
+      const glow = baseGlow + smoothPulse * 0.5;
+
+      pulse += 0.045;
+      // Rings spin faster when talking / listening, and jolt on word boundaries
+      const spinBoost = smoothPulse * 0.04;
+      angle1 += (isListeningNow ? 0.028 : isSpeakingNow ? 0.018 : 0.007) + spinBoost;
+      angle2 -= (isSpeakingNow  ? 0.024 : isListeningNow ? 0.014 : 0.005) + spinBoost;
+
+      // outer ghost ring — scales slightly on word boundary
+      const outerR = 82 + smoothPulse * 6;
+      ctx.beginPath(); ctx.arc(cx, cy, outerR, 0, Math.PI*2);
+      ctx.strokeStyle = `rgba(196,169,124,${0.07 * glow})`;
       ctx.lineWidth = 0.5; ctx.stroke();
 
       // rotating dashed ring 1
       ctx.save(); ctx.translate(cx,cy); ctx.rotate(angle1);
-      ctx.beginPath(); ctx.arc(0,0,68,0,Math.PI*2);
+      ctx.beginPath(); ctx.arc(0,0,68 + smoothPulse*4,0,Math.PI*2);
       ctx.setLineDash([4,12]);
-      ctx.strokeStyle = `rgba(196,169,124,${0.22 * glow})`;
-      ctx.lineWidth = 0.7; ctx.stroke();
+      ctx.strokeStyle = `rgba(196,169,124,${0.26 * glow})`;
+      ctx.lineWidth = 0.8; ctx.stroke();
       ctx.restore();
 
       // rotating dashed ring 2
       ctx.save(); ctx.translate(cx,cy); ctx.rotate(angle2);
-      ctx.beginPath(); ctx.arc(0,0,50,0,Math.PI*2);
+      ctx.beginPath(); ctx.arc(0,0,50 + smoothPulse*3,0,Math.PI*2);
       ctx.setLineDash([2,8]);
-      ctx.strokeStyle = `rgba(196,169,124,${0.35 * glow})`;
-      ctx.lineWidth = 0.9; ctx.stroke();
+      ctx.strokeStyle = `rgba(196,169,124,${0.38 * glow})`;
+      ctx.lineWidth = 1; ctx.stroke();
       ctx.restore(); ctx.setLineDash([]);
 
-      // solid ring
-      ctx.beginPath(); ctx.arc(cx,cy,32,0,Math.PI*2);
-      ctx.strokeStyle = `rgba(196,169,124,${0.5 * glow})`;
-      ctx.lineWidth = 1; ctx.stroke();
+      // solid inner ring — breathes with voice
+      const innerR = 32 + (isSpeakingNow ? Math.sin(pulse * 2.5) * 3 : 0) + smoothPulse * 5;
+      ctx.beginPath(); ctx.arc(cx,cy,innerR,0,Math.PI*2);
+      ctx.strokeStyle = `rgba(196,169,124,${0.55 * glow})`;
+      ctx.lineWidth = 1.1; ctx.stroke();
 
-      // core pulsing dot
-      const coreR = 7 + Math.sin(pulse)*3 * (netState === 'listening' ? 1.6 : 1);
-      const coreGlow = ctx.createRadialGradient(cx,cy,0,cx,cy,coreR*2.5);
-      coreGlow.addColorStop(0, `rgba(196,169,124,${0.9*glow})`);
-      coreGlow.addColorStop(1, 'rgba(196,169,124,0)');
-      ctx.beginPath(); ctx.arc(cx,cy,coreR*2.5,0,Math.PI*2);
-      ctx.fillStyle = coreGlow; ctx.fill();
+      // core — expands on each word boundary
+      const baseR = isSpeakingNow ? 7 + Math.sin(pulse * 3) * 2.5 : isListeningNow ? 7 + Math.sin(pulse)*2 : 6;
+      const coreR = baseR + smoothPulse * 9;
+      // glow halo
+      const grad = ctx.createRadialGradient(cx,cy,0,cx,cy,coreR*3);
+      grad.addColorStop(0, `rgba(196,169,124,${Math.min(1, 0.9*glow)})`);
+      grad.addColorStop(0.5, `rgba(196,169,124,${0.2*glow})`);
+      grad.addColorStop(1, 'rgba(196,169,124,0)');
+      ctx.beginPath(); ctx.arc(cx,cy,coreR*3,0,Math.PI*2);
+      ctx.fillStyle = grad; ctx.fill();
+      // solid core
       ctx.beginPath(); ctx.arc(cx,cy,coreR,0,Math.PI*2);
-      ctx.fillStyle = `rgba(196,169,124,${0.95*glow})`; ctx.fill();
+      ctx.fillStyle = `rgba(196,169,124,${Math.min(1, 0.95*glow)})`; ctx.fill();
 
       // axis ticks
       [[0,-82],[0,82],[-82,0],[82,0]].forEach(([dx,dy]) => {
         ctx.beginPath();
-        ctx.moveTo(cx+dx*0.9, cy+dy*0.9);
-        ctx.lineTo(cx+dx, cy+dy);
-        ctx.strokeStyle=`rgba(196,169,124,0.2)`;
+        ctx.moveTo(cx+dx*0.88, cy+dy*0.88);
+        ctx.lineTo(cx+dx*1.0, cy+dy*1.0);
+        ctx.strokeStyle=`rgba(196,169,124,${0.18 + smoothPulse*0.3})`;
         ctx.lineWidth=0.5; ctx.stroke();
       });
 
@@ -2446,22 +2551,33 @@ function startScanLine(){
     tick();
   })();
 
+  // ── VOICE-REACTIVE STATE ───────────────────────────────────
+  // orbPulse drives the orb animation on word boundaries
+  let orbPulse = 0; // 0–1, decays each frame
+
   // ── VOICE ─────────────────────────────────────────────────
   function speak(text, onDone) {
     if (!window.speechSynthesis) { onDone && onDone(); return; }
     speaking = true;
     window.speechSynthesis.cancel();
     const utt = new SpeechSynthesisUtterance(text);
-    utt.rate = 0.76; utt.pitch = 0.58; utt.volume = 1;
-    utt.onend  = () => { speaking = false; onDone && onDone(); };
-    utt.onerror= () => { speaking = false; onDone && onDone(); };
+    // More natural: slightly faster, less robotic pitch
+    utt.rate = 0.88; utt.pitch = 0.82; utt.volume = 1;
+    utt.onend  = () => { speaking = false; orbPulse = 0; onDone && onDone(); };
+    utt.onerror= () => { speaking = false; orbPulse = 0; onDone && onDone(); };
+    // Fire orbPulse on every word boundary → drives animation
+    utt.onboundary = (e) => {
+      if (e.name === 'word') orbPulse = 0.85 + Math.random() * 0.15;
+    };
     const trySpeak = () => {
       const voices = window.speechSynthesis.getVoices();
-      const v = voices.find(v =>
-        v.name === 'Google UK English Male' || v.name === 'Daniel' ||
-        v.name === 'Arthur' || v.name === 'Thomas' ||
-        (v.lang === 'en-GB' && !v.name.match(/female|woman|Moira|Fiona/i))
-      ) || voices.find(v => v.lang && v.lang.startsWith('en') && !v.name.match(/female|woman|Moira|Fiona|Karen|Samantha/i));
+      // Priority order: Daniel (most natural UK male), Arthur, Google UK Male, any UK male
+      const v = voices.find(v => v.name === 'Daniel')
+             || voices.find(v => v.name === 'Arthur')
+             || voices.find(v => v.name === 'Google UK English Male')
+             || voices.find(v => v.name === 'Thomas')
+             || voices.find(v => v.lang === 'en-GB' && !v.name.match(/female|woman|Moira|Fiona/i))
+             || voices.find(v => v.lang && v.lang.startsWith('en') && !v.name.match(/female|woman|Moira|Fiona|Karen|Samantha/i));
       if (v) utt.voice = v;
       window.speechSynthesis.speak(utt);
     };
@@ -2494,39 +2610,68 @@ function startScanLine(){
     });
   }
 
-  // ── RECOGNITION ───────────────────────────────────────────
+  // ── DUAL-LANGUAGE RECOGNITION (Arabic + English) ─────────
+  // Runs two recognizers in parallel; first result wins.
+  // Always replies in English regardless of input language.
+  let recAr = null;
+
+  function stopAllRecognition() {
+    if (recognition) { try { recognition.stop(); } catch(e){} recognition = null; }
+    if (recAr)       { try { recAr.stop();       } catch(e){} recAr = null; }
+  }
+
   function startListening() {
     if (speaking) return;
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (!SR) { setStatus('USE CHROME OR SAFARI', ''); return; }
-    recognition = new SR();
-    recognition.lang = 'en-US';
-    recognition.continuous = false;
-    recognition.interimResults = true;
-    recognition.maxAlternatives = 1;
 
-    recognition.onstart  = () => { listening = true; setStatus('LISTENING', 'on'); transcriptEl.textContent = ''; };
-    recognition.onresult = (e) => {
-      let interim = '', finalText = '';
-      for (let i = e.resultIndex; i < e.results.length; i++) {
-        if (e.results[i].isFinal) finalText += e.results[i][0].transcript;
-        else interim += e.results[i][0].transcript;
-      }
-      transcriptEl.textContent = (finalText || interim).toUpperCase();
-      if (finalText) { listening = false; processQuery(finalText); }
-    };
-    recognition.onend    = () => {
+    setStatus('LISTENING', 'on');
+    transcriptEl.textContent = '';
+    let resultHandled = false;
+
+    function handleResult(transcript, isFinal) {
+      if (!isFinal) { transcriptEl.textContent = transcript.toUpperCase(); return; }
+      if (resultHandled) return;
+      resultHandled = true;
+      stopAllRecognition();
       listening = false;
-      if (alfredOpen && !speaking) setTimeout(() => { if (alfredOpen && !speaking) startListening(); }, 400);
-      else setStatus('STANDBY', '');
-    };
-    recognition.onerror  = (e) => {
-      listening = false;
-      if (e.error === 'no-speech' && alfredOpen) { setTimeout(startListening, 400); return; }
-      if (e.error === 'not-allowed') { setStatus('ALLOW MIC ACCESS', ''); return; }
-      if (alfredOpen && !speaking) setTimeout(startListening, 600);
-    };
+      processQuery(transcript);
+    }
+
+    function makeRec(lang) {
+      const r = new SR();
+      r.lang = lang;
+      r.continuous = false;
+      r.interimResults = true;
+      r.maxAlternatives = 1;
+      r.onstart = () => { listening = true; };
+      r.onresult = (e) => {
+        let interim = '', finalText = '';
+        for (let i = e.resultIndex; i < e.results.length; i++) {
+          if (e.results[i].isFinal) finalText += e.results[i][0].transcript;
+          else interim += e.results[i][0].transcript;
+        }
+        if (finalText) handleResult(finalText, true);
+        else handleResult(interim, false);
+      };
+      r.onend = () => {
+        listening = false;
+        if (!resultHandled && alfredOpen && !speaking) {
+          setTimeout(() => { if (alfredOpen && !speaking && !resultHandled) startListening(); }, 400);
+        }
+      };
+      r.onerror = (e) => {
+        if (e.error === 'not-allowed') { setStatus('ALLOW MIC ACCESS', ''); resultHandled = true; }
+      };
+      return r;
+    }
+
+    recognition = makeRec('en-US');
+    recAr       = makeRec('ar-SA');
+
     try { recognition.start(); } catch(e) {}
+    // Start Arabic recognizer 80ms after English to avoid mic conflict
+    setTimeout(() => { try { if (recAr) recAr.start(); } catch(e){} }, 80);
   }
 
   // ── TEXT INPUT ─────────────────────────────────────────────
@@ -2567,7 +2712,7 @@ function startScanLine(){
     alfredOpen = false;
     overlay.classList.remove('active');
     document.body.style.overflow = '';
-    if (recognition) { try { recognition.stop(); } catch(e) {} recognition = null; }
+    stopAllRecognition();
     window.speechSynthesis && window.speechSynthesis.cancel();
     listening = false; speaking = false;
     netState = 'standby';
@@ -2587,18 +2732,7 @@ function startScanLine(){
   const mainBtn = document.getElementById('jarvis-activate-main');
   if (mainBtn) { mainBtn.addEventListener('click', openAlfred); }
 
-  if (!document.getElementById('alfred-activate-btn')) {
-    const voiceCopy = document.querySelector('.voice-copy');
-    if (voiceCopy) {
-      const btn = document.createElement('button');
-      btn.id = 'alfred-activate-btn';
-      btn.className = 'waitlist-submit';
-      btn.setAttribute('data-magnetic', '');
-      btn.textContent = 'Activate Alfred';
-      btn.addEventListener('click', openAlfred);
-      voiceCopy.appendChild(btn);
-    }
-  }
+  // No dynamic button needed — the HTML button #jarvis-activate-main is already wired above
 })();
 
 /* ── MAGNETIC BUTTONS ───────────────────────────────── */
