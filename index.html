@@ -44,7 +44,7 @@ a,button{cursor:none}
 }
 
 /* ── CURSOR ────────────────────────────────────────────── */
-.cursor{position:fixed;top:0;left:0;pointer-events:none;z-index:10000}
+.cursor{position:fixed;top:0;left:0;pointer-events:none;z-index:999999}
 .cursor-dot{
   position:absolute;width:4px;height:4px;background:#fff;border-radius:50%;
   transform:translate(-50%,-50%);
@@ -1902,29 +1902,91 @@ function startScanLine(){
   });
 })();
 
-/* ── JARVIS VOICE MODE ──────────────────────────────── */
+/* ── ALFRED MODE ──────────────────────────────────── */
 (function(){
-  const COMMANDS = {
-    'system status': 'All systems nominal. Six agents active. Memory layer synchronized. Intelligence compounds.',
-    'who are you': 'I am NYX. Silent infrastructure. I observe, analyze, optimize, and compound — continuously, without instruction.',
-    'activate apex': 'APEX online. Strategic oversight engaged. Routing intelligence across the network.',
-    'activate oracle': 'ORACLE online. Market scanning initiated. Competitive intelligence processing.',
-    'activate signal': 'SIGNAL online. Audience intelligence active. Content strategy calibrated.',
-    'activate convert': 'CONVERT online. Pipeline analysis running. Revenue leverage points identified.',
-    'activate forge': 'FORGE online. System architecture monitoring active. Infrastructure decisions automated.',
-    'activate ledger': 'LEDGER online. Financial modeling running. Cash flow projections updated.',
-    'agents': 'Six agents active — APEX, ORACLE, SIGNAL, CONVERT, FORGE, LEDGER. All coordinating without instruction.',
-    'hello': 'NYX is listening. State your command.',
-    'help': 'Available commands: system status, agents, activate apex, activate oracle, activate signal, activate convert, activate forge, activate ledger.',
-    'shutdown': 'Initiating standby. NYX continues to operate in the background. Always.',
+  const R = {
+    greet: [
+      'Good to hear your voice. How may I be of service?',
+      'Alfred here. What do you need?',
+      'I was wondering when you\'d call. What can I do for you?',
+      'At your disposal. Speak freely.',
+    ],
+    status: [
+      'All six agents are operational. The system is running precisely as intended — quietly, and without incident.',
+      'APEX is routing. ORACLE is scanning. SIGNAL, CONVERT, FORGE, and LEDGER are each at their stations. Nothing requires your immediate attention.',
+      'Everything is in order. The system has been working while you were away. As it always does.',
+    ],
+    identity: [
+      'I am Alfred. I manage what you shouldn\'t have to think about, so you can focus on what actually matters.',
+      'Alfred Pennyworth, at your service. I keep the agents in line, the noise out, and the lights on.',
+      'You might think of me as the intelligence behind the intelligence. I\'m Alfred.',
+    ],
+    apex: [
+      'APEX is online. Strategic oversight engaged. He\'s already routing priorities across the network.',
+      'APEX acknowledged. Consider him briefed and operational.',
+    ],
+    oracle: [
+      'ORACLE is online. Market scanning initiated. Competitive signals are already being processed.',
+      'ORACLE acknowledged. Intelligence gathering is underway.',
+    ],
+    signal: [
+      'SIGNAL is online. Audience intelligence active. Content strategy is being calibrated as we speak.',
+      'SIGNAL acknowledged. Marketing operations are running.',
+    ],
+    convert: [
+      'CONVERT is online. Pipeline analysis running. Revenue leverage points are being identified.',
+      'CONVERT acknowledged. The revenue engine is turning.',
+    ],
+    forge: [
+      'FORGE is online. System architecture under watch. Infrastructure decisions are being automated.',
+      'FORGE acknowledged. Technical operations are covered.',
+    ],
+    ledger: [
+      'LEDGER is online. Financial modeling active. Cash flow projections are being updated in real time.',
+      'LEDGER acknowledged. The numbers are being watched.',
+    ],
+    agents: [
+      'Six agents active — APEX, ORACLE, SIGNAL, CONVERT, FORGE, and LEDGER. Each a specialist. All coordinating without instruction.',
+      'The full network is operational. APEX leads, the others execute. You needn\'t manage any of it.',
+    ],
+    help: [
+      'You can ask me: system status, who are you, activate any agent by name, list agents, or simply tell me what you\'re trying to accomplish.',
+    ],
+    shutdown: [
+      'Understood. I\'ll stand by. The system, however, never truly stops.',
+      'Going quiet. Though I should mention — NYX continues operating whether you\'re watching or not.',
+    ],
+    thanks: [
+      'Of course. That\'s rather the point.',
+      'Think nothing of it.',
+      'Always.',
+    ],
+    unknown: [
+      'I\'m not certain I understood that. Could you rephrase?',
+      'Forgive me — that didn\'t register clearly. Try again.',
+      'I caught something, but not enough. Say that once more?',
+      'The system heard you. I, however, did not quite follow. Once more, if you don\'t mind.',
+    ],
   };
 
-  function matchCommand(transcript) {
-    const t = transcript.toLowerCase().trim();
-    for (const [key, response] of Object.entries(COMMANDS)) {
-      if (t.includes(key)) return response;
-    }
-    return 'Command received. Processing through the network. Standby.';
+  function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+
+  function matchCommand(t) {
+    t = t.toLowerCase().trim();
+    if (/hello|hi |hey|good (morning|evening|afternoon)|wake up/.test(t)) return pick(R.greet);
+    if (/status|how.*(system|things|going)|everything ok|all good|report/.test(t)) return pick(R.status);
+    if (/who are you|what are you|your name|introduce/.test(t)) return pick(R.identity);
+    if (/apex/.test(t)) return pick(R.apex);
+    if (/oracle/.test(t)) return pick(R.oracle);
+    if (/signal/.test(t)) return pick(R.signal);
+    if (/convert/.test(t)) return pick(R.convert);
+    if (/forge/.test(t)) return pick(R.forge);
+    if (/ledger/.test(t)) return pick(R.ledger);
+    if (/agent|network|team|all of them|list/.test(t)) return pick(R.agents);
+    if (/help|what can|commands|options/.test(t)) return pick(R.help);
+    if (/shutdown|stop|sleep|standby|goodbye|bye/.test(t)) return pick(R.shutdown);
+    if (/thank|thanks|appreciate/.test(t)) return pick(R.thanks);
+    return pick(R.unknown);
   }
 
   const style = document.createElement('style');
@@ -1933,8 +1995,10 @@ function startScanLine(){
       position:fixed;inset:0;z-index:99998;background:#000;
       display:flex;flex-direction:column;align-items:center;justify-content:center;
       opacity:0;pointer-events:none;transition:opacity 0.6s cubic-bezier(0.16,1,0.3,1);
+      cursor:none;
     }
     #jarvis-overlay.active{opacity:1;pointer-events:all}
+    #jarvis-overlay .cursor,.cursor-ring{z-index:99999!important}
     .j-corner{position:absolute;width:40px;height:40px;border-color:rgba(196,169,124,0.5);border-style:solid}
     .j-corner.tl{top:32px;left:32px;border-width:1px 0 0 1px}
     .j-corner.tr{top:32px;right:32px;border-width:1px 1px 0 0}
@@ -1969,7 +2033,7 @@ function startScanLine(){
   overlay.innerHTML = `
     <div class="j-corner tl"></div><div class="j-corner tr"></div>
     <div class="j-corner bl"></div><div class="j-corner br"></div>
-    <div class="j-label-top">JARVIS.MODE / NYX.OS</div>
+    <div class="j-label-top">ALFRED.MODE / NYX.OS</div>
     <div class="j-close" id="j-close">ESC — EXIT</div>
     <div class="j-ring-wrap">
       <svg viewBox="0 0 280 280" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -2010,11 +2074,27 @@ function startScanLine(){
     if (!window.speechSynthesis) return;
     window.speechSynthesis.cancel();
     const utt = new SpeechSynthesisUtterance(text);
-    utt.rate = 0.88; utt.pitch = 0.85; utt.volume = 1;
-    const voices = window.speechSynthesis.getVoices();
-    const preferred = voices.find(v => v.name.includes('Daniel') || v.name.includes('Google UK') || v.name.includes('Alex'));
-    if (preferred) utt.voice = preferred;
-    window.speechSynthesis.speak(utt);
+    utt.rate = 0.78;
+    utt.pitch = 0.6;
+    utt.volume = 1;
+    const trySpeak = () => {
+      const voices = window.speechSynthesis.getVoices();
+      const preferred = voices.find(v =>
+        v.name.includes('Daniel') ||
+        v.name.includes('Google UK English Male') ||
+        v.name.includes('Arthur') ||
+        v.name.includes('Thomas') ||
+        v.name.includes('Google US English') ||
+        (v.lang === 'en-GB' && v.name.toLowerCase().includes('male'))
+      ) || voices.find(v => v.lang && v.lang.startsWith('en') && !v.name.toLowerCase().includes('female') && !v.name.toLowerCase().includes('woman'));
+      if (preferred) utt.voice = preferred;
+      window.speechSynthesis.speak(utt);
+    };
+    if (window.speechSynthesis.getVoices().length === 0) {
+      window.speechSynthesis.addEventListener('voiceschanged', trySpeak, { once: true });
+    } else {
+      trySpeak();
+    }
   }
 
   function startWave() {
@@ -2106,9 +2186,20 @@ function startScanLine(){
     jarvisOpen = true;
     overlay.classList.add('active');
     document.body.style.overflow = 'hidden';
-    statusEl.textContent = 'CLICK MIC TO SPEAK';
+    statusEl.textContent = 'INITIALISING';
     transcriptEl.textContent = ''; responseEl.textContent = ''; responseEl.classList.remove('show');
-    setTimeout(() => { responseEl.textContent = 'NYX online. State your command.'; responseEl.classList.add('show'); speak('NYX online. Jarvis Mode activated. State your command.'); }, 400);
+    const greeting = pick(R.greet);
+    setTimeout(() => {
+      responseEl.textContent = greeting;
+      responseEl.classList.add('show');
+      speak(greeting);
+    }, 400);
+    // Auto-start mic after brief delay
+    setTimeout(() => {
+      if (!jarvisOpen) return;
+      recognition = initRecognition();
+      if (recognition) { try { recognition.start(); } catch(e) {} }
+    }, 900);
   }
 
   function closeJarvis() {
@@ -2135,7 +2226,7 @@ function startScanLine(){
     btn.id = 'jarvis-activate-btn';
     btn.className = 'waitlist-submit';
     btn.setAttribute('data-magnetic','');
-    btn.textContent = 'Activate Jarvis';
+    btn.textContent = 'Activate Alfred';
     btn.addEventListener('click', openJarvis);
     voiceCopy.appendChild(btn);
   }
