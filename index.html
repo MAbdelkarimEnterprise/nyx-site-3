@@ -831,23 +831,24 @@ footer{
 
 /* ── VOICE OS ──────────────────────────────────────────── */
 .voice-section{padding:clamp(80px,12vw,140px) clamp(24px,6vw,80px);border-top:1px solid rgba(196,169,124,0.08)}
-.voice-inner{max-width:1100px;margin:0 auto}
-.voice-split{display:grid;grid-template-columns:1fr 1fr;gap:80px;align-items:center;margin-top:40px}
+.voice-inner{max-width:1200px;margin:0 auto}
+.voice-split{display:grid;grid-template-columns:1fr 1.5fr;gap:60px;align-items:center;margin-top:40px}
 .voice-headline{font-size:clamp(32px,4vw,54px);font-weight:300;letter-spacing:-0.02em;line-height:1.1;color:var(--t1);margin:0 0 22px;clip-path:inset(0 0 100% 0)}
 .voice-body{font-family:var(--mono);font-size:10.5px;letter-spacing:0.07em;color:var(--t3);line-height:1.9;text-transform:uppercase;margin-bottom:32px;max-width:440px}
 .voice-features{list-style:none;padding:0;margin:0;display:flex;flex-direction:column;gap:14px}
 .voice-features li{font-family:var(--mono);font-size:9.5px;letter-spacing:0.08em;color:var(--t4);text-transform:uppercase;display:flex;gap:14px;align-items:flex-start;line-height:1.6;padding-bottom:14px;border-bottom:1px solid rgba(196,169,124,0.07)}
 .voice-features li:last-child{border-bottom:none}
 .vf-label{color:var(--gold);min-width:110px;flex-shrink:0}
-.vhud-frame{position:relative;border:1px solid rgba(196,169,124,0.18);padding:32px;display:flex;flex-direction:column;align-items:center;gap:16px;background:rgba(196,169,124,0.02)}
-.vhud-corner{position:absolute;width:10px;height:10px;border-color:rgba(196,169,124,0.5)}
-.vhud-corner.vhud-tl{top:8px;left:8px;border-top:1px solid;border-left:1px solid}
-.vhud-corner.vhud-tr{top:8px;right:8px;border-top:1px solid;border-right:1px solid}
-.vhud-corner.vhud-bl{bottom:8px;left:8px;border-bottom:1px solid;border-left:1px solid}
-.vhud-corner.vhud-br{bottom:8px;right:8px;border-bottom:1px solid;border-right:1px solid}
-.vhud-label{font-family:var(--mono);font-size:8px;letter-spacing:0.22em;color:var(--gold);text-transform:uppercase;opacity:0.7}
-.vhud-ring{width:180px;height:180px}
-.vhud-status{font-family:var(--mono);font-size:8px;letter-spacing:0.28em;color:rgba(196,169,124,0.6);text-transform:uppercase}
+/* no border box — just floating elements on dark background */
+.vhud-frame{
+  position:relative;border:none;padding:40px 20px;
+  display:flex;flex-direction:column;align-items:center;gap:20px;
+  background:none;cursor:none;overflow:hidden;min-height:460px;
+}
+.vhud-bg-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0}
+.vhud-label{font-family:var(--mono);font-size:8px;letter-spacing:0.22em;color:var(--gold);text-transform:uppercase;opacity:0.7;position:relative;z-index:1}
+.vhud-ring{width:320px;height:320px;position:relative;z-index:1}
+.vhud-status{font-family:var(--mono);font-size:8px;letter-spacing:0.28em;color:rgba(196,169,124,0.6);text-transform:uppercase;position:relative;z-index:1}
 @media(max-width:768px){
   .voice-split{grid-template-columns:1fr;gap:48px}
   .voice-hud-preview{display:none}
@@ -1230,49 +1231,49 @@ footer{
     <div class="voice-split">
       <div class="voice-copy">
         <h2 class="voice-headline">Speak.<br>The system executes.</h2>
-        <p class="voice-body">Jarvis Mode transforms NYX into a voice-native operating system. Full-screen HUD. Push-to-talk or continuous listening. Your agents respond, act, and report in real time.</p>
+        <p class="voice-body">Alfred transforms NYX into a voice-native operating system. Full-screen HUD. Always listening. Your agents respond, act, and report in real time.</p>
         <ul class="voice-features">
-          <li><span class="vf-label">JARVIS HUD</span> Full-screen tactical interface with live agent status and waveform visualization</li>
+          <li><span class="vf-label">ALFRED HUD</span> Full-screen tactical interface with live agent status and waveform visualization</li>
           <li><span class="vf-label">VOICE COMMANDS</span> Natural language triggers across all six agents, logged and indexed</li>
           <li><span class="vf-label">MEMORY CONTEXT</span> Every conversation stored, recalled, and linked to decisions</li>
           <li><span class="vf-label">DEVICE AWARE</span> Optimized for desktop, mobile, and wearable input</li>
         </ul>
-        <button class="jarvis-activate-cta" id="jarvis-activate-main" data-magnetic aria-label="Activate Alfred">
-          <span class="jarvis-activate-cta-dot"></span>
-          Activate Alfred
-        </button>
       </div>
+      <!-- Alfred preview — click anywhere to activate -->
       <div class="voice-hud-preview">
-        <div class="vhud-frame" id="jarvis-activate-hud" role="button" tabindex="0" aria-label="Activate Jarvis Mode">
-          <div class="vhud-corner vhud-tl"></div>
-          <div class="vhud-corner vhud-tr"></div>
-          <div class="vhud-corner vhud-bl"></div>
-          <div class="vhud-corner vhud-br"></div>
+        <div class="vhud-frame" id="jarvis-activate-hud" role="button" tabindex="0" aria-label="Activate Alfred">
+          <!-- animated background canvas -->
+          <canvas class="vhud-bg-canvas" id="vhud-bg"></canvas>
           <div class="vhud-label">ALFRED.MODE / ACTIVE</div>
           <div class="vhud-ring">
-            <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="100" cy="100" r="88" stroke="#C4A97C" stroke-width="0.3" opacity="0.12"/>
-              <circle cx="100" cy="100" r="70" stroke="#C4A97C" stroke-width="0.5" opacity="0.18" stroke-dasharray="3 9">
-                <animateTransform attributeName="transform" type="rotate" from="0 100 100" to="360 100 100" dur="30s" repeatCount="indefinite"/>
+            <svg viewBox="0 0 300 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <!-- outermost ghost -->
+              <circle cx="150" cy="150" r="138" stroke="#C4A97C" stroke-width="0.3" opacity="0.10"/>
+              <!-- slow rotating dashed -->
+              <circle cx="150" cy="150" r="118" stroke="#C4A97C" stroke-width="0.5" opacity="0.15" stroke-dasharray="4 14">
+                <animateTransform attributeName="transform" type="rotate" from="0 150 150" to="360 150 150" dur="38s" repeatCount="indefinite"/>
               </circle>
-              <circle cx="100" cy="100" r="50" stroke="#C4A97C" stroke-width="0.9" opacity="0.35" stroke-dasharray="2 6">
-                <animateTransform attributeName="transform" type="rotate" from="360 100 100" to="0 100 100" dur="18s" repeatCount="indefinite"/>
+              <!-- medium counter-rotating dashed -->
+              <circle cx="150" cy="150" r="94" stroke="#C4A97C" stroke-width="0.8" opacity="0.28" stroke-dasharray="3 9">
+                <animateTransform attributeName="transform" type="rotate" from="360 150 150" to="0 150 150" dur="22s" repeatCount="indefinite"/>
               </circle>
-              <circle cx="100" cy="100" r="32" stroke="#C4A97C" stroke-width="1.2" opacity="0.55">
-                <animate attributeName="r" values="32;36;32" dur="3s" repeatCount="indefinite"/>
-                <animate attributeName="opacity" values="0.55;0.8;0.55" dur="3s" repeatCount="indefinite"/>
+              <!-- main breathing ring -->
+              <circle cx="150" cy="150" r="66" stroke="#C4A97C" stroke-width="1.4" opacity="0.60">
+                <animate attributeName="r" values="66;72;66" dur="3.2s" repeatCount="indefinite"/>
+                <animate attributeName="opacity" values="0.60;0.85;0.60" dur="3.2s" repeatCount="indefinite"/>
               </circle>
-              <circle cx="100" cy="100" r="9" fill="#C4A97C" opacity="0.92">
-                <animate attributeName="opacity" values="0.92;1;0.92" dur="1.6s" repeatCount="indefinite"/>
+              <!-- inner ring -->
+              <circle cx="150" cy="150" r="42" stroke="#C4A97C" stroke-width="0.9" opacity="0.38"/>
+              <!-- axis ticks -->
+              <line x1="150" y1="12" x2="150" y2="32" stroke="#C4A97C" stroke-width="0.7" opacity="0.3"/>
+              <line x1="150" y1="268" x2="150" y2="288" stroke="#C4A97C" stroke-width="0.7" opacity="0.3"/>
+              <line x1="12" y1="150" x2="32" y2="150" stroke="#C4A97C" stroke-width="0.7" opacity="0.3"/>
+              <line x1="268" y1="150" x2="288" y2="150" stroke="#C4A97C" stroke-width="0.7" opacity="0.3"/>
+              <!-- core dot -->
+              <circle cx="150" cy="150" r="12" fill="#C4A97C" opacity="0.95">
+                <animate attributeName="opacity" values="0.95;1;0.95" dur="1.6s" repeatCount="indefinite"/>
+                <animate attributeName="r" values="12;14;12" dur="1.6s" repeatCount="indefinite"/>
               </circle>
-              <line x1="100" y1="12" x2="100" y2="28" stroke="#C4A97C" stroke-width="0.7" opacity="0.35"/>
-              <line x1="100" y1="172" x2="100" y2="188" stroke="#C4A97C" stroke-width="0.7" opacity="0.35"/>
-              <line x1="12" y1="100" x2="28" y2="100" stroke="#C4A97C" stroke-width="0.7" opacity="0.35"/>
-              <line x1="172" y1="100" x2="188" y2="100" stroke="#C4A97C" stroke-width="0.7" opacity="0.35"/>
-              <path d="M 20,20 L 20,34 M 20,20 L 34,20" stroke="#C4A97C" stroke-width="0.6" opacity="0.2"/>
-              <path d="M 180,20 L 180,34 M 180,20 L 166,20" stroke="#C4A97C" stroke-width="0.6" opacity="0.2"/>
-              <path d="M 20,180 L 20,166 M 20,180 L 34,180" stroke="#C4A97C" stroke-width="0.6" opacity="0.2"/>
-              <path d="M 180,180 L 180,166 M 180,180 L 166,180" stroke="#C4A97C" stroke-width="0.6" opacity="0.2"/>
             </svg>
           </div>
           <div class="vhud-status">LISTENING</div>
@@ -1952,6 +1953,69 @@ function startScanLine(){
       }
     }
   });
+})();
+
+/* ── VHUD PREVIEW CANVAS (Voice OS section background) ── */
+(function(){
+  const canvas = document.getElementById('vhud-bg');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H, raf;
+
+  function resize(){
+    W = canvas.width  = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  let spokeAngle = 0;
+  const PCNT = 55;
+  const pts = Array.from({length: PCNT}, () => ({
+    x: Math.random(), y: Math.random(),
+    vx: (Math.random()-0.5)*0.00014,
+    vy: (Math.random()-0.5)*0.00014,
+    r: 0.5 + Math.random()*0.7,
+    a: 0.04 + Math.random()*0.08,
+  }));
+
+  function draw(){
+    raf = requestAnimationFrame(draw);
+    ctx.clearRect(0,0,W,H);
+    const cx=W/2, cy=H/2, R=Math.min(W,H)*0.5;
+    spokeAngle += 0.0007;
+
+    // rotating spokes
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(spokeAngle);
+    for(let i=0;i<24;i++){
+      const a=(i/24)*Math.PI*2;
+      ctx.beginPath(); ctx.moveTo(0,0);
+      ctx.lineTo(Math.cos(a)*R*1.1, Math.sin(a)*R*1.1);
+      ctx.strokeStyle='rgba(196,169,124,0.028)';
+      ctx.lineWidth=0.5; ctx.stroke();
+    }
+    ctx.restore();
+
+    // counter-rotating ghost rings
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(-spokeAngle*0.5);
+    [0.88,1.02,1.16].forEach((f,i)=>{
+      ctx.beginPath(); ctx.arc(0,0,R*f,0,Math.PI*2);
+      ctx.setLineDash(i===1?[5,16]:[]);
+      ctx.strokeStyle='rgba(196,169,124,0.018)';
+      ctx.lineWidth=0.5; ctx.stroke();
+    });
+    ctx.setLineDash([]); ctx.restore();
+
+    // drifting particles
+    for(const p of pts){
+      p.x+=p.vx; p.y+=p.vy;
+      if(p.x<0)p.x=1; if(p.x>1)p.x=0;
+      if(p.y<0)p.y=1; if(p.y>1)p.y=0;
+      ctx.beginPath(); ctx.arc(p.x*W, p.y*H, p.r, 0, Math.PI*2);
+      ctx.fillStyle=`rgba(196,169,124,${p.a})`; ctx.fill();
+    }
+  }
+  draw();
 })();
 
 /* ── ALFRED MODE ──────────────────────────────────── */
