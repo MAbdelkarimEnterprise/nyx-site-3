@@ -1945,9 +1945,9 @@ function startScanLine(){
     .j-close:hover{color:rgba(240,237,232,0.7)}
     .j-ring-wrap{position:relative;width:280px;height:280px;display:flex;align-items:center;justify-content:center}
     .j-ring-wrap svg{position:absolute;inset:0;width:100%;height:100%}
-    .j-mic-btn{position:relative;z-index:2;width:72px;height:72px;border-radius:50%;background:rgba(196,169,124,0.08);border:1px solid rgba(196,169,124,0.35);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .3s,border-color .3s,transform .2s}
+    .j-mic-btn{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);z-index:2;width:72px;height:72px;border-radius:50%;background:rgba(196,169,124,0.08);border:1px solid rgba(196,169,124,0.35);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .3s,border-color .3s}
     .j-mic-btn:hover{background:rgba(196,169,124,0.15);border-color:rgba(196,169,124,0.7)}
-    .j-mic-btn.listening{background:rgba(196,169,124,0.2);border-color:#C4A97C;transform:scale(1.08)}
+    .j-mic-btn.listening{background:rgba(196,169,124,0.2);border-color:#C4A97C;transform:translate(-50%,-50%) scale(1.08)}
     .j-mic-btn svg{width:28px;height:28px;fill:none;stroke:#C4A97C;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
     .j-status{margin-top:28px;font-family:var(--mono);font-size:10px;letter-spacing:0.3em;color:rgba(196,169,124,0.5);text-transform:uppercase;min-height:16px;transition:color .3s}
     .j-status.active{color:#C4A97C}
@@ -2058,9 +2058,14 @@ function startScanLine(){
       }
     };
     r.onend = () => {
-      // Auto-restart if Jarvis is still open and user didn't manually stop
+      // Auto-restart with fresh instance if Jarvis is still open
       if (jarvisOpen && listening) {
-        try { r.start(); return; } catch(e) {}
+        setTimeout(() => {
+          if (!jarvisOpen) return;
+          recognition = initRecognition();
+          if (recognition) { try { recognition.start(); } catch(e) {} }
+        }, 150);
+        return;
       }
       listening = false;
       micBtn.classList.remove('listening');
