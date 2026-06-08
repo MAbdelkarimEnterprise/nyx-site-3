@@ -1902,6 +1902,189 @@ function startScanLine(){
   });
 })();
 
+/* ── JARVIS VOICE MODE ──────────────────────────────── */
+(function(){
+  const COMMANDS = {
+    'system status': 'All systems nominal. Six agents active. Memory layer synchronized. Intelligence compounds.',
+    'who are you': 'I am NYX. Silent infrastructure. I observe, analyze, optimize, and compound — continuously, without instruction.',
+    'activate apex': 'APEX online. Strategic oversight engaged. Routing intelligence across the network.',
+    'activate oracle': 'ORACLE online. Market scanning initiated. Competitive intelligence processing.',
+    'activate signal': 'SIGNAL online. Audience intelligence active. Content strategy calibrated.',
+    'activate convert': 'CONVERT online. Pipeline analysis running. Revenue leverage points identified.',
+    'activate forge': 'FORGE online. System architecture monitoring active. Infrastructure decisions automated.',
+    'activate ledger': 'LEDGER online. Financial modeling running. Cash flow projections updated.',
+    'agents': 'Six agents active — APEX, ORACLE, SIGNAL, CONVERT, FORGE, LEDGER. All coordinating without instruction.',
+    'hello': 'NYX is listening. State your command.',
+    'help': 'Available commands: system status, agents, activate apex, activate oracle, activate signal, activate convert, activate forge, activate ledger.',
+    'shutdown': 'Initiating standby. NYX continues to operate in the background. Always.',
+  };
+
+  function matchCommand(transcript) {
+    const t = transcript.toLowerCase().trim();
+    for (const [key, response] of Object.entries(COMMANDS)) {
+      if (t.includes(key)) return response;
+    }
+    return 'Command received. Processing through the network. Standby.';
+  }
+
+  const style = document.createElement('style');
+  style.textContent = `
+    #jarvis-overlay {
+      position:fixed;inset:0;z-index:99998;background:#000;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      opacity:0;pointer-events:none;transition:opacity 0.6s cubic-bezier(0.16,1,0.3,1);
+    }
+    #jarvis-overlay.active{opacity:1;pointer-events:all}
+    .j-corner{position:absolute;width:40px;height:40px;border-color:rgba(196,169,124,0.5);border-style:solid}
+    .j-corner.tl{top:32px;left:32px;border-width:1px 0 0 1px}
+    .j-corner.tr{top:32px;right:32px;border-width:1px 1px 0 0}
+    .j-corner.bl{bottom:32px;left:32px;border-width:0 0 1px 1px}
+    .j-corner.br{bottom:32px;right:32px;border-width:0 1px 1px 0}
+    .j-label-top{position:absolute;top:40px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:9px;letter-spacing:0.35em;color:rgba(196,169,124,0.6);text-transform:uppercase}
+    .j-close{position:absolute;top:36px;right:80px;font-family:var(--mono);font-size:9px;letter-spacing:0.25em;color:rgba(240,237,232,0.25);text-transform:uppercase;cursor:pointer;transition:color .2s}
+    .j-close:hover{color:rgba(240,237,232,0.7)}
+    .j-ring-wrap{position:relative;width:280px;height:280px;display:flex;align-items:center;justify-content:center}
+    .j-ring-wrap svg{position:absolute;inset:0;width:100%;height:100%}
+    .j-mic-btn{position:relative;z-index:2;width:72px;height:72px;border-radius:50%;background:rgba(196,169,124,0.08);border:1px solid rgba(196,169,124,0.35);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background .3s,border-color .3s,transform .2s}
+    .j-mic-btn:hover{background:rgba(196,169,124,0.15);border-color:rgba(196,169,124,0.7)}
+    .j-mic-btn.listening{background:rgba(196,169,124,0.2);border-color:#C4A97C;transform:scale(1.08)}
+    .j-mic-btn svg{width:28px;height:28px;fill:none;stroke:#C4A97C;stroke-width:1.5;stroke-linecap:round;stroke-linejoin:round}
+    .j-status{margin-top:28px;font-family:var(--mono);font-size:10px;letter-spacing:0.3em;color:rgba(196,169,124,0.5);text-transform:uppercase;min-height:16px;transition:color .3s}
+    .j-status.active{color:#C4A97C}
+    .j-transcript{margin-top:12px;font-family:var(--mono);font-size:11px;letter-spacing:0.1em;color:rgba(240,237,232,0.3);text-transform:uppercase;min-height:16px;max-width:480px;text-align:center}
+    .j-response{margin-top:32px;max-width:560px;text-align:center;font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(15px,1.8vw,20px);font-weight:300;font-style:italic;color:rgba(240,237,232,0.75);line-height:1.7;letter-spacing:0.02em;min-height:56px;opacity:0;transition:opacity 0.5s;padding:0 24px}
+    .j-response.show{opacity:1}
+    .j-waveform{display:flex;align-items:center;gap:3px;height:32px;margin-top:20px}
+    .j-bar{width:3px;border-radius:2px;background:#C4A97C;opacity:0.3;transition:height .1s;height:4px}
+    .j-bar.active{opacity:0.75}
+    @keyframes j-pulse{0%,100%{transform:scale(1);opacity:0.15}50%{transform:scale(1.04);opacity:0.3}}
+    .j-ring-outer{animation:j-pulse 4s ease-in-out infinite}
+    #jarvis-activate-btn{margin-top:28px;max-width:200px}
+    @media(max-width:600px){.j-ring-wrap{width:220px;height:220px}.j-corner{width:24px;height:24px}}
+  `;
+  document.head.appendChild(style);
+
+  const overlay = document.createElement('div');
+  overlay.id = 'jarvis-overlay';
+  overlay.innerHTML = `
+    <div class="j-corner tl"></div><div class="j-corner tr"></div>
+    <div class="j-corner bl"></div><div class="j-corner br"></div>
+    <div class="j-label-top">JARVIS.MODE / NYX.OS</div>
+    <div class="j-close" id="j-close">ESC — EXIT</div>
+    <div class="j-ring-wrap">
+      <svg viewBox="0 0 280 280" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle class="j-ring-outer" cx="140" cy="140" r="130" stroke="#C4A97C" stroke-width="0.4" opacity="0.15"/>
+        <circle cx="140" cy="140" r="110" stroke="#C4A97C" stroke-width="0.5" opacity="0.12" stroke-dasharray="4 12">
+          <animateTransform attributeName="transform" type="rotate" from="0 140 140" to="360 140 140" dur="40s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="140" cy="140" r="88" stroke="#C4A97C" stroke-width="0.8" opacity="0.2" stroke-dasharray="2 8">
+          <animateTransform attributeName="transform" type="rotate" from="360 140 140" to="0 140 140" dur="22s" repeatCount="indefinite"/>
+        </circle>
+        <circle cx="140" cy="140" r="62" stroke="#C4A97C" stroke-width="1" opacity="0.3">
+          <animate attributeName="opacity" values="0.3;0.6;0.3" dur="2s" repeatCount="indefinite"/>
+        </circle>
+        <line x1="140" y1="10" x2="140" y2="30" stroke="#C4A97C" stroke-width="0.6" opacity="0.3"/>
+        <line x1="140" y1="250" x2="140" y2="270" stroke="#C4A97C" stroke-width="0.6" opacity="0.3"/>
+        <line x1="10" y1="140" x2="30" y2="140" stroke="#C4A97C" stroke-width="0.6" opacity="0.3"/>
+        <line x1="250" y1="140" x2="270" y2="140" stroke="#C4A97C" stroke-width="0.6" opacity="0.3"/>
+      </svg>
+      <button class="j-mic-btn" id="j-mic-btn" aria-label="Activate voice">
+        <svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="9" y1="22" x2="15" y2="22"/></svg>
+      </button>
+    </div>
+    <div class="j-waveform" id="j-waveform">${Array(24).fill('<div class="j-bar"></div>').join('')}</div>
+    <div class="j-status" id="j-status">CLICK MIC TO SPEAK</div>
+    <div class="j-transcript" id="j-transcript"></div>
+    <div class="j-response" id="j-response"></div>
+  `;
+  document.body.appendChild(overlay);
+
+  let recognition = null, listening = false, waveInterval = null;
+  const micBtn = document.getElementById('j-mic-btn');
+  const statusEl = document.getElementById('j-status');
+  const transcriptEl = document.getElementById('j-transcript');
+  const responseEl = document.getElementById('j-response');
+  const bars = document.querySelectorAll('.j-bar');
+
+  function speak(text) {
+    if (!window.speechSynthesis) return;
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.rate = 0.88; utt.pitch = 0.85; utt.volume = 1;
+    const voices = window.speechSynthesis.getVoices();
+    const preferred = voices.find(v => v.name.includes('Daniel') || v.name.includes('Google UK') || v.name.includes('Alex'));
+    if (preferred) utt.voice = preferred;
+    window.speechSynthesis.speak(utt);
+  }
+
+  function startWave() {
+    bars.forEach(b => b.classList.add('active'));
+    waveInterval = setInterval(() => { bars.forEach(b => { b.style.height = (4 + Math.random() * 24) + 'px'; }); }, 80);
+  }
+  function stopWave() {
+    clearInterval(waveInterval);
+    bars.forEach(b => { b.style.height = '4px'; b.classList.remove('active'); });
+  }
+
+  function initRecognition() {
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (!SR) return null;
+    const r = new SR();
+    r.lang = 'en-US'; r.continuous = false; r.interimResults = true;
+    r.onstart = () => { listening=true; micBtn.classList.add('listening'); statusEl.textContent='LISTENING'; statusEl.classList.add('active'); transcriptEl.textContent=''; responseEl.classList.remove('show'); startWave(); };
+    r.onresult = (e) => {
+      const interim = Array.from(e.results).map(r=>r[0].transcript).join('');
+      transcriptEl.textContent = interim.toUpperCase();
+      if (e.results[e.results.length-1].isFinal) {
+        const final = e.results[e.results.length-1][0].transcript;
+        const reply = matchCommand(final);
+        setTimeout(() => { responseEl.textContent=reply; responseEl.classList.add('show'); speak(reply); }, 200);
+      }
+    };
+    r.onend = () => { listening=false; micBtn.classList.remove('listening'); statusEl.textContent='CLICK MIC TO SPEAK'; statusEl.classList.remove('active'); stopWave(); };
+    r.onerror = (e) => { listening=false; micBtn.classList.remove('listening'); stopWave(); statusEl.textContent = e.error==='not-allowed'?'MICROPHONE ACCESS DENIED':'CLICK MIC TO SPEAK'; statusEl.classList.remove('active'); };
+    return r;
+  }
+
+  micBtn.addEventListener('click', () => {
+    if (listening) { recognition && recognition.stop(); }
+    else { recognition = initRecognition(); if (!recognition) { statusEl.textContent='BROWSER NOT SUPPORTED'; return; } recognition.start(); }
+  });
+
+  function openJarvis() {
+    overlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+    statusEl.textContent = 'CLICK MIC TO SPEAK';
+    transcriptEl.textContent = ''; responseEl.textContent = ''; responseEl.classList.remove('show');
+    setTimeout(() => { responseEl.textContent='NYX online. State your command.'; responseEl.classList.add('show'); speak('NYX online. Jarvis Mode activated. State your command.'); }, 400);
+  }
+
+  function closeJarvis() {
+    overlay.classList.remove('active');
+    document.body.style.overflow = '';
+    if (listening && recognition) recognition.stop();
+    window.speechSynthesis && window.speechSynthesis.cancel();
+    stopWave();
+  }
+
+  document.getElementById('j-close').addEventListener('click', closeJarvis);
+  document.addEventListener('keydown', e => { if (e.key==='Escape') closeJarvis(); });
+
+  const hudFrame = document.querySelector('.vhud-frame');
+  if (hudFrame) { hudFrame.addEventListener('click', openJarvis); hudFrame.style.cursor='pointer'; }
+
+  const voiceCopy = document.querySelector('.voice-copy');
+  if (voiceCopy) {
+    const btn = document.createElement('button');
+    btn.id = 'jarvis-activate-btn';
+    btn.className = 'waitlist-submit';
+    btn.setAttribute('data-magnetic','');
+    btn.textContent = 'Activate Jarvis';
+    btn.addEventListener('click', openJarvis);
+    voiceCopy.appendChild(btn);
+  }
+})();
+
 /* ── MAGNETIC BUTTONS ───────────────────────────────── */
 (function(){
   document.querySelectorAll('[data-magnetic]').forEach(btn => {
