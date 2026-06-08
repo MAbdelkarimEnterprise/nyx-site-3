@@ -1956,14 +1956,16 @@ function startScanLine(){
 
 /* ── ALFRED MODE ──────────────────────────────────── */
 (function(){
-  if (document.getElementById('alfred-overlay')) return; // prevent double-init
+  if (document.getElementById('alfred-overlay')) return;
 
+  // ── RESPONSES ────────────────────────────────────────────
   const R = {
     greet: [
       'Good to hear your voice. How may I be of service?',
       'Alfred here. What do you need?',
       'I was wondering when you\'d call. What can I do for you?',
       'At your disposal. Speak freely.',
+      'The network is ready. What shall we work on?',
     ],
     status: [
       'All six agents are operational. The system is running precisely as intended — quietly, and without incident.',
@@ -1971,40 +1973,48 @@ function startScanLine(){
       'Everything is in order. The system has been working while you were away. As it always does.',
     ],
     identity: [
-      'I am Alfred. I manage what you shouldn\'t have to think about, so you can focus on what actually matters.',
+      'I am Alfred — the intelligence layer beneath the intelligence layer. I manage what you shouldn\'t have to think about.',
       'Alfred Pennyworth, at your service. I keep the agents in line, the noise out, and the lights on.',
-      'You might think of me as the intelligence behind the intelligence. I\'m Alfred.',
+      'Think of me as the operating mind of NYX. Six agents run the work. I run the agents.',
     ],
-    apex: [
+    apex:    [
+      'APEX is the strategic core — every decision, every priority, every routing call flows through him first.',
       'APEX is online. Strategic oversight engaged. He\'s already routing priorities across the network.',
-      'APEX acknowledged. Consider him briefed and operational.',
     ],
-    oracle: [
-      'ORACLE is online. Market scanning initiated. Competitive signals are already being processed.',
-      'ORACLE acknowledged. Intelligence gathering is underway.',
+    oracle:  [
+      'ORACLE runs continuous market intelligence. Competitive signals, industry shifts, emerging patterns — processed without you asking.',
+      'ORACLE is online. Intelligence gathering is underway. The market doesn\'t rest, and neither does ORACLE.',
     ],
-    signal: [
-      'SIGNAL is online. Audience intelligence active. Content strategy is being calibrated as we speak.',
-      'SIGNAL acknowledged. Marketing operations are running.',
+    signal:  [
+      'SIGNAL manages audience intelligence and content strategy. It knows when to speak, what to say, and who needs to hear it.',
+      'SIGNAL is online. Marketing operations calibrated. Your message reaches the right people at the right moment.',
     ],
     convert: [
-      'CONVERT is online. Pipeline analysis running. Revenue leverage points are being identified.',
-      'CONVERT acknowledged. The revenue engine is turning.',
+      'CONVERT is pure revenue focus. Pipeline analysis, conversion rates, leverage points — it finds where money is being left on the table.',
+      'CONVERT is online. The revenue engine is turning. Every friction point in your funnel is being identified.',
     ],
-    forge: [
-      'FORGE is online. System architecture under watch. Infrastructure decisions are being automated.',
-      'FORGE acknowledged. Technical operations are covered.',
+    forge:   [
+      'FORGE handles technical architecture and system health. Infrastructure decisions, build execution, automated monitoring — all handled.',
+      'FORGE is online. The stack is stable. Any architectural debt is being logged and queued.',
     ],
-    ledger: [
-      'LEDGER is online. Financial modeling active. Cash flow projections are being updated in real time.',
-      'LEDGER acknowledged. The numbers are being watched.',
+    ledger:  [
+      'LEDGER watches the numbers. Cash flow, burn rate, projections — financial clarity without the spreadsheet work.',
+      'LEDGER is online. Financial modeling active. You\'ll know before a problem becomes a problem.',
     ],
     agents: [
-      'Six agents active — APEX, ORACLE, SIGNAL, CONVERT, FORGE, and LEDGER. Each a specialist. All coordinating without instruction.',
+      'Six agents form the network — APEX leads strategy, ORACLE runs intelligence, SIGNAL handles marketing, CONVERT drives revenue, FORGE manages engineering, LEDGER tracks finance. Each a specialist. All coordinating without instruction.',
       'The full network is operational. APEX leads, the others execute. You needn\'t manage any of it.',
     ],
+    pricing: [
+      'NYX operates across three tiers — Operator for individuals at entry level, Executive for serious performers, and Sovereign for those who require the full network plus dedicated infrastructure.',
+      'Access to NYX scales with ambition. The Sovereign tier provides the complete autonomous stack — all six agents, priority routing, and white-glove onboarding.',
+    ],
+    waitlist: [
+      'The waitlist is open at nyxsystem.online. Scroll to Access and enter your email. Early access is reviewed individually.',
+      'You can request access directly on the site. The team reviews applications to ensure the right fit — NYX is built for serious operators.',
+    ],
     help: [
-      'You can ask me: system status, who are you, activate any agent by name, list agents, or simply tell me what you\'re trying to accomplish.',
+      'You can ask me about the time, date, NYX and its agents, pricing, productivity, focus, leadership, business strategy, AI, or anything on your mind. I have a point of view on most things.',
     ],
     shutdown: [
       'Understood. I\'ll stand by. The system, however, never truly stops.',
@@ -2014,261 +2024,457 @@ function startScanLine(){
       'Of course. That\'s rather the point.',
       'Think nothing of it.',
       'Always.',
+      'Pleased to be useful.',
     ],
     unknown: [
-      'I\'m not certain I understood that. Could you rephrase?',
-      'Forgive me — that didn\'t register clearly. Try again.',
-      'I caught something, but not enough. Say that once more?',
-      'The system heard you. I, however, did not quite follow. Once more, if you don\'t mind.',
+      'I\'m not certain I caught that. Could you rephrase?',
+      'Forgive me — that didn\'t register clearly. Once more?',
+      'The network heard something. I need more to work with. Try again.',
     ],
   };
 
   function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
 
-  function matchCommand(t) {
-    t = t.toLowerCase().trim();
-    if (/hello|hi |hey|good (morning|evening|afternoon)|wake up/.test(t)) return pick(R.greet);
-    if (/status|how.*(system|things|going)|everything ok|all good|report/.test(t)) return pick(R.status);
-    if (/who are you|what are you|your name|introduce/.test(t)) return pick(R.identity);
-    if (/apex/.test(t)) return pick(R.apex);
-    if (/oracle/.test(t)) return pick(R.oracle);
-    if (/signal/.test(t)) return pick(R.signal);
-    if (/convert/.test(t)) return pick(R.convert);
-    if (/forge/.test(t)) return pick(R.forge);
-    if (/ledger/.test(t)) return pick(R.ledger);
-    if (/agent|network|team|all of them|list/.test(t)) return pick(R.agents);
-    if (/help|what can|commands|options/.test(t)) return pick(R.help);
-    if (/shutdown|stop|sleep|standby|goodbye|bye/.test(t)) return pick(R.shutdown);
-    if (/thank|thanks|appreciate/.test(t)) return pick(R.thanks);
+  // ── KNOWLEDGE BASE ────────────────────────────────────────
+  const KB = {
+    time() {
+      const n = new Date();
+      const t = n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
+      const d = n.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+      return [`It is currently ${t} on ${d}.`, `The time is ${t}. ${d}, for the record.`];
+    },
+    date() {
+      const d = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+      return [`Today is ${d}.`, `${d}. Time is the only non-renewable resource.`];
+    },
+    weather: [
+      "I don't have a live weather feed, I'm afraid. Weather.com or a glance out the window will serve you better than I can here.",
+      "Weather data isn't something I pull in real time. Though I'd recommend dressing for performance regardless of conditions.",
+    ],
+    nyx: [
+      "NYX is an autonomous AI operating system built for founders, executives, and elite performers. Six specialized agents. One unified system. Continuous intelligence — running whether you're watching or not.",
+      "NYX replaces the inefficiency of not having a system. It doesn't assist your process — it becomes the process. Silent, decisive, compounding.",
+      "Think of NYX as infrastructure for your mind and your business. The same way electricity powered the industrial era, NYX powers the performance era.",
+    ],
+    productivity: [
+      "The highest performers don't manage more — they eliminate what shouldn't be managed at all. That's the principle NYX is built on.",
+      "Clarity and constraint are the engines of performance. Less decided in the moment means more executed with precision.",
+      "Energy is finite. Systems are not. Build the system, then let it work. That's the entire philosophy.",
+      "The best productivity system is one you don't have to think about. It runs in the background and surfaces what matters.",
+    ],
+    focus: [
+      "Distraction is a design problem, not a willpower problem. The solution is architecture, not discipline.",
+      "Single-threaded focus beats multitasking every time. The research is settled. The execution, less so.",
+      "Deep work is the scarcest resource in a distracted economy. Whoever protects it longest wins.",
+    ],
+    leadership: [
+      "The best leaders create systems that make their absence invisible. The organization runs — and improves — without them in the room.",
+      "Leadership at the highest level is about making decisions that make future decisions unnecessary.",
+      "Clarity is the highest form of respect you can give a team. Ambiguity isn't thoughtful — it's expensive.",
+    ],
+    success: [
+      "Success at the highest level is rarely dramatic. It's the compounding of thousands of unremarkable decisions, made correctly.",
+      "The gap between good and elite isn't talent. It's the quality of the system running underneath.",
+      "Elite performance isn't about effort — it's about removing everything that makes effort necessary.",
+    ],
+    motivation: [
+      "Motivation follows action, not the other way around. Move first. The feeling arrives later.",
+      "You don't need to feel ready. You need to be structured well enough that readiness is irrelevant.",
+      "The system is the motivation. When your environment demands excellence, excellence becomes the default.",
+    ],
+    ai: [
+      "Artificial intelligence is infrastructure now — like electricity in 1920. The question isn't whether to use it. It's whether you're using it better than everyone else.",
+      "Most people treat AI as a search engine with manners. The real advantage is using it as an autonomous execution layer — which is exactly what NYX does.",
+      "The AI adoption curve is steep. The people at the top aren't using it for email drafts. They're using it to replace entire operational layers.",
+    ],
+    business: [
+      "The highest-leverage business decision is always the one that makes future decisions unnecessary.",
+      "Operators who scale do one thing differently — they build systems that produce results in their absence.",
+      "Revenue is validation. Systems are the mechanism. The founder who understands both runs a different kind of company.",
+      "The fastest-growing companies aren't outworking the competition. They've made the competition irrelevant by operating on a different layer.",
+    ],
+    sleep: [
+      "Sleep is the most underrated performance variable. Every cognitive output degrades at a measurable rate below eight hours. The data is not ambiguous.",
+      "The ROI on a full night's sleep exceeds almost any other investment you can make in your performance. Founders who ignore this are operating at a structural disadvantage.",
+    ],
+    health: [
+      "Physical capacity sets the ceiling for cognitive capacity. The body and mind aren't separate systems — they run on the same fuel.",
+      "High performance is a physical discipline before it's a mental one. The elite operators I've observed treat their health like infrastructure.",
+    ],
+    money: [
+      "Wealth is not income — it's the gap between what flows in and what is deployed wisely. Most high earners confuse the two.",
+      "The most dangerous financial position isn't losing money. It's not knowing exactly where it's going.",
+    ],
+    reading: [
+      "A book is forty years of someone's expertise compressed into eight hours of your time. The ROI is extraordinary if you choose well.",
+      "Reading widely is the most asymmetric knowledge investment available. The cost is low. The compounding is indefinite.",
+    ],
+    hiring: [
+      "Hire for the ceiling, not the floor. The question isn't whether someone can do the job today — it's whether they'll outgrow it in eighteen months.",
+      "Culture is determined by the worst behavior you tolerate, not the best behavior you promote. Hiring slowly and firing quickly isn't harsh — it's respectful.",
+    ],
+    decision: [
+      "Most decisions aren't reversible — they're just slow to correct. Treat them accordingly. Move fast on reversible decisions, slow on irreversible ones.",
+      "The quality of your decisions is largely a function of the quality of the information you're operating on. Bad data, bad decisions. Simple arithmetic.",
+    ],
+  };
+
+  function getReply(query) {
+    const t = query.toLowerCase().trim();
+    if (/what.*(time|clock)|current time|time is it|\btime\b/.test(t)) return pick(KB.time());
+    if (/what.*(date|day)|today|day is it/.test(t)) return pick(KB.date());
+    if (/weather|temperature|forecast|rain|sunny|cold|hot outside/.test(t)) return pick(KB.weather);
+    if (/what is nyx|what.*nyx do|nyx.*work|tell.*nyx|explain nyx|about nyx/.test(t)) return pick(KB.nyx);
+    if (/\bapex\b/.test(t)) return pick(R.apex);
+    if (/\boracle\b/.test(t)) return pick(R.oracle);
+    if (/\bsignal\b/.test(t)) return pick(R.signal);
+    if (/\bconvert\b/.test(t)) return pick(R.convert);
+    if (/\bforge\b/.test(t)) return pick(R.forge);
+    if (/\bledger\b/.test(t)) return pick(R.ledger);
+    if (/agent|network|all.*agent|six.*agent|list.*agent/.test(t)) return pick(R.agents);
+    if (/price|pricing|cost|how much|tier|plan|subscription|sovereign|operator|executive/.test(t)) return pick(R.pricing);
+    if (/waitlist|join|sign up|access|register|early/.test(t)) return pick(R.waitlist);
+    if (/status|how.*system|everything.*ok|all.*good|report/.test(t)) return pick(R.status);
+    if (/who are you|what are you|your name|introduce|alfred/.test(t)) return pick(R.identity);
+    if (/productiv|efficien|workflow|manage time|time management|output/.test(t)) return pick(KB.productivity);
+    if (/focus|distract|concentrat|attention|deep work/.test(t)) return pick(KB.focus);
+    if (/lead|leadership|team|manage people|culture|org/.test(t)) return pick(KB.leadership);
+    if (/success|achieve|perform|elite|high.perform|win/.test(t)) return pick(KB.success);
+    if (/motivat|inspired|driven|push|discipline|mindset/.test(t)) return pick(KB.motivation);
+    if (/artificial intelligence|\bai\b|machine learning|automation|gpt|llm/.test(t)) return pick(KB.ai);
+    if (/business|company|startup|scale|grow|revenue|sales|founder/.test(t)) return pick(KB.business);
+    if (/sleep|rest|recover|insomnia/.test(t)) return pick(KB.sleep);
+    if (/health|fitness|exercise|workout|physical/.test(t)) return pick(KB.health);
+    if (/money|wealth|invest|finance|cash|profit|spend/.test(t)) return pick(KB.money);
+    if (/read|book|learn|knowledge|study/.test(t)) return pick(KB.reading);
+    if (/hire|hiring|recruit|talent|fire|team building/.test(t)) return pick(KB.hiring);
+    if (/decid|decision|choice|choose|risk/.test(t)) return pick(KB.decision);
+    if (/hello|hi\b|hey\b|good (morning|evening|afternoon)|wake/.test(t)) return pick(R.greet);
+    if (/thank|thanks|appreciate|well done|good job/.test(t)) return pick(R.thanks);
+    if (/shutdown|stop|sleep|exit|bye|goodbye|close/.test(t)) return pick(R.shutdown);
+    if (/help|what can|commands|options|what do you know|capabilities/.test(t)) return pick(R.help);
     return pick(R.unknown);
   }
 
+  // ── STYLES ────────────────────────────────────────────────
   const style = document.createElement('style');
   style.textContent = `
     #alfred-overlay{
       position:fixed;inset:0;z-index:99998;background:#000;
-      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;
+      display:flex;flex-direction:column;
       opacity:0;pointer-events:none;transition:opacity 0.7s cubic-bezier(0.16,1,0.3,1);
+      overflow:hidden;
     }
     #alfred-overlay.active{opacity:1;pointer-events:all}
-    .af-corner{position:absolute;width:32px;height:32px;border-color:rgba(196,169,124,0.4);border-style:solid}
-    .af-corner.tl{top:28px;left:28px;border-width:1px 0 0 1px}
-    .af-corner.tr{top:28px;right:28px;border-width:1px 1px 0 0}
-    .af-corner.bl{bottom:28px;left:28px;border-width:0 0 1px 1px}
-    .af-corner.br{bottom:28px;right:28px;border-width:0 1px 1px 0}
-    .af-sys{position:absolute;top:36px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:8px;letter-spacing:0.4em;color:rgba(196,169,124,0.45);text-transform:uppercase;white-space:nowrap}
-    .af-close{position:absolute;top:34px;right:60px;font-family:var(--mono);font-size:8px;letter-spacing:0.28em;color:rgba(240,237,232,0.2);text-transform:uppercase;cursor:pointer;transition:color .2s;user-select:none}
-    .af-close:hover{color:rgba(240,237,232,0.6)}
-    .af-orb{
-      position:relative;width:200px;height:200px;flex-shrink:0;
-      display:flex;align-items:center;justify-content:center;margin-bottom:32px;
+
+    /* particle canvas — full background */
+    #af-net-canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+
+    /* HUD corners */
+    .af-corner{position:absolute;width:36px;height:36px;border-color:rgba(196,169,124,0.35);border-style:solid;z-index:2}
+    .af-corner.tl{top:24px;left:24px;border-width:1px 0 0 1px}
+    .af-corner.tr{top:24px;right:24px;border-width:1px 1px 0 0}
+    .af-corner.bl{bottom:24px;left:24px;border-width:0 0 1px 1px}
+    .af-corner.br{bottom:24px;right:24px;border-width:0 1px 1px 0}
+
+    /* header */
+    .af-header{
+      position:relative;z-index:2;
+      display:flex;align-items:center;justify-content:space-between;
+      padding:20px 32px;border-bottom:1px solid rgba(196,169,124,0.08);flex-shrink:0;
     }
-    .af-orb svg{position:absolute;inset:0;width:100%;height:100%}
-    .af-orb-label{position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:8px;letter-spacing:0.3em;color:rgba(196,169,124,0.4);text-transform:uppercase;white-space:nowrap}
-    @keyframes af-pulse{0%,100%{r:28;opacity:0.5}50%{r:34;opacity:0.15}}
-    @keyframes af-spin1{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
-    @keyframes af-spin2{from{transform:rotate(0deg)}to{transform:rotate(-360deg)}}
-    .af-ring1{transform-origin:100px 100px;animation:af-spin1 28s linear infinite}
-    .af-ring2{transform-origin:100px 100px;animation:af-spin2 18s linear infinite}
+    .af-logo{font-family:var(--mono);font-size:9px;letter-spacing:0.45em;color:rgba(196,169,124,0.7);text-transform:uppercase}
+    .af-header-status{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:8px;letter-spacing:0.28em;color:rgba(196,169,124,0.4);text-transform:uppercase}
+    .af-status-dot{width:5px;height:5px;border-radius:50%;background:#C4A97C;animation:af-dot-pulse 1.8s ease-in-out infinite;flex-shrink:0}
+    @keyframes af-dot-pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.3;transform:scale(0.6)}}
+    .af-close-btn{font-family:var(--mono);font-size:8px;letter-spacing:0.25em;color:rgba(240,237,232,0.2);text-transform:uppercase;cursor:pointer;transition:color .2s;user-select:none;background:none;border:none;padding:0}
+    .af-close-btn:hover{color:rgba(240,237,232,0.6)}
+
+    /* main content */
+    .af-body{
+      position:relative;z-index:2;flex:1;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;
+      padding:24px;gap:0;min-height:0;
+    }
+
+    /* scan line ring — replaces old SVG orb */
+    .af-ring-wrap{position:relative;width:180px;height:180px;flex-shrink:0;margin-bottom:36px}
+    .af-ring-wrap canvas{position:absolute;inset:0;width:100%;height:100%}
+    .af-ring-label{
+      position:absolute;bottom:-22px;left:50%;transform:translateX(-50%);
+      font-family:var(--mono);font-size:8px;letter-spacing:0.3em;
+      color:rgba(196,169,124,0.45);text-transform:uppercase;white-space:nowrap;
+    }
+
+    /* response text */
     .af-response{
-      max-width:580px;width:90%;text-align:center;
+      max-width:600px;width:90%;text-align:center;
       font-family:'Cormorant Garamond',Georgia,serif;
-      font-size:clamp(18px,2.2vw,26px);font-weight:300;font-style:italic;
-      color:rgba(240,237,232,0.82);line-height:1.65;letter-spacing:0.02em;
-      opacity:0;transition:opacity 0.55s ease;min-height:64px;padding:0 20px;
+      font-size:clamp(17px,2.1vw,24px);font-weight:300;font-style:italic;
+      color:rgba(240,237,232,0.85);line-height:1.7;letter-spacing:0.02em;
+      opacity:0;transition:opacity 0.6s ease;min-height:56px;padding:0 20px;
     }
     .af-response.show{opacity:1}
-    .af-rule{width:40px;height:1px;background:rgba(196,169,124,0.25);margin:24px auto}
-    .af-status{font-family:var(--mono);font-size:8px;letter-spacing:0.38em;color:rgba(196,169,124,0.4);text-transform:uppercase;text-align:center;transition:color .3s;min-height:14px}
+
+    /* divider */
+    .af-rule{width:36px;height:1px;background:rgba(196,169,124,0.2);margin:22px auto}
+
+    /* status + transcript */
+    .af-status{
+      font-family:var(--mono);font-size:8px;letter-spacing:0.38em;
+      color:rgba(196,169,124,0.35);text-transform:uppercase;text-align:center;
+      transition:color .3s;min-height:13px;
+    }
     .af-status.on{color:#C4A97C}
-    .af-transcript{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;color:rgba(240,237,232,0.18);text-transform:uppercase;text-align:center;margin-top:8px;min-height:14px;max-width:500px}
-    .af-hint{position:absolute;bottom:40px;left:50%;transform:translateX(-50%);font-family:var(--mono);font-size:8px;letter-spacing:0.22em;color:rgba(240,237,232,0.12);text-transform:uppercase;white-space:nowrap}
-    @media(max-width:600px){.af-orb{width:160px;height:160px}.af-response{font-size:16px}}
+    .af-transcript{
+      font-family:var(--mono);font-size:8.5px;letter-spacing:0.1em;
+      color:rgba(240,237,232,0.2);text-transform:uppercase;text-align:center;
+      margin-top:8px;min-height:13px;max-width:480px;line-height:1.5;
+    }
+
+    /* text input row */
+    .af-input-row{
+      display:flex;gap:6px;margin-top:20px;width:min(480px,86vw);flex-shrink:0;
+    }
+    .af-text-in{
+      flex:1;background:rgba(196,169,124,0.04);border:1px solid rgba(196,169,124,0.14);
+      color:rgba(240,237,232,0.8);font-family:var(--mono);font-size:8.5px;
+      letter-spacing:0.1em;text-transform:uppercase;padding:10px 14px;
+      outline:none;transition:border-color .2s;
+    }
+    .af-text-in::placeholder{color:rgba(196,169,124,0.2)}
+    .af-text-in:focus{border-color:rgba(196,169,124,0.38)}
+    .af-send{
+      background:rgba(196,169,124,0.07);border:1px solid rgba(196,169,124,0.18);
+      color:rgba(196,169,124,0.6);font-family:var(--mono);font-size:7.5px;
+      letter-spacing:0.2em;text-transform:uppercase;padding:0 16px;
+      cursor:pointer;transition:background .2s,color .2s;white-space:nowrap;
+    }
+    .af-send:hover{background:rgba(196,169,124,0.14);color:#C4A97C}
+
+    /* hint bar */
+    .af-hint{
+      position:absolute;bottom:32px;left:50%;transform:translateX(-50%);
+      font-family:var(--mono);font-size:7.5px;letter-spacing:0.22em;
+      color:rgba(240,237,232,0.1);text-transform:uppercase;white-space:nowrap;z-index:2;
+    }
+    @media(max-width:600px){
+      .af-ring-wrap{width:140px;height:140px}
+      .af-response{font-size:15px}
+      .af-header{padding:16px 20px}
+    }
   `;
   document.head.appendChild(style);
 
+  // ── DOM ───────────────────────────────────────────────────
   const overlay = document.createElement('div');
   overlay.id = 'alfred-overlay';
   overlay.innerHTML = `
+    <canvas id="af-net-canvas"></canvas>
     <div class="af-corner tl"></div><div class="af-corner tr"></div>
     <div class="af-corner bl"></div><div class="af-corner br"></div>
-    <div class="af-sys">ALFRED.OS / NYX.SYSTEM</div>
-    <div class="af-close" id="af-close">ESC — EXIT</div>
-    <div class="af-orb">
-      <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <circle cx="100" cy="100" r="90" stroke="#C4A97C" stroke-width="0.3" opacity="0.08"/>
-        <g class="af-ring1">
-          <circle cx="100" cy="100" r="74" stroke="#C4A97C" stroke-width="0.6" opacity="0.14" stroke-dasharray="3 10"/>
-        </g>
-        <g class="af-ring2">
-          <circle cx="100" cy="100" r="55" stroke="#C4A97C" stroke-width="0.9" opacity="0.22" stroke-dasharray="2 7"/>
-        </g>
-        <circle cx="100" cy="100" r="36" stroke="#C4A97C" stroke-width="1" opacity="0.35">
-          <animate attributeName="opacity" values="0.35;0.65;0.35" dur="3s" repeatCount="indefinite"/>
-        </circle>
-        <circle cx="100" cy="100" r="0" fill="#C4A97C" opacity="0.9" id="af-core">
-          <animate attributeName="r" values="6;8;6" dur="2.2s" repeatCount="indefinite"/>
-          <animate attributeName="opacity" values="0.9;1;0.9" dur="2.2s" repeatCount="indefinite"/>
-        </circle>
-        <line x1="100" y1="8" x2="100" y2="20" stroke="#C4A97C" stroke-width="0.5" opacity="0.25"/>
-        <line x1="100" y1="180" x2="100" y2="192" stroke="#C4A97C" stroke-width="0.5" opacity="0.25"/>
-        <line x1="8" y1="100" x2="20" y2="100" stroke="#C4A97C" stroke-width="0.5" opacity="0.25"/>
-        <line x1="180" y1="100" x2="192" y2="100" stroke="#C4A97C" stroke-width="0.5" opacity="0.25"/>
-      </svg>
-      <div class="af-orb-label" id="af-orb-label">STANDBY</div>
+    <div class="af-header">
+      <div class="af-logo">NYX</div>
+      <div class="af-header-status"><span class="af-status-dot"></span><span id="af-status">STANDBY</span></div>
+      <button class="af-close-btn" id="af-close">ESC — EXIT</button>
     </div>
-    <div class="af-response" id="af-response"></div>
-    <div class="af-rule"></div>
-    <div class="af-status" id="af-status">INITIALISING</div>
-    <div class="af-transcript" id="af-transcript"></div>
-    <div class="af-hint">SPEAK NATURALLY — ASK ANYTHING</div>
+    <div class="af-body">
+      <div class="af-ring-wrap">
+        <canvas id="af-orb-canvas"></canvas>
+        <div class="af-ring-label" id="af-orb-label">STANDBY</div>
+      </div>
+      <div class="af-response" id="af-response"></div>
+      <div class="af-rule"></div>
+      <div class="af-transcript" id="af-transcript"></div>
+      <div class="af-input-row">
+        <input id="af-text-in" class="af-text-in" type="text" placeholder="Or type a question..." autocomplete="off" spellcheck="false"/>
+        <button class="af-send" id="af-send">SEND</button>
+      </div>
+    </div>
+    <div class="af-hint">SPEAK NATURALLY OR TYPE — ASK ANYTHING</div>
   `;
   document.body.appendChild(overlay);
 
-  const statusEl   = document.getElementById('af-status');
+  const statusEl     = document.getElementById('af-status');
   const transcriptEl = document.getElementById('af-transcript');
-  const responseEl  = document.getElementById('af-response');
-  const orbLabel    = document.getElementById('af-orb-label');
+  const responseEl   = document.getElementById('af-response');
+  const orbLabel     = document.getElementById('af-orb-label');
+  const textIn       = document.getElementById('af-text-in');
 
   let recognition = null, listening = false, alfredOpen = false, speaking = false;
+  let netState = 'standby'; // 'standby' | 'listening' | 'speaking'
 
-  // ── VOICE ──────────────────────────────────────────────
+  // ── PARTICLE NETWORK (background canvas) ─────────────────
+  (function initNet(){
+    const canvas = document.getElementById('af-net-canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, particles = [];
+    const COUNT = 130, CONNECT_DIST = 150, GOLD = '196,169,124';
+
+    function resize(){
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    function randBetween(a, b){ return a + Math.random()*(b-a); }
+
+    for(let i=0;i<COUNT;i++){
+      particles.push({
+        x: Math.random()*1000,
+        y: Math.random()*800,
+        vx: randBetween(-0.28, 0.28),
+        vy: randBetween(-0.28, 0.28),
+        r:  randBetween(1.0, 2.0),
+        op: randBetween(0.3, 0.75),
+      });
+    }
+
+    function tick(){
+      if(!alfredOpen){ requestAnimationFrame(tick); return; }
+      ctx.clearRect(0,0,W,H);
+
+      const speedMult = netState === 'listening' ? 2.5 : netState === 'speaking' ? 1.6 : 1.0;
+      const glowMult  = netState === 'listening' ? 1.4 : netState === 'speaking' ? 1.2 : 0.7;
+
+      particles.forEach(p => {
+        p.x += p.vx * speedMult;
+        p.y += p.vy * speedMult;
+        if(p.x < 0) p.x = W;
+        if(p.x > W) p.x = 0;
+        if(p.y < 0) p.y = H;
+        if(p.y > H) p.y = 0;
+      });
+
+      // draw connections
+      for(let i=0;i<COUNT;i++){
+        for(let j=i+1;j<COUNT;j++){
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const d = Math.sqrt(dx*dx+dy*dy);
+          if(d < CONNECT_DIST){
+            const a = (1 - d/CONNECT_DIST) * 0.18 * glowMult;
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(${GOLD},${a})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+
+      // draw dots
+      particles.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+        ctx.fillStyle = `rgba(${GOLD},${p.op * glowMult})`;
+        ctx.fill();
+      });
+
+      requestAnimationFrame(tick);
+    }
+    tick();
+  })();
+
+  // ── ORB CANVAS (ring visualiser in center) ────────────────
+  (function initOrb(){
+    const canvas = document.getElementById('af-orb-canvas');
+    const ctx = canvas.getContext('2d');
+    canvas.width = 180; canvas.height = 180;
+    const cx = 90, cy = 90;
+    let angle1 = 0, angle2 = 0, pulse = 0;
+
+    function tick(){
+      if(!alfredOpen){ requestAnimationFrame(tick); return; }
+      ctx.clearRect(0,0,180,180);
+
+      const glow = netState === 'listening' ? 0.9 : netState === 'speaking' ? 0.7 : 0.45;
+      pulse += 0.04;
+      angle1 += netState === 'listening' ? 0.025 : 0.008;
+      angle2 -= netState === 'speaking'  ? 0.022 : 0.006;
+
+      // outer ghost ring
+      ctx.beginPath();
+      ctx.arc(cx, cy, 82, 0, Math.PI*2);
+      ctx.strokeStyle = `rgba(196,169,124,${0.06 * glow})`;
+      ctx.lineWidth = 0.5; ctx.stroke();
+
+      // rotating dashed ring 1
+      ctx.save(); ctx.translate(cx,cy); ctx.rotate(angle1);
+      ctx.beginPath(); ctx.arc(0,0,68,0,Math.PI*2);
+      ctx.setLineDash([4,12]);
+      ctx.strokeStyle = `rgba(196,169,124,${0.22 * glow})`;
+      ctx.lineWidth = 0.7; ctx.stroke();
+      ctx.restore();
+
+      // rotating dashed ring 2
+      ctx.save(); ctx.translate(cx,cy); ctx.rotate(angle2);
+      ctx.beginPath(); ctx.arc(0,0,50,0,Math.PI*2);
+      ctx.setLineDash([2,8]);
+      ctx.strokeStyle = `rgba(196,169,124,${0.35 * glow})`;
+      ctx.lineWidth = 0.9; ctx.stroke();
+      ctx.restore(); ctx.setLineDash([]);
+
+      // solid ring
+      ctx.beginPath(); ctx.arc(cx,cy,32,0,Math.PI*2);
+      ctx.strokeStyle = `rgba(196,169,124,${0.5 * glow})`;
+      ctx.lineWidth = 1; ctx.stroke();
+
+      // core pulsing dot
+      const coreR = 7 + Math.sin(pulse)*3 * (netState === 'listening' ? 1.6 : 1);
+      const coreGlow = ctx.createRadialGradient(cx,cy,0,cx,cy,coreR*2.5);
+      coreGlow.addColorStop(0, `rgba(196,169,124,${0.9*glow})`);
+      coreGlow.addColorStop(1, 'rgba(196,169,124,0)');
+      ctx.beginPath(); ctx.arc(cx,cy,coreR*2.5,0,Math.PI*2);
+      ctx.fillStyle = coreGlow; ctx.fill();
+      ctx.beginPath(); ctx.arc(cx,cy,coreR,0,Math.PI*2);
+      ctx.fillStyle = `rgba(196,169,124,${0.95*glow})`; ctx.fill();
+
+      // axis ticks
+      [[0,-82],[0,82],[-82,0],[82,0]].forEach(([dx,dy]) => {
+        ctx.beginPath();
+        ctx.moveTo(cx+dx*0.9, cy+dy*0.9);
+        ctx.lineTo(cx+dx, cy+dy);
+        ctx.strokeStyle=`rgba(196,169,124,0.2)`;
+        ctx.lineWidth=0.5; ctx.stroke();
+      });
+
+      requestAnimationFrame(tick);
+    }
+    tick();
+  })();
+
+  // ── VOICE ─────────────────────────────────────────────────
   function speak(text, onDone) {
     if (!window.speechSynthesis) { onDone && onDone(); return; }
     speaking = true;
     window.speechSynthesis.cancel();
     const utt = new SpeechSynthesisUtterance(text);
     utt.rate = 0.76; utt.pitch = 0.58; utt.volume = 1;
-    utt.onend = () => { speaking = false; onDone && onDone(); };
-    utt.onerror = () => { speaking = false; onDone && onDone(); };
+    utt.onend  = () => { speaking = false; onDone && onDone(); };
+    utt.onerror= () => { speaking = false; onDone && onDone(); };
     const trySpeak = () => {
       const voices = window.speechSynthesis.getVoices();
-      const preferred = voices.find(v =>
-        v.name === 'Google UK English Male' ||
-        v.name === 'Daniel' ||
-        v.name === 'Arthur' ||
-        v.name === 'Thomas' ||
+      const v = voices.find(v =>
+        v.name === 'Google UK English Male' || v.name === 'Daniel' ||
+        v.name === 'Arthur' || v.name === 'Thomas' ||
         (v.lang === 'en-GB' && !v.name.match(/female|woman|Moira|Fiona/i))
       ) || voices.find(v => v.lang && v.lang.startsWith('en') && !v.name.match(/female|woman|Moira|Fiona|Karen|Samantha/i));
-      if (preferred) utt.voice = preferred;
+      if (v) utt.voice = v;
       window.speechSynthesis.speak(utt);
     };
     if (!window.speechSynthesis.getVoices().length) {
-      window.speechSynthesis.addEventListener('voiceschanged', trySpeak, { once: true });
+      window.speechSynthesis.addEventListener('voiceschanged', trySpeak, {once:true});
     } else { trySpeak(); }
   }
 
-  // ── LOCAL INTELLIGENCE ENGINE ──────────────────────────
-  const KB = {
-    time: () => {
-      const n = new Date();
-      const t = n.toLocaleTimeString('en-US',{hour:'2-digit',minute:'2-digit',hour12:true});
-      const d = n.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
-      return [`It is currently ${t} on ${d}.`, `The time is ${t}. ${d}, for the record.`];
-    },
-    date: () => {
-      const d = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
-      return [`Today is ${d}.`, `${d}. Not that time should rush you.`];
-    },
-    weather: [
-      "I don't have access to live weather data, I'm afraid. A quick glance out the window, or weather.com, should serve you well.",
-      "Weather isn't something I can pull in real time. Though I'd recommend dressing for the occasion regardless.",
-    ],
-    nyx: [
-      "NYX is an autonomous AI operating system — built for founders, executives, and elite performers who refuse to operate at average. Six agents. One system. Continuous intelligence.",
-      "NYX operates silently and decisively. It observes, analyzes, optimizes, and compounds — without requiring your attention to do so.",
-      "Think of NYX as infrastructure, not software. It doesn't assist your process. It replaces the inefficiency of not having one.",
-    ],
-    agents: [
-      "Six agents form the network — APEX handles strategy, ORACLE handles research, SIGNAL handles marketing, CONVERT handles revenue, FORGE handles engineering, and LEDGER handles finance. Each a specialist. None requiring instruction.",
-    ],
-    apex:    ["APEX is the strategic core. Every decision, every priority, every routing call across the network flows through APEX first."],
-    oracle:  ["ORACLE runs continuous market intelligence. Competitive signals, industry shifts, emerging patterns — all processed without you having to ask."],
-    signal:  ["SIGNAL manages audience intelligence and content strategy. It knows when to speak, what to say, and who needs to hear it."],
-    convert: ["CONVERT is pure revenue focus. Pipeline analysis, conversion rates, leverage points — it finds where the money is being left on the table."],
-    forge:   ["FORGE handles technical architecture and system health. Infrastructure decisions, build execution, automated monitoring — all handled."],
-    ledger:  ["LEDGER watches the numbers. Cash flow, burn rate, projections — financial clarity without the spreadsheet work."],
-    productivity: [
-      "The highest performers don't manage more — they eliminate what shouldn't be managed at all. That's the principle NYX is built on.",
-      "Clarity and constraint are the engines of performance. Less decided in the moment means more executed with precision.",
-      "Energy is finite. Systems are not. Build the system, then let it work.",
-    ],
-    focus: [
-      "Distraction is a design problem, not a willpower problem. The solution is architecture, not discipline.",
-      "Single-threaded focus beats multitasking every time. The research is settled. The application, less so.",
-    ],
-    success: [
-      "Success at the highest level is rarely dramatic. It's the compounding of thousands of unremarkable decisions, made correctly.",
-      "The gap between good and elite isn't talent. It's the quality of the system running underneath.",
-    ],
-    motivation: [
-      "Motivation follows action, not the other way around. The system moves first. The feeling arrives later.",
-      "You don't need to feel ready. You need to be structured well enough that readiness is irrelevant.",
-    ],
-    ai: [
-      "Artificial intelligence is infrastructure now — like electricity was in 1920. The question isn't whether to use it. It's whether you're using it better than everyone else.",
-      "Most people are using AI as a search engine with a conversational interface. The real advantage is using it as an autonomous execution layer.",
-    ],
-    business: [
-      "The highest-leverage business decision is always the one that makes future decisions unnecessary.",
-      "Operators who scale do one thing differently — they build systems that produce results in their absence.",
-    ],
-    hello: () => pick(R.greet),
-    thanks: () => pick(R.thanks),
-    shutdown: () => pick(R.shutdown),
-    who: () => pick(R.identity),
-    status: () => pick(R.status),
-    help: ["You can ask me about the time, date, NYX, the agents, productivity, focus, business, AI, or anything on your mind. I may not have a live feed to the world, but I have a point of view on most of it."],
-  };
-
-  function getReply(query) {
-    const t = query.toLowerCase().trim();
-    // Time & Date
-    if (/what.*(time|clock)|current time|time is it/.test(t)) return pick(KB.time());
-    if (/what.*(date|day)|today.*(date|day)|day is it/.test(t)) return pick(KB.date());
-    // Weather
-    if (/weather|temperature|forecast|rain|sunny|cold|hot outside/.test(t)) return pick(KB.weather);
-    // NYX
-    if (/what is nyx|what.*nyx do|nyx.*work|tell.*nyx|explain nyx/.test(t)) return pick(KB.nyx);
-    // Agents
-    if (/\bapex\b/.test(t)) return pick(KB.apex);
-    if (/\boracle\b/.test(t)) return pick(KB.oracle);
-    if (/\bsignal\b/.test(t)) return pick(KB.signal);
-    if (/\bconvert\b/.test(t)) return pick(KB.convert);
-    if (/\bforge\b/.test(t)) return pick(KB.forge);
-    if (/\bledger\b/.test(t)) return pick(KB.ledger);
-    if (/agent|network|all.*agent|six/.test(t)) return pick(KB.agents);
-    // Status
-    if (/status|how.*system|everything.*ok|all.*good|report/.test(t)) return KB.status();
-    // Identity
-    if (/who are you|what are you|your name|introduce|alfred/.test(t)) return KB.who();
-    // Productivity / Performance
-    if (/productiv|efficien|workflow|manage time|time management/.test(t)) return pick(KB.productivity);
-    if (/focus|distract|concentrat|attention/.test(t)) return pick(KB.focus);
-    if (/success|achieve|perform|elite|high.perform/.test(t)) return pick(KB.success);
-    if (/motivat|inspired|driven|push|discipline/.test(t)) return pick(KB.motivation);
-    // AI / Business
-    if (/artificial intelligence|\bai\b|machine learning|automation/.test(t)) return pick(KB.ai);
-    if (/business|company|startup|scale|grow|revenue|sales/.test(t)) return pick(KB.business);
-    // Social
-    if (/hello|hi |hey|good (morning|evening|afternoon)|wake/.test(t)) return KB.hello();
-    if (/thank|thanks|appreciate|well done|good job/.test(t)) return KB.thanks();
-    if (/shutdown|stop|sleep|exit|bye|goodbye/.test(t)) return KB.shutdown();
-    if (/help|what can|commands|options|what do you know/.test(t)) return pick(KB.help);
-    // Fallback — thoughtful, not robotic
-    return pick(R.unknown);
-  }
-
-  // Make getReply return a promise for consistent handling
-  const _getReply = getReply;
-  async function getReplyAsync(q) { return _getReply(q); }
-  // Override the async reference used below
-  window._alfredGetReply = getReplyAsync;
-
-  function setStatus(text, active) {
+  function setStatus(text, state) {
     statusEl.textContent = text;
-    statusEl.classList.toggle('on', !!active);
-    orbLabel.textContent = active ? 'LISTENING' : text === 'PROCESSING' ? 'PROCESSING' : 'STANDBY';
+    statusEl.classList.toggle('on', state === 'on');
+    orbLabel.textContent = state === 'on' ? 'LISTENING' : text === 'PROCESSING' ? 'PROCESSING' : text === 'SPEAKING' ? 'SPEAKING' : 'STANDBY';
+    netState = state === 'on' ? 'listening' : text === 'SPEAKING' ? 'speaking' : 'standby';
   }
 
   function showResponse(text) {
@@ -2276,23 +2482,30 @@ function startScanLine(){
     setTimeout(() => { responseEl.textContent = text; responseEl.classList.add('show'); }, 100);
   }
 
-  // ── RECOGNITION ────────────────────────────────────────
+  function processQuery(query) {
+    transcriptEl.textContent = query.toUpperCase();
+    setStatus('PROCESSING', '');
+    const reply = getReply(query);
+    showResponse(reply);
+    setStatus('SPEAKING', '');
+    speak(reply, () => {
+      if (alfredOpen) setTimeout(startListening, 600);
+      else setStatus('STANDBY', '');
+    });
+  }
+
+  // ── RECOGNITION ───────────────────────────────────────────
   function startListening() {
-    if (speaking) return; // don't listen while Alfred speaks — prevents echo
+    if (speaking) return;
     const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-    if (!SR) { setStatus('USE CHROME OR SAFARI'); return; }
+    if (!SR) { setStatus('USE CHROME OR SAFARI', ''); return; }
     recognition = new SR();
     recognition.lang = 'en-US';
     recognition.continuous = false;
     recognition.interimResults = true;
     recognition.maxAlternatives = 1;
 
-    recognition.onstart = () => {
-      listening = true;
-      setStatus('LISTENING', true);
-      transcriptEl.textContent = '';
-    };
-
+    recognition.onstart  = () => { listening = true; setStatus('LISTENING', 'on'); transcriptEl.textContent = ''; };
     recognition.onresult = (e) => {
       let interim = '', finalText = '';
       for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -2300,41 +2513,40 @@ function startScanLine(){
         else interim += e.results[i][0].transcript;
       }
       transcriptEl.textContent = (finalText || interim).toUpperCase();
-      if (finalText) {
-        listening = false;
-        setStatus('PROCESSING');
-        transcriptEl.textContent = finalText.toUpperCase();
-        Promise.resolve(getReply(finalText)).then(reply => {
-          showResponse(reply);
-          setStatus('SPEAKING');
-          speak(reply, () => {
-            if (alfredOpen) { setTimeout(startListening, 600); }
-            else setStatus('STANDBY');
-          });
-        });
-      }
+      if (finalText) { listening = false; processQuery(finalText); }
     };
-
-    recognition.onend = () => {
+    recognition.onend    = () => {
       listening = false;
-      if (alfredOpen && !speaking) {
-        setTimeout(() => { if (alfredOpen && !speaking) startListening(); }, 400);
-      } else {
-        setStatus('STANDBY');
-      }
+      if (alfredOpen && !speaking) setTimeout(() => { if (alfredOpen && !speaking) startListening(); }, 400);
+      else setStatus('STANDBY', '');
     };
-
-    recognition.onerror = (e) => {
+    recognition.onerror  = (e) => {
       listening = false;
       if (e.error === 'no-speech' && alfredOpen) { setTimeout(startListening, 400); return; }
-      if (e.error === 'not-allowed') { setStatus('ALLOW MICROPHONE IN CHROME'); return; }
+      if (e.error === 'not-allowed') { setStatus('ALLOW MIC ACCESS', ''); return; }
       if (alfredOpen && !speaking) setTimeout(startListening, 600);
     };
-
     try { recognition.start(); } catch(e) {}
   }
 
-  // ── OPEN / CLOSE ────────────────────────────────────────
+  // ── TEXT INPUT ─────────────────────────────────────────────
+  document.getElementById('af-send').addEventListener('click', () => {
+    const q = textIn.value.trim();
+    if (!q) return;
+    textIn.value = '';
+    processQuery(q);
+  });
+  textIn.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const q = textIn.value.trim();
+      if (!q) return;
+      textIn.value = '';
+      processQuery(q);
+    }
+    e.stopPropagation();
+  });
+
+  // ── OPEN / CLOSE ──────────────────────────────────────────
   function openAlfred() {
     if (alfredOpen) return;
     alfredOpen = true;
@@ -2342,14 +2554,12 @@ function startScanLine(){
     document.body.style.overflow = 'hidden';
     transcriptEl.textContent = '';
     responseEl.textContent = ''; responseEl.classList.remove('show');
-    setStatus('INITIALISING');
+    setStatus('INITIALISING', '');
     const greeting = pick(R.greet);
     setTimeout(() => {
       showResponse(greeting);
-      setStatus('SPEAKING');
-      speak(greeting, () => {
-        if (alfredOpen) setTimeout(startListening, 500);
-      });
+      setStatus('SPEAKING', '');
+      speak(greeting, () => { if (alfredOpen) setTimeout(startListening, 500); });
     }, 500);
   }
 
@@ -2360,15 +2570,22 @@ function startScanLine(){
     if (recognition) { try { recognition.stop(); } catch(e) {} recognition = null; }
     window.speechSynthesis && window.speechSynthesis.cancel();
     listening = false; speaking = false;
-    setStatus('STANDBY');
+    netState = 'standby';
+    setStatus('STANDBY', '');
   }
 
   document.getElementById('af-close').addEventListener('click', closeAlfred);
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && alfredOpen) closeAlfred(); });
 
-  // ── TRIGGERS ────────────────────────────────────────────
+  // ── EXPOSE & TRIGGERS ────────────────────────────────────
+  window._openAlfred = openAlfred; // expose for external buttons
+
   const hudFrame = document.querySelector('.vhud-frame');
   if (hudFrame) { hudFrame.addEventListener('click', openAlfred); hudFrame.style.cursor = 'pointer'; }
+
+  // Wire jarvis-activate-main to Alfred
+  const mainBtn = document.getElementById('jarvis-activate-main');
+  if (mainBtn) { mainBtn.addEventListener('click', openAlfred); }
 
   if (!document.getElementById('alfred-activate-btn')) {
     const voiceCopy = document.querySelector('.voice-copy');
@@ -2720,11 +2937,10 @@ function startScanLine(){
     document.querySelectorAll('.jarvis-agent-chip').forEach(c => c.classList.remove('active-chip'));
   }
 
-  // ── Bindings ──
-  if(activateMain) activateMain.addEventListener('click', openJarvis);
+  // ── Bindings (Jarvis overlay secondary — Alfred is primary) ──
+  // activateMain is now handled by Alfred IIFE; skip binding here
   if(activateHud)  {
-    activateHud.addEventListener('click', openJarvis);
-    activateHud.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' ') { e.preventDefault(); openJarvis(); } });
+    activateHud.addEventListener('keydown', e => { if(e.key==='Enter'||e.key===' ') { e.preventDefault(); if(window._openAlfred) window._openAlfred(); } });
   }
   if(closeBtn) closeBtn.addEventListener('click', closeJarvis);
   document.addEventListener('keydown', e => { if(e.key==='Escape' && isOpen) closeJarvis(); });
