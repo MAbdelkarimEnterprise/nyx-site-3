@@ -63,7 +63,7 @@ module.exports = async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
-  const { messages = [], profile = {} } = req.body;
+  const { messages = [], profile = {}, file = null } = req.body;
   const { name, role = 'Founder', goal = 'Growth' } = profile;
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
@@ -75,11 +75,39 @@ module.exports = async function handler(req, res) {
   const systemPrompt = ALFRED_SYSTEM_PROMPT +
     `\n\nUSER PROFILE:\n- Name: ${name || 'Unknown'}\n- Role: ${role}\n- Primary Goal: ${goal}\n\nAddress them by name when appropriate. Calibrate all intelligence to their role and goal.`;
 
+  // Build messages — inject file into the last user message if present
+  const apiMessages = messages.map((m, i) => {
+    const isLast = i === messages.length - 1;
+    if(isLast && m.role === 'user' && file) {
+      const content = [];
+      if(file.type === 'image'){
+        content.push({ type: 'image', source: { type: 'base64', media_type: file.mediaType, data: file.data } });
+      } else if(file.type === 'document'){
+        content.push({ type: 'document', source: { type: 'base64', media_type: file.mediaType, data: file.data } });
+      } else if(file.type === 'text'){
+        content.push({ type: 'text', text: `[Attached file: ${file.name}]\n\`\`\`\n${file.data.slice(0, 8000)}\n\`\`\`` });
+      }
+      if(m.content) content.push({ type: 'text', text: m.content });
+      return { role: 'user', content };
+    }
+    return { role: m.role, content: m.content };
+  });
+
+  const reqHeaders = {
+    'x-api-key': apiKey,
+    'anthropic-version': '2023-06-01',
+    'content-type': 'application/json',
+  };
+  // Enable PDF support beta if needed
+  if(file && file.mediaType === 'application/pdf'){
+    reqHeaders['anthropic-beta'] = 'pdfs-2024-09-25';
+  }
+
   const body = JSON.stringify({
     model: 'claude-sonnet-4-6',
     max_tokens: 1024,
     system: systemPrompt,
-    messages: messages.map(m => ({ role: m.role, content: m.content })),
+    messages: apiMessages,
     stream: true,
   });
 
@@ -88,12 +116,7 @@ module.exports = async function handler(req, res) {
       hostname: 'api.anthropic.com',
       path: '/v1/messages',
       method: 'POST',
-      headers: {
-        'x-api-key': apiKey,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
-        'content-length': Buffer.byteLength(body),
-      },
+      headers: { ...reqHeaders, 'content-length': Buffer.byteLength(body) },
     };
 
     const apiReq = https.request(options, (apiRes) => {
