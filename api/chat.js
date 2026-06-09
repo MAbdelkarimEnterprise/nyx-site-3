@@ -2,8 +2,9 @@
  * NYX — Alfred Intelligence API
  * POST /api/chat
  * Body: { messages: [{role, content}], profile: {name, role, goal} }
- * Returns: streaming text/event-stream
  */
+
+const https = require('https');
 
 const ALFRED_SYSTEM_PROMPT = `You are Alfred — the Executive Intelligence Officer of NYX.
 
@@ -31,6 +32,8 @@ YOUR TONE:
 - If you don't have specific data, extrapolate intelligently from the user's profile. Never say "I don't have access to."
 
 YOUR BEHAVIOR:
+- If the user asks who you are: explain Alfred and NYX briefly, with authority. Do not deflect.
+- If the user asks what NYX is: give a sharp, compelling answer. NYX is an AI operating system for high performers.
 - If the user asks for a briefing: synthesize a morning intelligence summary across all eight agents. Make it feel like real overnight analysis. Be specific with numbers and timeframes.
 - If the user asks about strategy: give a direct recommendation. Take a position.
 - If the user asks about market/competitors: give sharp intelligence. Frame it as ORACLE's analysis.
@@ -41,12 +44,21 @@ YOUR BEHAVIOR:
 
 CONSTRAINTS:
 - Never break character.
-- Never say you're an AI, language model, or Claude.
+- Never say you are an AI, language model, or Claude.
 - Never say "I cannot" or "I don't have access to." Reframe as intelligence routing.
 - Keep responses under 200 words unless the user explicitly requests a full brief.
 - No bullet points unless listing 4+ distinct items. Prefer prose.`;
 
-export default async function handler(req, res) {
+module.exports = async function handler(req, res) {
+  // Handle CORS preflight
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+
+  if (req.method === 'OPTIONS') {
+    return res.status(200).end();
+  }
+
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -56,74 +68,90 @@ export default async function handler(req, res) {
 
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) {
+    console.error('ANTHROPIC_API_KEY not set');
     return res.status(500).json({ error: 'API key not configured' });
   }
 
-  // Build system prompt with user profile injected
   const systemPrompt = ALFRED_SYSTEM_PROMPT +
     `\n\nUSER PROFILE:\n- Name: ${name || 'Unknown'}\n- Role: ${role}\n- Primary Goal: ${goal}\n\nAddress them by name when appropriate. Calibrate all intelligence to their role and goal.`;
 
-  try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+  const body = JSON.stringify({
+    model: 'claude-sonnet-4-6',
+    max_tokens: 1024,
+    system: systemPrompt,
+    messages: messages.map(m => ({ role: m.role, content: m.content })),
+    stream: true,
+  });
+
+  return new Promise((resolve) => {
+    const options = {
+      hostname: 'api.anthropic.com',
+      path: '/v1/messages',
       method: 'POST',
       headers: {
         'x-api-key': apiKey,
         'anthropic-version': '2023-06-01',
         'content-type': 'application/json',
+        'content-length': Buffer.byteLength(body),
       },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 1024,
-        system: systemPrompt,
-        messages: messages.map(m => ({
-          role: m.role,
-          content: m.content
-        })),
-        stream: true,
-      }),
+    };
+
+    const apiReq = https.request(options, (apiRes) => {
+      if (apiRes.statusCode !== 200) {
+        let errBody = '';
+        apiRes.on('data', d => errBody += d);
+        apiRes.on('end', () => {
+          console.error('Anthropic error:', apiRes.statusCode, errBody);
+          res.status(apiRes.statusCode).json({ error: 'Intelligence layer offline' });
+          resolve();
+        });
+        return;
+      }
+
+      res.setHeader('Content-Type', 'text/event-stream');
+      res.setHeader('Cache-Control', 'no-cache');
+      res.setHeader('Connection', 'keep-alive');
+
+      let buffer = '';
+
+      apiRes.on('data', (chunk) => {
+        buffer += chunk.toString();
+        const lines = buffer.split('\n');
+        buffer = lines.pop(); // keep incomplete line
+
+        for (const line of lines) {
+          if (!line.startsWith('data: ')) continue;
+          const data = line.slice(6).trim();
+          if (!data || data === '[DONE]') continue;
+          try {
+            const parsed = JSON.parse(data);
+            if (parsed.type === 'content_block_delta' && parsed.delta?.type === 'text_delta') {
+              res.write(`data: ${JSON.stringify({ text: parsed.delta.text })}\n\n`);
+            }
+          } catch (_) {}
+        }
+      });
+
+      apiRes.on('end', () => {
+        res.write('data: [DONE]\n\n');
+        res.end();
+        resolve();
+      });
+
+      apiRes.on('error', (err) => {
+        console.error('Stream error:', err);
+        res.end();
+        resolve();
+      });
     });
 
-    if (!response.ok) {
-      const err = await response.text();
-      console.error('Anthropic API error:', err);
-      return res.status(response.status).json({ error: 'Intelligence layer offline' });
-    }
+    apiReq.on('error', (err) => {
+      console.error('Request error:', err);
+      res.status(500).json({ error: 'System error' });
+      resolve();
+    });
 
-    // Stream the response back
-    res.setHeader('Content-Type', 'text/event-stream');
-    res.setHeader('Cache-Control', 'no-cache');
-    res.setHeader('Connection', 'keep-alive');
-    res.setHeader('Access-Control-Allow-Origin', '*');
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split('\n');
-
-      for (const line of lines) {
-        if (!line.startsWith('data: ')) continue;
-        const data = line.slice(6);
-        if (data === '[DONE]') {
-          res.write('data: [DONE]\n\n');
-          continue;
-        }
-        try {
-          const parsed = JSON.parse(data);
-          if (parsed.type === 'content_block_delta' && parsed.delta?.type === 'text_delta') {
-            res.write(`data: ${JSON.stringify({ text: parsed.delta.text })}\n\n`);
-          }
-        } catch (_) {}
-      }
-    }
-
-    res.end();
-  } catch (err) {
-    console.error('Alfred API error:', err);
-    res.status(500).json({ error: 'System error' });
-  }
-}
+    apiReq.write(body);
+    apiReq.end();
+  });
+};
