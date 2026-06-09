@@ -680,127 +680,50 @@ const isReturning = parseInt(USER.session) > 1;
 })();
 
 /* ════════════════════════════════════════════════════════════
-   ALFRED KNOWLEDGE BASE
+   ALFRED — REAL AI ENGINE (Claude API via /api/chat)
 ════════════════════════════════════════════════════════════ */
 const ALFRED = (() => {
-  const ctx = USER;
+  const role = USER.role || 'Founder';
+  const goal = USER.goal || 'Growth';
+  const greetings = ['Good morning','Good afternoon','Good evening'];
+  const h = new Date().getHours();
+  const greeting = h < 12 ? greetings[0] : h < 17 ? greetings[1] : greetings[2];
 
-  const now = new Date();
-  const hour = now.getHours();
-  const period = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
-  const name = ctx.name ? ctx.name : null;
-  const greeting = name ? `Good ${period}, ${name}.` : `Good ${period}.`;
-  const role = ctx.role || 'Founder';
-  const goal = ctx.goal || 'Growth';
-
-  const BRIEFINGS = {
-    'Founder+Revenue': `Three items require your attention before you begin.\n\nORACLE flagged a competitor funding event overnight — $22M raised, direct positioning overlap in your primary segment. This accelerates your own distribution timeline by approximately one quarter. I recommend reviewing your go-to-market velocity with APEX today.\n\nLEDGER identified a cash efficiency window. A single reallocation in your paid acquisition stack would extend runway by six weeks without touching headcount or growth trajectory.\n\nCONVERT flagged two enterprise deals that have gone quiet for 72 hours. Historical data suggests founder-level outreach at this stage recovers 83% of these opportunities. Both are worth your direct attention today.\n\nThe system is ready. Which would you like to address first?`,
-    'Founder+Growth': `Three growth signals require your attention.\n\nSIGNAL detected a distribution opportunity your competitors have not activated. The window in this specific channel is approximately 3 weeks before Q4 roadmap locks. ORACLE estimates significant audience alignment with your target segment.\n\nYour content velocity has been lower than optimal for 9 days. SIGNAL analysis shows a direct correlation between your publishing frequency and inbound pipeline quality. A single well-placed piece this week would have disproportionate impact.\n\nMERCURY identified a partnership opportunity with a tier-one operator in your space. They have been researching NYX activity for 11 days. The signal is strong enough that I recommend initiating contact before they do.\n\nWhere would you like to begin?`,
-    'Executive+Revenue': `Your morning intelligence summary is ready.\n\nPipeline velocity increased 22% this week. CONVERT models suggest this is sustainable if you maintain current deal cadence. Three opportunities are approaching decision stage — your presence on the next call increases close probability by an estimated 14 points.\n\nLEDGER's overnight model flagged a pricing opportunity. Your current positioning leaves measurable value on the table in the enterprise segment. I have a strategic brief ready when you want it.\n\nOracledetected a market shift in your primary segment. Two of the five major players are repositioning. This creates a positioning window that closes in approximately 45 days.\n\nYour highest-leverage action this morning is the enterprise pricing conversation. Shall I prepare the brief?`,
-    'Athlete+Performance': `Your performance intelligence summary for today.\n\nRecovery data from MERIDIAN's analysis indicates you are at 87% capacity — above baseline. This is an optimal day for high-intensity execution work.\n\nFORGE flagged a process bottleneck in your training tracking. The current system has a 14% gap between planned and logged sessions. Closing this gap historically correlates with a 9% improvement in quarterly performance outcomes.\n\nALFRED's goal alignment check: two of your stated Q3 objectives are currently under-resourced. I recommend a 20-minute strategic review this week to reallocate. Both are high-leverage and time-sensitive.\n\nWhat is the priority for today?`,
-    default: `${greeting} Your intelligence summary is ready.\n\nORACLE processed 14 signals overnight. Three are relevant to your stated priorities. LEDGER confirmed your key metrics are tracking above plan. SIGNAL identified a distribution opportunity in your primary channel.\n\nThe agent network has been active. APEX completed a strategic routing pass and identified two decisions that will benefit from your input today.\n\nTo customize your experience fully, tell me your name and I will calibrate the system to your specific goals and priorities.\n\nWhat would you like to address first?`
-  };
-
-  function getBriefing(){
-    return BRIEFINGS[`${role}+${goal}`] || BRIEFINGS.default;
-  }
+  // Conversation history for context
+  const history = [];
 
   // Track whether Alfred is waiting for a name response
   let _awaitingName = !USER.name;
 
-  const RESPONSES = {
-    hello: {
-      test: /^(hi+|hello|hey|good\s*(morning|evening|afternoon)|morning|evening|afternoon|sup|yo)$/i,
-      reply: () => USER.name
-        ? [`${greeting} The system is fully operational. What needs your attention?`]
-        : [`${greeting} The system is running. Before I calibrate your intelligence layer, I need one piece of information — what is your name?`]
-    },
-    briefing: {
-      test: /briefing|morning|summary|update|what.*happening|status|catch.*up|today|overview/i,
-      reply: () => [`${greeting}\n\n${getBriefing()}`]
-    },
-    opportunity: {
-      test: /opportunit|what.*should.*focus|any.*leads|leverage|windows|openings/i,
-      reply: () => [`ORACLE has identified four opportunities in the last 24 hours. Ranked by expected impact.\n\nFirst: An untapped distribution channel your segment competitors have not activated. Estimated Q4 penetration window is closing in 18 days.\n\nSecond: A strategic partnership signal — a tier-one operator in your space has been researching your activity for 11 days. Their pattern suggests acquisition or partnership intent. I recommend initiating contact before they formalize their approach.\n\nThird: Two high-value inbound inquiries in your pipeline have not received follow-up in more than 72 hours. CONVERT models founder-level response as recovering 83% of these.\n\nFourth: A category media window. A journalist covering your space is actively sourcing. ORACLE identified the story angle. It aligns with your positioning precisely. Window closes Friday.\n\nWhich do you want to act on?`]
-    },
-    strategy: {
-      test: /strateg|recommend|what.*do|advice|plan|next.*move|priorities/i,
-      reply: () => [`Strategic assessment based on your current profile.\n\nThe market is consolidating faster than your model assumed. Two independent operators in your segment have initiated acquisition conversations. Your premium positioning provides insulation — but only if you establish distribution depth before the consolidation window closes. I estimate 14-18 months.\n\nYour unit economics are outperforming your cohort model by 19%. This is not variance — it is a repeatable structural advantage. I recommend protecting it, not publishing it, and scaling it aggressively this quarter.\n\nThe highest-leverage decision available to you right now is the enterprise pricing conversation. LEDGER's analysis shows a significant gap between your current positioning and market capacity. This is the one decision with the largest asymmetric return.\n\nWould you like the full brief on any of these?`]
-    },
-    market: {
-      test: /market|competitor|competition|intelligence|signals|landscape|sector|industry/i,
-      reply: () => [`ORACLE's market intelligence update as of this morning.\n\nYour primary competitor increased content velocity by 31% this week. SIGNAL assessment: they are expanding distribution ahead of a product announcement. Estimated 4-6 week timeline.\n\nTwo new intent signals appeared in your target segment this week that were not in your previous model. SIGNAL has updated the distribution strategy accordingly. Your content calendar has been recalibrated.\n\nMacro: institutional capital is rotating back into your category. Three major funds revised their deployment timelines forward this quarter. If a raise is on your horizon, the 90-day window is more favorable than the following 9 months.\n\nSentiment in your primary audience has shifted +12% favorably since last month. The narrative is moving in your direction.\n\nWould you like a deeper brief on any of these signals?`]
-    },
-    performance: {
-      test: /performance|metrics|how.*doing|results|numbers|progress|kpi/i,
-      reply: () => [`Performance analysis for the current quarter.\n\nRevenue is tracking at 118% of plan. Pipeline coverage ratio is 3.2x — enough to close above target even at a 30% loss rate.\n\nOperational efficiency improved 34% since Q2. Decision latency — the time between identifying a problem and acting on it — has dropped significantly.\n\nTeam output velocity is at its highest level this year. APEX models the primary constraint as your own bandwidth, not team capacity.\n\nOne flag that requires your attention: you have deferred the enterprise pricing decision four times. LEDGER and CONVERT both indicate this is the single highest-leverage decision available. The cost of delay is measurable and accumulating.\n\nYour operating system is performing. The decision is yours.`]
-    },
-    agents: {
-      test: /agent|apex|oracle|signal|convert|forge|ledger|cipher|meridian|who.*running/i,
-      reply: (t) => {
-        const map = {
-          apex: 'APEX is your strategic command layer. Currently routing intelligence across the network and coordinating agent delegation. Last action: prioritized your enterprise pipeline for direct attention.',
-          oracle: 'ORACLE is your research intelligence. Currently processing 14 market signals and tracking 3 competitor movements. A briefing is ready on request.',
-          signal: 'SIGNAL is your distribution intelligence. Content calendar updated this morning. Audience signal analysis shows a channel opportunity your competitors have not activated.',
-          convert: 'CONVERT is your revenue intelligence. Pipeline analysis updated. Three deals flagged for direct founder outreach. Probability models refreshed.',
-          forge: 'FORGE is your systems intelligence. Currently monitoring infrastructure health. Last action: resolved an API latency issue before it impacted operations.',
-          ledger: 'LEDGER is your financial intelligence. Overnight analysis complete. A cash efficiency opportunity has been flagged. Runway model updated.',
-          cipher: 'CIPHER is your security intelligence. Continuous access audit running. No anomalies detected. All endpoints secured.',
-          meridian: 'MERIDIAN is your operations intelligence. Process efficiency report ready. SLA compliance is at 98.4% — up from 91% last quarter.'
-        };
-        const t_lower = t.toLowerCase();
-        for(const [k,v] of Object.entries(map)){ if(t_lower.includes(k)) return [v]; }
-        return ['The agent network is fully operational. Eight specialists running continuously. APEX is coordinating strategic routing. ORACLE is processing market signals. SIGNAL has updated distribution strategy. CONVERT is monitoring pipeline. LEDGER completed its overnight analysis. CIPHER is running continuous security audit. MERIDIAN has resolved an operational bottleneck. FORGE is monitoring system health.\n\nWhich agent would you like a full report from?'];
-      }
-    },
-    calendar: {
-      test: /calendar|meetings|schedule|agenda|today.*meeting|meeting.*today/i,
-      reply: () => [`Calendar intelligence analysis.\n\nYou have four scheduled interactions today. Two are high-leverage. Two are low-leverage and can be delegated or declined without strategic cost.\n\nHigh-leverage: The 11am investor conversation and the 3pm enterprise prospect call. APEX recommends your full presence and preparation for both.\n\nLow-leverage: The 9am status update can be replaced with an async summary. The 4pm vendor review can be delegated. Estimated time recaptured: 90 minutes — which should be redirected to the enterprise pricing decision that has been deferred.\n\nWould you like me to draft delegation notes for the low-leverage meetings?`]
-    },
-    goals: {
-      test: /goals?|priorities|objectives|targets|what.*working.*on|focus/i,
-      reply: () => [`Goal alignment review.\n\nBased on your assessment, your primary objective is ${goal.toLowerCase()}. Current system calibration has ${role.toLowerCase()}-level intelligence active across all relevant agents.\n\nThree of your four stated Q3 objectives are on track. The fourth — enterprise expansion — is under-resourced relative to its strategic priority. APEX recommends increasing your direct involvement in one key decision this week.\n\nThe system has identified an alignment gap: your calendar allocation does not match your stated priorities. You are spending 40% of high-focus time on execution tasks that could be delegated, and only 20% on the strategic decisions that only you can make.\n\nThis is the most common bottleneck for operators at your level. Would you like a recommended reallocation?`]
-    },
-    help: {
-      test: /help|what.*can.*you|capabilities|what.*do|commands|features/i,
-      reply: () => [`The system is capable of more than you have likely explored.\n\nAsk for a briefing and I will synthesize overnight intelligence across all eight agents into a prioritized executive summary.\n\nAsk about opportunities and ORACLE will surface the three highest-leverage actions available to you right now.\n\nAsk about strategy and I will synthesize APEX's intelligence into a direct recommendation.\n\nAsk about market signals and ORACLE will brief you on competitor movements and emerging windows.\n\nAsk about performance and LEDGER will give you the honest view of your metrics.\n\nOr ask about any of the eight agents directly — APEX, ORACLE, SIGNAL, CONVERT, FORGE, LEDGER, CIPHER, or MERIDIAN — and I will route your query to the appropriate specialist.\n\nThe system works best when you treat it like a Chief of Staff, not a search engine. What is the most important thing on your mind right now?`]
-    }
-  };
-
-  function getReply(text){
+  async function getReply(text){
     const t = text.trim();
-    if(!t) return ['Say "briefing" to begin, or ask me anything.'];
+    if(!t) return null;
 
-    // Name capture — if Alfred asked for name, treat next message as name
+    // Local name capture — handle before sending to API
     if(_awaitingName && !USER.name){
-      // Accept any reasonable name (2+ chars, not a known command)
       const isCommand = /^(briefing|morning|summary|update|help|opportunity|strategy|market|agents?|goals?|performance|metrics|calendar|meetings)$/i.test(t);
       if(!isCommand && t.length >= 2){
         const n = t.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
         MEM.set('name', n); USER.name = n; _awaitingName = false;
-        return [`${n}. Noted. Profile calibrated.\n\nSay "briefing" when you are ready, or ask me anything.`];
+        return { type: 'local', text: `${n}. Noted. Profile calibrated.\n\nSay "briefing" when you are ready, or ask me anything.` };
       }
     }
 
-    for(const [key, def] of Object.entries(RESPONSES)){
-      if(def.test && def.test.test(t)){
-        if(def.condition && !def.condition()) continue;
-        const r = def.reply(t);
-        return Array.isArray(r) ? r : [r];
-      }
-    }
+    // Add to history
+    history.push({ role: 'user', content: t });
+    // Keep last 20 messages for context
+    if(history.length > 20) history.splice(0, history.length - 20);
 
-    // Contextual fallbacks — composed, direct
-    const fallbacks = [
-      `Noted. What is the decision at the center of that?`,
-      `I can route this more precisely — is this strategic, operational, or an intelligence gap?`,
-      `What outcome are you working toward? I will pull the relevant brief.`,
-      `Understood. Give me the core constraint and I will respond directly.`
-    ];
-    return [fallbacks[Math.floor(Math.random()*fallbacks.length)]];
+    return { type: 'stream', history: [...history] };
   }
 
-  return { getReply, getBriefing, greeting, role, goal, name: USER.name };
+  function pushAssistantReply(text){
+    history.push({ role: 'assistant', content: text });
+    if(history.length > 20) history.splice(0, history.length - 20);
+  }
+
+  return { getReply, pushAssistantReply, greeting, role, goal, name: USER.name,
+    get awaitingName(){ return _awaitingName; } };
 })();
 
 /* ════════════════════════════════════════════════════════════
@@ -927,18 +850,86 @@ const CONV = (() => {
 
   async function userMessage(text){
     if(!text.trim() || isTyping) return;
+    isTyping = true;
     addMessage('user', text);
-    await new Promise(r => setTimeout(r, 400));
+    await new Promise(r => setTimeout(r, 380));
     showThinking();
-    // Simulate intelligence processing delay
-    const delay = 900 + Math.random() * 600;
-    await new Promise(r => setTimeout(r, delay));
-    removeThinking();
-    const replies = ALFRED.getReply(text);
-    for(let i = 0; i < replies.length; i++){
-      if(i > 0) await new Promise(r => setTimeout(r, 300));
-      await alfredSpeaks(replies[i]);
+
+    const result = await ALFRED.getReply(text);
+
+    // Local response (name capture etc.)
+    if(result && result.type === 'local'){
+      await new Promise(r => setTimeout(r, 600));
+      removeThinking();
+      await alfredSpeaks(result.text);
+      isTyping = false;
+      return;
     }
+
+    // Real API streaming
+    try {
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          messages: result.history,
+          profile: { name: USER.name, role: ALFRED.role, goal: ALFRED.goal }
+        })
+      });
+
+      if(!res.ok) throw new Error('API error');
+
+      removeThinking();
+
+      // Stream directly into a message bubble
+      window._alfredRingMode('speaking');
+      stateLabel.textContent = 'RESPONDING';
+      stateLabel.classList.add('active');
+      const textEl = addMessage('alfred', '');
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder();
+      let fullText = '';
+      let buffer = '';
+
+      while(true){
+        const { done, value } = await reader.read();
+        if(done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const lines = buffer.split('\n');
+        buffer = lines.pop(); // incomplete line stays in buffer
+        for(const line of lines){
+          if(!line.startsWith('data: ')) continue;
+          const data = line.slice(6);
+          if(data === '[DONE]') continue;
+          try {
+            const parsed = JSON.parse(data);
+            if(parsed.text){
+              fullText += parsed.text;
+              textEl.textContent = fullText;
+              scrollToBottom();
+            }
+          } catch(_){}
+        }
+      }
+
+      // Store in history
+      ALFRED.pushAssistantReply(fullText);
+
+      window._alfredRingMode('standby');
+      stateLabel.textContent = 'STANDBY';
+      stateLabel.classList.remove('active');
+
+      if(window.speechSynthesis && VOICE.enabled){
+        VOICE.speak(fullText.slice(0, 200));
+      }
+
+    } catch(err) {
+      console.error('Alfred API error:', err);
+      removeThinking();
+      await alfredSpeaks('The intelligence layer is temporarily offline. Stand by.');
+    }
+
+    isTyping = false;
   }
 
   return { alfredSpeaks, userMessage, scrollToBottom };
