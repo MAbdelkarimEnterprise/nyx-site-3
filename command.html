@@ -705,21 +705,15 @@ const ALFRED = (() => {
     return BRIEFINGS[`${role}+${goal}`] || BRIEFINGS.default;
   }
 
+  // Track whether Alfred is waiting for a name response
+  let _awaitingName = !USER.name;
+
   const RESPONSES = {
     hello: {
-      test: /^(hi|hello|hey|good morning|morning|evening|afternoon)$/i,
-      reply: () => name
+      test: /^(hi+|hello|hey|good\s*(morning|evening|afternoon)|morning|evening|afternoon|sup|yo)$/i,
+      reply: () => USER.name
         ? [`${greeting} The system is fully operational. What needs your attention?`]
         : [`${greeting} The system is running. Before I calibrate your intelligence layer, I need one piece of information — what is your name?`]
-    },
-    name_capture: {
-      test: /^[a-z]{2,20}$/i,
-      condition: () => !USER.name,
-      reply: (t) => {
-        const n = t.trim();
-        MEM.set('name', n); USER.name = n;
-        return [`${n}. Noted. The system has been calibrated to your profile.\n\nI have prepared your ${role.toLowerCase()} intelligence briefing. ${getBriefing().split('\n')[0]}\n\nSay "briefing" to receive the full summary, or ask me anything.`];
-      }
     },
     briefing: {
       test: /briefing|morning|summary|update|what.*happening|status|catch.*up|today|overview/i,
@@ -775,14 +769,20 @@ const ALFRED = (() => {
 
   function getReply(text){
     const t = text.trim();
+    if(!t) return ['Say "briefing" to begin, or ask me anything.'];
 
-    // Name capture (if no name stored and user typed a single word)
-    if(!USER.name && RESPONSES.name_capture.test.test(t)){
-      return RESPONSES.name_capture.reply(t);
+    // Name capture — if Alfred asked for name, treat next message as name
+    if(_awaitingName && !USER.name){
+      // Accept any reasonable name (2+ chars, not a known command)
+      const isCommand = /^(briefing|morning|summary|update|help|opportunity|strategy|market|agents?|goals?|performance|metrics|calendar|meetings)$/i.test(t);
+      if(!isCommand && t.length >= 2){
+        const n = t.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+        MEM.set('name', n); USER.name = n; _awaitingName = false;
+        return [`${n}. Noted. The system has been calibrated to your profile.\n\nYou are a ${role} optimizing for ${goal}. I have configured the eight agents accordingly.\n\nI have a briefing ready. Three items require your attention today. Say "briefing" when you are ready, or ask me anything.`];
+      }
     }
 
     for(const [key, def] of Object.entries(RESPONSES)){
-      if(key === 'name_capture') continue;
       if(def.test && def.test.test(t)){
         if(def.condition && !def.condition()) continue;
         const r = def.reply(t);
@@ -790,12 +790,13 @@ const ALFRED = (() => {
       }
     }
 
-    // Sophisticated fallback — never sounds like a chatbot
+    // Sophisticated contextual fallbacks
+    const n = USER.name || 'you';
     const fallbacks = [
-      `That is worth thinking through carefully. Based on your profile as a ${role} optimizing for ${goal}, I would approach it this way: start with the question APEX would ask — what is the highest-leverage action that only you can take? Everything else can be delegated or deferred. What is the core decision at the center of what you are asking?`,
-      `I do not have a pre-built response for that — which means it may be more nuanced than a standard briefing can address. Tell me more about what you are trying to resolve. The more context you give the system, the sharper the intelligence I can return.`,
-      `This falls outside my standard briefing categories. To give you a calibrated response, I need to understand: are you asking about a strategic decision, an operational bottleneck, or an intelligence gap? One more sentence and I can route this to the right agent.`,
-      `Noted. To give you the most useful response, let me ask: is this a decision you need to make, intelligence you need to gather, or an action you need to execute? The system handles all three — but the routing determines the quality of the output.`
+      `That is worth thinking through carefully. As a ${role} optimizing for ${goal}, the question I would start with is: what is the highest-leverage action that only ${n === 'you' ? 'you' : n} can take here? Everything else can be delegated or deferred. What is the core decision at the center of what you are asking?`,
+      `Noted. The system does not have a pre-packaged response for that — which often means it is more nuanced than a standard briefing covers. Give me more context and I will route this to the appropriate agent. What is the underlying decision or problem?`,
+      `To give you a calibrated response, I need to understand: is this a strategic decision, an operational question, or an intelligence gap? One more sentence and I can route this precisely.`,
+      `That question requires more context to answer at the level you deserve. Tell me what outcome you are trying to achieve and I will give you the most useful intelligence the system has on it.`
     ];
     return [fallbacks[Math.floor(Math.random()*fallbacks.length)]];
   }
@@ -834,6 +835,8 @@ const CONV = (() => {
 
     const textEl = document.createElement('div');
     textEl.className = 'msg-text';
+    // For user messages set text immediately; Alfred messages use typewriter
+    if(role === 'user' && text) textEl.textContent = text;
 
     body.appendChild(sender);
     body.appendChild(textEl);
@@ -1281,7 +1284,6 @@ const VOICE = (() => {
    ALFRED INTRODUCTION
 ════════════════════════════════════════════════════════════ */
 async function startAlfred(){
-  // Enable voice
   VOICE.enabled = true;
 
   const name = USER.name;
@@ -1289,17 +1291,16 @@ async function startAlfred(){
   const goal = USER.goal || 'Growth';
   const isReturn = isReturning;
 
-  await new Promise(r => setTimeout(r, 400));
+  await new Promise(r => setTimeout(r, 500));
 
   if(isReturn && name){
-    // Returning user
-    await CONV.alfredSpeaks(`Welcome back, ${name}.\n\nThe system has been running since your last session. Three developments require your attention.\n\nSay "briefing" for the full update, or ask me anything directly.`);
+    await CONV.alfredSpeaks(`Welcome back, ${name}.\n\nThe system has been active since your last session. Three new developments require your attention.\n\nSay "briefing" for the full intelligence update, or ask me anything directly.`);
   } else if(name){
-    // Has name but first session
-    await CONV.alfredSpeaks(`${ALFRED.greeting}\n\nI am Alfred. Your executive intelligence officer.\n\nThe system has been calibrated to your profile — ${role} optimizing for ${goal}. I have been running since before you opened this.\n\nThere are three things I want to brief you on. Say "briefing" when you are ready.`);
+    await CONV.alfredSpeaks(`${ALFRED.greeting}\n\nI am Alfred — your executive intelligence officer.\n\nThe system has been calibrated to your profile: ${role}, optimizing for ${goal}. I have been running since before you arrived.\n\nSay "briefing" when you are ready for your intelligence summary, or ask me anything.`);
   } else {
-    // No name — ask for it
-    await CONV.alfredSpeaks(`Connection established. Identity verified. The system is online.\n\nI am Alfred — your executive intelligence officer. Before I deliver your first briefing, I need one piece of information.\n\nWhat is your name?`);
+    // No name yet — set flag and ask
+    // _awaitingName is already true
+    await CONV.alfredSpeaks(`Connection established. Identity verified. The system is online.\n\nI am Alfred — your executive intelligence officer.\n\nBefore I deliver your first briefing, I need one piece of information.\n\nWhat is your name?`);
   }
 }
 </script>
