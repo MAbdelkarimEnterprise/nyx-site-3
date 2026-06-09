@@ -1196,14 +1196,16 @@ footer{
   font-feature-settings:'liga' 1,'dlig' 1,'kern' 1;
 }
 
-/* Hero headline — cinematic, monumental */
+/* Hero headline — monumental, emblematic monogram */
 .hero-title{
-  font-weight:400;letter-spacing:0.05em;line-height:0.84;
+  font-weight:400;letter-spacing:0.18em;line-height:0.84;
+  padding:0 0 0 0.18em;
 }
 .hero-subtitle{
   font-family:var(--display);font-style:italic;font-weight:400;
-  font-size:clamp(15px,1.8vw,21px);line-height:1.75;
-  letter-spacing:0.012em;color:rgba(240,237,232,0.5);
+  font-size:clamp(18px,2.1vw,26px);line-height:1.5;
+  letter-spacing:0.01em;color:rgba(240,237,232,0.68);
+  max-width:540px;
 }
 
 /* Section headlines — editorial scale, tighter optical tracking */
@@ -1231,7 +1233,27 @@ footer{
 .waitlist-eyebrow,.intel-label,.os-card-label,.feed-subhead{
   font-family:var(--ui);font-weight:500;
 }
-.hero-eyebrow{font-size:10px;letter-spacing:0.34em;color:var(--gold)}
+.hero-eyebrow{
+  display:flex;align-items:center;justify-content:center;gap:16px;
+  font-size:10.5px;letter-spacing:0.46em;font-weight:500;
+  color:rgba(196,169,124,0.9);text-indent:0.46em;margin-bottom:44px;
+}
+.hero-eyebrow::before,.hero-eyebrow::after{
+  content:"";display:block;width:38px;height:1px;flex-shrink:0;
+  background:linear-gradient(to right,transparent,rgba(196,169,124,0.55));
+}
+.hero-eyebrow::after{background:linear-gradient(to left,transparent,rgba(196,169,124,0.55))}
+/* Hero divider — refined gold hairline with center mark */
+.hero-rule{
+  position:relative;
+  width:72px;height:1px;margin:42px auto;
+  background:linear-gradient(to right,transparent,rgba(196,169,124,0.6),transparent);
+}
+.hero-rule::after{
+  content:"";position:absolute;top:50%;left:50%;
+  width:4px;height:4px;transform:translate(-50%,-50%) rotate(45deg);
+  background:var(--gold);
+}
 .sec-label{font-size:9.5px;letter-spacing:0.34em}
 .assessment-step-label,.assessment-eyebrow,.waitlist-eyebrow{letter-spacing:0.32em}
 
@@ -1269,8 +1291,10 @@ footer{
 
 /* ── RESPONSIVE TYPE TUNING ───────────────────────────────────────── */
 @media(max-width:768px){
-  .hero-subtitle{font-size:15px;line-height:1.7}
-  .hero-eyebrow{font-size:9px;letter-spacing:0.3em}
+  .hero-subtitle{font-size:17px;line-height:1.55}
+  .hero-eyebrow{font-size:8.5px;letter-spacing:0.34em;gap:10px;text-indent:0.34em;margin-bottom:32px}
+  .hero-eyebrow::before,.hero-eyebrow::after{width:22px}
+  .hero-rule{width:56px;margin:32px auto}
   .sec-label{font-size:9px;letter-spacing:0.3em;margin-bottom:40px}
   .manifesto-headline,.engine-headline,.system-headline,.access-headline,
   .waitlist-headline,.feed-headline,.alfred-demo-headline,.founder-os-headline{
@@ -1279,7 +1303,7 @@ footer{
   .manifesto-body p{font-size:14px}
 }
 @media(max-width:480px){
-  .hero-title{letter-spacing:0.03em}
+  .hero-title{letter-spacing:0.12em;padding-left:0.12em}
 }
 </style>
 </head>
