@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NYX Command Center</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;background:#000;color:#F0EDE8;font-family:'Space Mono',monospace;-webkit-font-smoothing:antialiased}
+:root{
+  --gold:#C4A97C;--gold-d:rgba(196,169,124,0.28);--gold-faint:rgba(196,169,124,0.08);
+  --t1:#F0EDE8;--t2:rgba(240,237,232,0.45);--t3:rgba(240,237,232,0.18);
+  --line:rgba(255,255,255,0.055);--line-hi:rgba(255,255,255,0.1);
+  --bg:#000;--bg1:#050505;--bg2:#0a0a0a;
+  --serif:'Cormorant Garamond',Georgia,serif;
+  --mono:'Space Mono',monospace;
+  --ease-out:cubic-bezier(0.16,1,0.3,1);
+  --nav-w:180px;--right-w:264px;--header-h:48px;--input-h:62px;
+}
+
+/* ── SCROLLBAR ─── */
+::-webkit-scrollbar{width:2px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(196,169,124,0.15)}
+
+/* ─────────────────────────────────────────────────────────────
+   BOOT OVERLAY
+───────────────────────────────────────────────────────────── */
+#boot{
+  position:fixed;inset:0;z-index:9999;background:#000;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  transition:opacity 0.8s ease;
+}
+#boot.out{opacity:0;pointer-events:none}
+.boot-corners .bc{position:absolute;width:36px;height:36px;border-color:rgba(196,169,124,0.3);border-style:solid}
+.bc.tl{top:24px;left:24px;border-width:1px 0 0 1px}
+.bc.tr{top:24px;right:24px;border-width:1px 1px 0 0}
+.bc.bl{bottom:24px;left:24px;border-width:0 0 1px 1px}
+.bc.br{bottom:24px;right:24px;border-width:0 1px 1px 0}
+#boot-logo{
+  font-family:var(--serif);font-size:clamp(60px,12vw,140px);font-weight:300;
+  letter-spacing:0.25em;color:var(--t1);text-transform:uppercase;
+  opacity:0;transform:scale(0.94);
+  transition:opacity 0.9s ease,transform 0.9s ease;
+  margin-bottom:48px;
+}
+#boot-logo.show{opacity:1;transform:scale(1)}
+#boot-lines{
+  display:flex;flex-direction:column;gap:10px;min-width:340px;
+}
+.boot-line{
+  display:flex;justify-content:space-between;gap:24px;
+  font-size:8px;letter-spacing:0.32em;text-transform:uppercase;
+  opacity:0;transform:translateY(6px);
+  transition:opacity 0.4s ease,transform 0.4s ease;
+}
+.boot-line.show{opacity:1;transform:translateY(0)}
+.boot-line-label{color:rgba(240,237,232,0.35)}
+.boot-line-status{color:var(--gold)}
+#boot-bar{
+  position:absolute;bottom:32px;left:60px;right:60px;
+  display:flex;align-items:center;gap:16px;
+}
+.boot-bar-track{flex:1;height:1px;background:rgba(255,255,255,0.08);overflow:hidden}
+.boot-bar-fill{height:100%;background:var(--gold);transform-origin:left;transform:scaleX(0);transition:transform 2.2s var(--ease-out)}
+.boot-bar-fill.go{transform:scaleX(1)}
+.boot-bar-pct{font-size:7.5px;letter-spacing:0.15em;color:var(--t3);min-width:36px;text-align:right}
+
+/* ─────────────────────────────────────────────────────────────
+   MAIN LAYOUT
+───────────────────────────────────────────────────────────── */
+#cmd{
+  position:fixed;inset:0;display:flex;flex-direction:column;
+  opacity:0;transition:opacity 0.6s ease;
+}
+#cmd.show{opacity:1}
+
+/* HEADER */
+#cmd-header{
+  height:var(--header-h);flex-shrink:0;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 20px 0 16px;
+  border-bottom:1px solid var(--line);
+  background:rgba(0,0,0,0.9);backdrop-filter:blur(16px);
+  position:relative;z-index:100;
+}
+.cmd-header-logo{
+  font-family:var(--serif);font-size:14px;font-weight:300;
+  letter-spacing:0.45em;color:var(--t1);text-transform:uppercase;
+  padding-right:0.45em;
+}
+.cmd-header-mid{
+  position:absolute;left:50%;transform:translateX(-50%);
+  display:flex;align-items:center;gap:10px;
+  font-size:7.5px;letter-spacing:0.32em;color:rgba(196,169,124,0.4);text-transform:uppercase;
+}
+.cmd-header-dot{width:4px;height:4px;border-radius:50%;background:var(--gold);animation:pulse-dot 2s ease-in-out infinite;flex-shrink:0}
+@keyframes pulse-dot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:0.3;transform:scale(0.5)}}
+.cmd-header-right{display:flex;align-items:center;gap:20px}
+.cmd-hdr-item{font-size:7px;letter-spacing:0.22em;color:var(--t3);text-transform:uppercase}
+.cmd-hdr-item span{color:rgba(196,169,124,0.6)}
+#cmd-utc{font-variant-numeric:tabular-nums}
+
+/* BODY */
+#cmd-body{
+  flex:1;min-height:0;
+  display:grid;
+  grid-template-columns:var(--nav-w) 1fr var(--right-w);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   LEFT NAV
+───────────────────────────────────────────────────────────── */
+#cmd-nav{
+  border-right:1px solid var(--line);
+  display:flex;flex-direction:column;
+  padding:20px 0;gap:2px;overflow-y:auto;
+  background:var(--bg1);
+}
+.nav-section{
+  padding:6px 16px 4px;
+  font-size:6.5px;letter-spacing:0.45em;color:rgba(196,169,124,0.25);
+  text-transform:uppercase;margin-top:12px;
+}
+.nav-section:first-child{margin-top:0}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 16px;cursor:pointer;
+  font-size:7.5px;letter-spacing:0.2em;text-transform:uppercase;
+  color:var(--t2);transition:color .2s,background .2s;
+  border-left:2px solid transparent;
+  user-select:none;
+}
+.nav-item:hover{color:var(--t1);background:rgba(196,169,124,0.04)}
+.nav-item.active{color:var(--gold);border-left-color:var(--gold);background:rgba(196,169,124,0.05)}
+.nav-dot{width:3px;height:3px;border-radius:50%;background:currentColor;flex-shrink:0;opacity:0.5}
+.nav-item.active .nav-dot{opacity:1;box-shadow:0 0 4px var(--gold)}
+.nav-divider{height:1px;background:var(--line);margin:10px 16px}
+.nav-agent-mini{
+  display:flex;align-items:center;gap:8px;
+  padding:6px 16px;font-size:7px;letter-spacing:0.15em;
+  text-transform:uppercase;color:rgba(196,169,124,0.3);
+  transition:color .2s;cursor:pointer;
+}
+.nav-agent-mini:hover{color:rgba(196,169,124,0.6)}
+.nam-dot{width:4px;height:4px;border-radius:50%;flex-shrink:0}
+.nam-dot.active{background:var(--gold);animation:pulse-dot 2s ease-in-out infinite}
+.nam-dot.idle{background:rgba(196,169,124,0.2)}
+#nav-alfred-btn{
+  margin:12px 12px 0;padding:10px 14px;
+  border:1px solid rgba(196,169,124,0.2);
+  background:none;color:rgba(196,169,124,0.6);
+  font-family:var(--mono);font-size:7px;letter-spacing:0.25em;
+  text-transform:uppercase;cursor:pointer;
+  display:flex;align-items:center;gap:8px;
+  transition:border-color .2s,color .2s,background .2s;
+}
+#nav-alfred-btn:hover{border-color:var(--gold);color:var(--gold);background:rgba(196,169,124,0.05)}
+.nav-alfred-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:pulse-dot 2s ease-in-out infinite}
+
+/* ─────────────────────────────────────────────────────────────
+   MAIN CENTER
+───────────────────────────────────────────────────────────── */
+#cmd-main{
+  display:flex;flex-direction:column;min-height:0;
+  background:var(--bg);
+  position:relative;
+}
+/* Section panels */
+.cmd-panel{display:none;flex:1;flex-direction:column;min-height:0;overflow:hidden}
+.cmd-panel.active{display:flex}
+
+/* ── ALFRED PANEL ── */
+#panel-alfred{position:relative}
+/* Subtle grid bg */
+#panel-alfred::before{
+  content:'';position:absolute;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(rgba(196,169,124,0.018) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(196,169,124,0.018) 1px,transparent 1px);
+  background-size:48px 48px;
+  mask-image:radial-gradient(ellipse 70% 60% at 50% 50%,#000 20%,transparent 80%);
+  -webkit-mask-image:radial-gradient(ellipse 70% 60% at 50% 50%,#000 20%,transparent 80%);
+}
+#alfred-conversation{
+  flex:1;overflow-y:auto;padding:24px 28px;
+  display:flex;flex-direction:column;gap:0;
+  position:relative;z-index:1;
+  scroll-behavior:smooth;
+}
+/* Messages */
+.msg{display:flex;gap:14px;margin-bottom:20px;animation:msg-in 0.35s var(--ease-out) both}
+@keyframes msg-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.msg-alfred{align-items:flex-start}
+.msg-user{align-items:flex-start;flex-direction:row-reverse}
+.msg-avatar{
+  width:28px;height:28px;border-radius:50%;
+  border:1px solid rgba(196,169,124,0.25);
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;background:rgba(196,169,124,0.06);
+  font-size:7px;letter-spacing:0.1em;color:rgba(196,169,124,0.6);
+}
+.msg-body{flex:1;max-width:680px}
+.msg-user .msg-body{text-align:right}
+.msg-sender{
+  font-size:7px;letter-spacing:0.28em;color:rgba(196,169,124,0.35);
+  text-transform:uppercase;margin-bottom:6px;
+  display:flex;align-items:center;gap:8px;
+}
+.msg-user .msg-sender{justify-content:flex-end}
+.msg-time{color:rgba(196,169,124,0.2);font-size:6.5px}
+.msg-text{
+  font-family:var(--serif);font-size:clamp(14px,1.5vw,17px);
+  font-weight:300;color:var(--t1);line-height:1.85;letter-spacing:0.01em;
+  white-space:pre-wrap;
+}
+.msg-user .msg-text{
+  font-family:var(--mono);font-size:9px;letter-spacing:0.1em;
+  color:rgba(240,237,232,0.55);text-transform:uppercase;line-height:1.65;
+}
+.msg-alfred .msg-text{color:rgba(240,237,232,0.9)}
+/* Thinking indicator */
+.msg-thinking .msg-text{font-family:var(--mono);font-size:8px;letter-spacing:0.2em;color:rgba(196,169,124,0.35)}
+.thinking-dots{display:inline-flex;gap:4px;margin-left:4px}
+.thinking-dot{width:3px;height:3px;border-radius:50%;background:var(--gold);animation:think-bounce 1.2s ease-in-out infinite}
+.thinking-dot:nth-child(2){animation-delay:.15s}
+.thinking-dot:nth-child(3){animation-delay:.3s}
+@keyframes think-bounce{0%,80%,100%{transform:translateY(0);opacity:.3}40%{transform:translateY(-4px);opacity:1}}
+/* Agent delegation tag */
+.msg-agent-tag{
+  display:inline-flex;align-items:center;gap:6px;margin-top:10px;
+  font-size:7px;letter-spacing:0.25em;text-transform:uppercase;
+  color:rgba(196,169,124,0.4);padding:4px 10px;
+  border:1px solid rgba(196,169,124,0.15);
+}
+
+/* ── OTHER PANELS ── */
+.panel-header{
+  padding:20px 24px 0;flex-shrink:0;
+  border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:0;
+}
+.panel-title{
+  font-family:var(--serif);font-size:clamp(20px,2.5vw,28px);
+  font-weight:300;color:var(--t1);margin-bottom:4px;
+}
+.panel-subtitle{font-size:7.5px;letter-spacing:0.2em;color:var(--t2);text-transform:uppercase}
+.panel-body{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:14px}
+
+/* Briefing cards */
+.brief-card{
+  border:1px solid var(--line);background:var(--bg1);padding:18px;
+  position:relative;transition:background .2s,border-color .2s;cursor:pointer;
+}
+.brief-card:hover{background:var(--bg2);border-color:rgba(196,169,124,0.2)}
+.brief-card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--gold),transparent);opacity:0;transition:opacity .2s}
+.brief-card:hover::before{opacity:1}
+.brief-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.brief-card-agent{font-size:7px;letter-spacing:0.3em;text-transform:uppercase;color:rgba(196,169,124,0.5)}
+.brief-card-time{font-size:7px;letter-spacing:0.15em;color:var(--t3)}
+.brief-card-title{font-family:var(--serif);font-size:clamp(15px,1.6vw,18px);font-weight:300;color:var(--t1);margin-bottom:8px;line-height:1.3}
+.brief-card-body{font-size:8.5px;letter-spacing:0.06em;color:var(--t2);line-height:1.75;text-transform:uppercase}
+.brief-card-tag{display:inline-block;font-size:7px;letter-spacing:0.2em;text-transform:uppercase;padding:3px 8px;border:1px solid rgba(196,169,124,0.2);color:rgba(196,169,124,0.5);margin-top:10px}
+/* Priority tags */
+.tag-high{border-color:rgba(220,160,100,0.3);color:rgba(220,160,100,0.7)}
+.tag-med{border-color:var(--line-hi);color:var(--t3)}
+.tag-new{border-color:rgba(130,200,150,0.25);color:rgba(130,200,150,0.6)}
+
+/* Goals panel */
+.goal-row{
+  display:flex;align-items:center;gap:14px;padding:14px;
+  border:1px solid var(--line);background:var(--bg1);
+  transition:background .2s;
+}
+.goal-row:hover{background:var(--bg2)}
+.goal-progress-wrap{flex:1;display:flex;flex-direction:column;gap:6px}
+.goal-label{font-size:8px;letter-spacing:0.15em;text-transform:uppercase;color:var(--t1)}
+.goal-bar-track{height:1px;background:rgba(255,255,255,0.06);overflow:hidden}
+.goal-bar-fill{height:100%;background:var(--gold);transition:width 1.2s var(--ease-out)}
+.goal-pct{font-size:9px;letter-spacing:0.1em;color:var(--gold);flex-shrink:0;min-width:36px;text-align:right}
+
+/* Agents panel */
+.agent-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.agent-full-card{
+  border:1px solid var(--line);background:var(--bg1);padding:16px;
+  transition:background .2s,border-color .2s;cursor:pointer;
+}
+.agent-full-card:hover{background:var(--bg2);border-color:rgba(196,169,124,0.15)}
+.afc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.afc-id{font-size:9px;letter-spacing:0.3em;color:var(--gold);text-transform:uppercase}
+.afc-dot{width:5px;height:5px;border-radius:50%;flex-shrink:0}
+.afc-dot.on{background:var(--gold);animation:pulse-dot 2s ease-in-out infinite}
+.afc-dot.idle{background:rgba(196,169,124,0.2)}
+.afc-role{font-size:7px;letter-spacing:0.18em;color:var(--t2);text-transform:uppercase;margin-bottom:8px}
+.afc-status{font-size:7.5px;letter-spacing:0.1em;color:rgba(196,169,124,0.4);line-height:1.55}
+.afc-bar{height:1px;background:rgba(196,169,124,0.08);margin-top:10px;overflow:hidden}
+.afc-bar-fill{height:100%;background:rgba(196,169,124,0.4);transition:width 2s ease}
+
+/* ─────────────────────────────────────────────────────────────
+   RIGHT PANEL
+───────────────────────────────────────────────────────────── */
+#cmd-right{
+  border-left:1px solid var(--line);
+  display:flex;flex-direction:column;
+  background:var(--bg1);overflow:hidden;
+}
+.rp-section{border-bottom:1px solid var(--line);flex-shrink:0}
+.rp-section:last-child{border-bottom:none;flex:1;overflow:hidden;display:flex;flex-direction:column}
+.rp-title{
+  font-size:7px;letter-spacing:0.42em;color:rgba(196,169,124,0.3);text-transform:uppercase;
+  padding:12px 14px 10px;border-bottom:1px solid var(--line);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.rp-live-dot{width:4px;height:4px;border-radius:50%;background:var(--gold);animation:pulse-dot 1.8s ease-in-out infinite}
+/* Agent status list */
+.rp-agent-list{padding:8px 0}
+.rp-agent-row{
+  display:flex;align-items:center;gap:8px;
+  padding:5px 14px;font-size:7px;letter-spacing:0.15em;
+  text-transform:uppercase;color:rgba(196,169,124,0.4);
+  transition:color .2s;
+}
+.rp-agent-row:hover{color:rgba(196,169,124,0.7)}
+.rp-agent-dot{width:4px;height:4px;border-radius:50%;flex-shrink:0}
+.rp-agent-dot.on{background:var(--gold)}
+.rp-agent-dot.idle{background:rgba(196,169,124,0.18)}
+.rp-agent-name{flex:1}
+.rp-agent-state{font-size:6.5px;letter-spacing:0.1em;color:rgba(196,169,124,0.25)}
+/* Metrics */
+.rp-metrics{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line)}
+.rp-metric{background:var(--bg1);padding:10px 12px}
+.rp-metric-val{font-family:var(--serif);font-size:clamp(16px,2vw,22px);font-weight:300;color:var(--t1);line-height:1}
+.rp-metric-label{font-size:6.5px;letter-spacing:0.28em;text-transform:uppercase;color:rgba(196,169,124,0.3);margin-top:4px}
+/* Intel feed */
+#rp-feed{flex:1;overflow-y:auto;padding:6px 0}
+.rp-feed-item{
+  padding:8px 14px;border-bottom:1px solid rgba(196,169,124,0.04);
+  animation:feed-in .3s ease;
+}
+@keyframes feed-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.rp-feed-item:last-child{border-bottom:none}
+.rp-feed-agent{font-size:6.5px;letter-spacing:0.22em;text-transform:uppercase;color:rgba(196,169,124,0.4);margin-bottom:3px}
+.rp-feed-text{font-size:7.5px;letter-spacing:0.05em;color:rgba(240,237,232,0.35);line-height:1.55}
+.rp-feed-time{font-size:6px;letter-spacing:0.15em;color:var(--t3);margin-top:3px}
+
+/* ─────────────────────────────────────────────────────────────
+   INPUT BAR
+───────────────────────────────────────────────────────────── */
+#cmd-input-bar{
+  height:var(--input-h);flex-shrink:0;
+  display:flex;align-items:center;gap:0;
+  border-top:1px solid var(--line);
+  background:rgba(0,0,0,0.95);backdrop-filter:blur(16px);
+  padding:0 12px;
+  position:relative;z-index:50;
+}
+#voice-btn{
+  width:40px;height:40px;border:1px solid rgba(196,169,124,0.18);
+  background:none;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;flex-shrink:0;transition:border-color .2s,background .2s;
+  position:relative;
+}
+#voice-btn:hover{border-color:var(--gold);background:rgba(196,169,124,0.06)}
+#voice-btn.listening{border-color:var(--gold);background:rgba(196,169,124,0.1)}
+#voice-btn.listening .vb-ring{animation:vb-pulse 1.2s ease-in-out infinite}
+.vb-icon{width:14px;height:14px;position:relative;z-index:1}
+.vb-ring{
+  position:absolute;inset:-4px;border-radius:50%;
+  border:1px solid rgba(196,169,124,0.3);
+  animation:none;
+}
+@keyframes vb-pulse{0%,100%{transform:scale(1);opacity:.3}50%{transform:scale(1.2);opacity:.7}}
+#cmd-input{
+  flex:1;background:transparent;border:none;outline:none;
+  padding:0 16px;font-family:var(--mono);font-size:9px;
+  letter-spacing:0.08em;color:var(--t1);
+  border-left:1px solid var(--line);border-right:1px solid var(--line);
+  height:100%;
+}
+#cmd-input::placeholder{color:var(--t3);letter-spacing:0.12em}
+#send-btn{
+  width:40px;height:40px;border:1px solid rgba(196,169,124,0.18);
+  background:none;display:flex;align-items:center;justify-content:center;
+  cursor:pointer;flex-shrink:0;
+  transition:border-color .2s,background .2s,color .2s;
+  color:rgba(196,169,124,0.35);
+}
+#send-btn:hover{border-color:var(--gold);background:rgba(196,169,124,0.06);color:var(--gold)}
+#input-status{
+  position:absolute;top:-22px;left:64px;
+  font-size:6.5px;letter-spacing:0.25em;color:rgba(196,169,124,0.3);text-transform:uppercase;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   ALFRED RING (inline, top of conversation)
+───────────────────────────────────────────────────────────── */
+#alfred-header{
+  flex-shrink:0;
+  display:flex;align-items:center;gap:16px;
+  padding:16px 28px;border-bottom:1px solid var(--line);
+  background:rgba(0,0,0,0.6);backdrop-filter:blur(8px);
+  position:relative;z-index:2;
+}
+#alfred-ring-mini{display:block;flex-shrink:0}
+.alfred-hdr-info{flex:1}
+.alfred-hdr-name{font-family:var(--serif);font-size:clamp(16px,2vw,20px);font-weight:300;color:var(--t1);letter-spacing:0.04em;line-height:1.2}
+.alfred-hdr-sub{font-size:7px;letter-spacing:0.3em;text-transform:uppercase;color:rgba(196,169,124,0.4);margin-top:3px}
+#alfred-state-label{font-size:7px;letter-spacing:0.28em;text-transform:uppercase;color:rgba(196,169,124,0.35);transition:color .3s}
+#alfred-state-label.active{color:var(--gold)}
+
+/* ─────────────────────────────────────────────────────────────
+   MOBILE
+───────────────────────────────────────────────────────────── */
+@media(max-width:900px){
+  :root{--nav-w:0px;--right-w:0px}
+  #cmd-nav{display:none}
+  #cmd-right{display:none}
+}
+@media(max-width:600px){
+  :root{--header-h:44px;--input-h:56px}
+  .msg-text{font-size:13px}
+}
+
+/* ─────────────────────────────────────────────────────────────
+   KEYFRAMES
+───────────────────────────────────────────────────────────── */
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+@keyframes fade-in{from{opacity:0}to{opacity:1}}
+</style>
+</head>
+<body>
+
+<!-- BOOT OVERLAY -->
+<div id="boot">
+  <div class="boot-corners">
+    <div class="bc tl"></div><div class="bc tr"></div>
+    <div class="bc bl"></div><div class="bc br"></div>
+  </div>
+  <div id="boot-logo">NYX</div>
+  <div id="boot-lines"></div>
+  <div id="boot-bar">
+    <div class="boot-bar-track"><div class="boot-bar-fill" id="boot-bar-fill"></div></div>
+    <div class="boot-bar-pct" id="boot-bar-pct">0%</div>
+  </div>
+</div>
+
+<!-- COMMAND CENTER -->
+<div id="cmd">
+  <!-- HEADER -->
+  <header id="cmd-header">
+    <div class="cmd-header-logo">NYX</div>
+    <div class="cmd-header-mid">
+      <span class="cmd-header-dot"></span>
+      COMMAND CENTER / ACTIVE
+    </div>
+    <div class="cmd-header-right">
+      <span class="cmd-hdr-item">AGENTS <span>08</span></span>
+      <span class="cmd-hdr-item">UTC <span id="cmd-utc">--:--:--</span></span>
+    </div>
+  </header>
+
+  <!-- BODY -->
+  <div id="cmd-body">
+
+    <!-- LEFT NAV -->
+    <nav id="cmd-nav">
+      <div class="nav-section">Intelligence</div>
+      <div class="nav-item active" data-panel="alfred"><span class="nav-dot"></span>Alfred</div>
+      <div class="nav-item" data-panel="briefing"><span class="nav-dot"></span>Briefing</div>
+      <div class="nav-item" data-panel="intel"><span class="nav-dot"></span>Intelligence</div>
+
+      <div class="nav-section">Operations</div>
+      <div class="nav-item" data-panel="goals"><span class="nav-dot"></span>Goals</div>
+      <div class="nav-item" data-panel="agents"><span class="nav-dot"></span>Agents</div>
+
+      <div class="nav-divider"></div>
+
+      <div class="nav-section">Network</div>
+      <div class="nav-agent-mini"><span class="nam-dot active"></span>APEX</div>
+      <div class="nav-agent-mini"><span class="nam-dot active"></span>ORACLE</div>
+      <div class="nav-agent-mini"><span class="nam-dot active"></span>SIGNAL</div>
+      <div class="nav-agent-mini"><span class="nam-dot idle"></span>FORGE</div>
+      <div class="nav-agent-mini"><span class="nam-dot active"></span>CONVERT</div>
+      <div class="nav-agent-mini"><span class="nam-dot active"></span>LEDGER</div>
+      <div class="nav-agent-mini"><span class="nam-dot active"></span>CIPHER</div>
+      <div class="nav-agent-mini"><span class="nam-dot active"></span>MERIDIAN</div>
+
+      <div class="nav-divider"></div>
+      <button id="nav-alfred-btn"><span class="nav-alfred-dot"></span>Activate Voice</button>
+    </nav>
+
+    <!-- MAIN CENTER -->
+    <main id="cmd-main">
+      <!-- ALFRED PANEL -->
+      <div class="cmd-panel active" id="panel-alfred">
+        <div id="alfred-header">
+          <canvas id="alfred-ring-mini" width="48" height="48"></canvas>
+          <div class="alfred-hdr-info">
+            <div class="alfred-hdr-name">Alfred</div>
+            <div class="alfred-hdr-sub">Executive Intelligence Officer</div>
+          </div>
+          <div id="alfred-state-label">STANDBY</div>
+        </div>
+        <div id="alfred-conversation"></div>
+      </div>
+
+      <!-- BRIEFING PANEL -->
+      <div class="cmd-panel" id="panel-briefing">
+        <div class="panel-header">
+          <div class="panel-title">Executive Briefing</div>
+          <div class="panel-subtitle">Alfred — Daily intelligence summary</div>
+        </div>
+        <div class="panel-body" id="briefing-body">
+          <!-- populated by JS -->
+        </div>
+      </div>
+
+      <!-- INTELLIGENCE PANEL -->
+      <div class="cmd-panel" id="panel-intel">
+        <div class="panel-header">
+          <div class="panel-title">Market Intelligence</div>
+          <div class="panel-subtitle">Oracle + Signal — Live signal processing</div>
+        </div>
+        <div class="panel-body" id="intel-body"></div>
+      </div>
+
+      <!-- GOALS PANEL -->
+      <div class="cmd-panel" id="panel-goals">
+        <div class="panel-header">
+          <div class="panel-title">Strategic Goals</div>
+          <div class="panel-subtitle">Apex — Goal tracking + priority alignment</div>
+        </div>
+        <div class="panel-body" id="goals-body"></div>
+      </div>
+
+      <!-- AGENTS PANEL -->
+      <div class="cmd-panel" id="panel-agents">
+        <div class="panel-header">
+          <div class="panel-title">Agent Network</div>
+          <div class="panel-subtitle">8 specialist agents — Continuously running</div>
+        </div>
+        <div class="panel-body">
+          <div class="agent-grid" id="agents-grid"></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- RIGHT PANEL -->
+    <aside id="cmd-right">
+      <!-- Agent status -->
+      <div class="rp-section">
+        <div class="rp-title">Agent Status <span class="rp-live-dot"></span></div>
+        <div class="rp-agent-list" id="rp-agent-list"></div>
+      </div>
+      <!-- Metrics -->
+      <div class="rp-section">
+        <div class="rp-title">System Metrics</div>
+        <div class="rp-metrics">
+          <div class="rp-metric"><div class="rp-metric-val" id="rp-signals">0</div><div class="rp-metric-label">Signals Today</div></div>
+          <div class="rp-metric"><div class="rp-metric-val" id="rp-actions">0</div><div class="rp-metric-label">Actions Taken</div></div>
+          <div class="rp-metric"><div class="rp-metric-val">8</div><div class="rp-metric-label">Agents Active</div></div>
+          <div class="rp-metric"><div class="rp-metric-val">99.97%</div><div class="rp-metric-label">Uptime</div></div>
+        </div>
+      </div>
+      <!-- Live intel feed -->
+      <div class="rp-section" style="flex:1;overflow:hidden;display:flex;flex-direction:column">
+        <div class="rp-title">Live Feed <span class="rp-live-dot"></span></div>
+        <div id="rp-feed"></div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- INPUT BAR -->
+  <div id="cmd-input-bar">
+    <span id="input-status"></span>
+    <button id="voice-btn" title="Voice input">
+      <div class="vb-ring"></div>
+      <svg class="vb-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M12 2a4 4 0 0 1 4 4v6a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z" stroke="rgba(196,169,124,0.6)"/>
+        <path d="M6 10a6 6 0 0 0 12 0M12 18v4M9 22h6" stroke="rgba(196,169,124,0.5)"/>
+      </svg>
+    </button>
+    <input id="cmd-input" type="text" placeholder="Ask Alfred anything..." autocomplete="off" spellcheck="false"/>
+    <button id="send-btn" title="Send">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+<script>
+'use strict';
+
+/* ════════════════════════════════════════════════════════════
+   MEMORY
+════════════════════════════════════════════════════════════ */
+const MEM = {
+  get: k => { try{ return localStorage.getItem('nyx_'+k) || '' }catch{ return '' } },
+  set: (k,v) => { try{ localStorage.setItem('nyx_'+k, v) }catch{} },
+  all: () => {
+    return {
+      name: MEM.get('name'),
+      role: MEM.get('role') || 'Founder',
+      goal: MEM.get('goal') || 'Growth',
+      email: MEM.get('email'),
+      session: MEM.get('session') || '0',
+    };
+  }
+};
+
+// Increment session count
+MEM.set('session', String(parseInt(MEM.get('session')||'0') + 1));
+
+const USER = MEM.all();
+const isReturning = parseInt(USER.session) > 1;
+
+/* ════════════════════════════════════════════════════════════
+   UTC CLOCK
+════════════════════════════════════════════════════════════ */
+(function clock(){
+  const el = document.getElementById('cmd-utc');
+  function tick(){ el.textContent = new Date().toUTCString().slice(17,25); }
+  tick(); setInterval(tick, 1000);
+})();
+
+/* ════════════════════════════════════════════════════════════
+   ALFRED MINI RING CANVAS
+════════════════════════════════════════════════════════════ */
+(function initRing(){
+  const canvas = document.getElementById('alfred-ring-mini');
+  const ctx = canvas.getContext('2d');
+  let angle1 = 0, angle2 = 0, mode = 'standby'; // standby | thinking | speaking
+  let pulse = 0;
+
+  window._alfredRingMode = m => { mode = m; };
+
+  function tick(){
+    ctx.clearRect(0,0,48,48);
+    const cx = 24, cy = 24, R = 20;
+    pulse += 0.04;
+
+    const glow = mode === 'speaking' ? 0.9 : mode === 'thinking' ? 0.65 : 0.45;
+    const speed = mode === 'speaking' ? 0.022 : mode === 'thinking' ? 0.014 : 0.006;
+    angle1 += speed; angle2 -= speed * 0.7;
+
+    // Outer dashed ring
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(angle1);
+    ctx.beginPath(); ctx.arc(0,0,R,0,Math.PI*2);
+    ctx.setLineDash([4,12]); ctx.lineWidth=0.8;
+    ctx.strokeStyle=`rgba(196,169,124,${0.25*glow})`; ctx.stroke();
+    ctx.restore();
+
+    // Inner ring
+    const r2 = R * 0.62 + (mode === 'speaking' ? Math.sin(pulse*2.5)*1.5 : Math.sin(pulse)*0.6);
+    ctx.save(); ctx.translate(cx,cy); ctx.rotate(angle2);
+    ctx.beginPath(); ctx.arc(0,0,r2,0,Math.PI*2);
+    ctx.setLineDash([3,8]); ctx.lineWidth=0.7;
+    ctx.strokeStyle=`rgba(196,169,124,${0.38*glow})`; ctx.stroke();
+    ctx.restore();
+
+    // Core dot
+    ctx.setLineDash([]);
+    const coreR = 2.5 + (mode === 'speaking' ? Math.sin(pulse*3)*1.5 : 0);
+    const grad = ctx.createRadialGradient(cx,cy,0,cx,cy,coreR*3);
+    grad.addColorStop(0,`rgba(196,169,124,${Math.min(1,0.9*glow)})`);
+    grad.addColorStop(1,'rgba(196,169,124,0)');
+    ctx.beginPath(); ctx.arc(cx,cy,coreR*3,0,Math.PI*2);
+    ctx.fillStyle=grad; ctx.fill();
+    ctx.beginPath(); ctx.arc(cx,cy,coreR,0,Math.PI*2);
+    ctx.fillStyle=`rgba(196,169,124,${Math.min(1,glow)})`; ctx.fill();
+
+    requestAnimationFrame(tick);
+  }
+  tick();
+})();
+
+/* ════════════════════════════════════════════════════════════
+   ALFRED KNOWLEDGE BASE
+════════════════════════════════════════════════════════════ */
+const ALFRED = (() => {
+  const ctx = USER;
+
+  const now = new Date();
+  const hour = now.getHours();
+  const period = hour < 12 ? 'morning' : hour < 17 ? 'afternoon' : 'evening';
+  const name = ctx.name ? ctx.name : null;
+  const greeting = name ? `Good ${period}, ${name}.` : `Good ${period}.`;
+  const role = ctx.role || 'Founder';
+  const goal = ctx.goal || 'Growth';
+
+  const BRIEFINGS = {
+    'Founder+Revenue': `Three items require your attention before you begin.\n\nORACLE flagged a competitor funding event overnight — $22M raised, direct positioning overlap in your primary segment. This accelerates your own distribution timeline by approximately one quarter. I recommend reviewing your go-to-market velocity with APEX today.\n\nLEDGER identified a cash efficiency window. A single reallocation in your paid acquisition stack would extend runway by six weeks without touching headcount or growth trajectory.\n\nCONVERT flagged two enterprise deals that have gone quiet for 72 hours. Historical data suggests founder-level outreach at this stage recovers 83% of these opportunities. Both are worth your direct attention today.\n\nThe system is ready. Which would you like to address first?`,
+    'Founder+Growth': `Three growth signals require your attention.\n\nSIGNAL detected a distribution opportunity your competitors have not activated. The window in this specific channel is approximately 3 weeks before Q4 roadmap locks. ORACLE estimates significant audience alignment with your target segment.\n\nYour content velocity has been lower than optimal for 9 days. SIGNAL analysis shows a direct correlation between your publishing frequency and inbound pipeline quality. A single well-placed piece this week would have disproportionate impact.\n\nMERCURY identified a partnership opportunity with a tier-one operator in your space. They have been researching NYX activity for 11 days. The signal is strong enough that I recommend initiating contact before they do.\n\nWhere would you like to begin?`,
+    'Executive+Revenue': `Your morning intelligence summary is ready.\n\nPipeline velocity increased 22% this week. CONVERT models suggest this is sustainable if you maintain current deal cadence. Three opportunities are approaching decision stage — your presence on the next call increases close probability by an estimated 14 points.\n\nLEDGER's overnight model flagged a pricing opportunity. Your current positioning leaves measurable value on the table in the enterprise segment. I have a strategic brief ready when you want it.\n\nOracledetected a market shift in your primary segment. Two of the five major players are repositioning. This creates a positioning window that closes in approximately 45 days.\n\nYour highest-leverage action this morning is the enterprise pricing conversation. Shall I prepare the brief?`,
+    'Athlete+Performance': `Your performance intelligence summary for today.\n\nRecovery data from MERIDIAN's analysis indicates you are at 87% capacity — above baseline. This is an optimal day for high-intensity execution work.\n\nFORGE flagged a process bottleneck in your training tracking. The current system has a 14% gap between planned and logged sessions. Closing this gap historically correlates with a 9% improvement in quarterly performance outcomes.\n\nALFRED's goal alignment check: two of your stated Q3 objectives are currently under-resourced. I recommend a 20-minute strategic review this week to reallocate. Both are high-leverage and time-sensitive.\n\nWhat is the priority for today?`,
+    default: `${greeting} Your intelligence summary is ready.\n\nORACLE processed 14 signals overnight. Three are relevant to your stated priorities. LEDGER confirmed your key metrics are tracking above plan. SIGNAL identified a distribution opportunity in your primary channel.\n\nThe agent network has been active. APEX completed a strategic routing pass and identified two decisions that will benefit from your input today.\n\nTo customize your experience fully, tell me your name and I will calibrate the system to your specific goals and priorities.\n\nWhat would you like to address first?`
+  };
+
+  function getBriefing(){
+    return BRIEFINGS[`${role}+${goal}`] || BRIEFINGS.default;
+  }
+
+  const RESPONSES = {
+    hello: {
+      test: /^(hi|hello|hey|good morning|morning|evening|afternoon)$/i,
+      reply: () => name
+        ? [`${greeting} The system is fully operational. What needs your attention?`]
+        : [`${greeting} The system is running. Before I calibrate your intelligence layer, I need one piece of information — what is your name?`]
+    },
+    name_capture: {
+      test: /^[a-z]{2,20}$/i,
+      condition: () => !USER.name,
+      reply: (t) => {
+        const n = t.trim();
+        MEM.set('name', n); USER.name = n;
+        return [`${n}. Noted. The system has been calibrated to your profile.\n\nI have prepared your ${role.toLowerCase()} intelligence briefing. ${getBriefing().split('\n')[0]}\n\nSay "briefing" to receive the full summary, or ask me anything.`];
+      }
+    },
+    briefing: {
+      test: /briefing|morning|summary|update|what.*happening|status|catch.*up|today|overview/i,
+      reply: () => [`${greeting}\n\n${getBriefing()}`]
+    },
+    opportunity: {
+      test: /opportunit|what.*should.*focus|any.*leads|leverage|windows|openings/i,
+      reply: () => [`ORACLE has identified four opportunities in the last 24 hours. Ranked by expected impact.\n\nFirst: An untapped distribution channel your segment competitors have not activated. Estimated Q4 penetration window is closing in 18 days.\n\nSecond: A strategic partnership signal — a tier-one operator in your space has been researching your activity for 11 days. Their pattern suggests acquisition or partnership intent. I recommend initiating contact before they formalize their approach.\n\nThird: Two high-value inbound inquiries in your pipeline have not received follow-up in more than 72 hours. CONVERT models founder-level response as recovering 83% of these.\n\nFourth: A category media window. A journalist covering your space is actively sourcing. ORACLE identified the story angle. It aligns with your positioning precisely. Window closes Friday.\n\nWhich do you want to act on?`]
+    },
+    strategy: {
+      test: /strateg|recommend|what.*do|advice|plan|next.*move|priorities/i,
+      reply: () => [`Strategic assessment based on your current profile.\n\nThe market is consolidating faster than your model assumed. Two independent operators in your segment have initiated acquisition conversations. Your premium positioning provides insulation — but only if you establish distribution depth before the consolidation window closes. I estimate 14-18 months.\n\nYour unit economics are outperforming your cohort model by 19%. This is not variance — it is a repeatable structural advantage. I recommend protecting it, not publishing it, and scaling it aggressively this quarter.\n\nThe highest-leverage decision available to you right now is the enterprise pricing conversation. LEDGER's analysis shows a significant gap between your current positioning and market capacity. This is the one decision with the largest asymmetric return.\n\nWould you like the full brief on any of these?`]
+    },
+    market: {
+      test: /market|competitor|competition|intelligence|signals|landscape|sector|industry/i,
+      reply: () => [`ORACLE's market intelligence update as of this morning.\n\nYour primary competitor increased content velocity by 31% this week. SIGNAL assessment: they are expanding distribution ahead of a product announcement. Estimated 4-6 week timeline.\n\nTwo new intent signals appeared in your target segment this week that were not in your previous model. SIGNAL has updated the distribution strategy accordingly. Your content calendar has been recalibrated.\n\nMacro: institutional capital is rotating back into your category. Three major funds revised their deployment timelines forward this quarter. If a raise is on your horizon, the 90-day window is more favorable than the following 9 months.\n\nSentiment in your primary audience has shifted +12% favorably since last month. The narrative is moving in your direction.\n\nWould you like a deeper brief on any of these signals?`]
+    },
+    performance: {
+      test: /performance|metrics|how.*doing|results|numbers|progress|kpi/i,
+      reply: () => [`Performance analysis for the current quarter.\n\nRevenue is tracking at 118% of plan. Pipeline coverage ratio is 3.2x — enough to close above target even at a 30% loss rate.\n\nOperational efficiency improved 34% since Q2. Decision latency — the time between identifying a problem and acting on it — has dropped significantly.\n\nTeam output velocity is at its highest level this year. APEX models the primary constraint as your own bandwidth, not team capacity.\n\nOne flag that requires your attention: you have deferred the enterprise pricing decision four times. LEDGER and CONVERT both indicate this is the single highest-leverage decision available. The cost of delay is measurable and accumulating.\n\nYour operating system is performing. The decision is yours.`]
+    },
+    agents: {
+      test: /agent|apex|oracle|signal|convert|forge|ledger|cipher|meridian|who.*running/i,
+      reply: (t) => {
+        const map = {
+          apex: 'APEX is your strategic command layer. Currently routing intelligence across the network and coordinating agent delegation. Last action: prioritized your enterprise pipeline for direct attention.',
+          oracle: 'ORACLE is your research intelligence. Currently processing 14 market signals and tracking 3 competitor movements. A briefing is ready on request.',
+          signal: 'SIGNAL is your distribution intelligence. Content calendar updated this morning. Audience signal analysis shows a channel opportunity your competitors have not activated.',
+          convert: 'CONVERT is your revenue intelligence. Pipeline analysis updated. Three deals flagged for direct founder outreach. Probability models refreshed.',
+          forge: 'FORGE is your systems intelligence. Currently monitoring infrastructure health. Last action: resolved an API latency issue before it impacted operations.',
+          ledger: 'LEDGER is your financial intelligence. Overnight analysis complete. A cash efficiency opportunity has been flagged. Runway model updated.',
+          cipher: 'CIPHER is your security intelligence. Continuous access audit running. No anomalies detected. All endpoints secured.',
+          meridian: 'MERIDIAN is your operations intelligence. Process efficiency report ready. SLA compliance is at 98.4% — up from 91% last quarter.'
+        };
+        const t_lower = t.toLowerCase();
+        for(const [k,v] of Object.entries(map)){ if(t_lower.includes(k)) return [v]; }
+        return ['The agent network is fully operational. Eight specialists running continuously. APEX is coordinating strategic routing. ORACLE is processing market signals. SIGNAL has updated distribution strategy. CONVERT is monitoring pipeline. LEDGER completed its overnight analysis. CIPHER is running continuous security audit. MERIDIAN has resolved an operational bottleneck. FORGE is monitoring system health.\n\nWhich agent would you like a full report from?'];
+      }
+    },
+    calendar: {
+      test: /calendar|meetings|schedule|agenda|today.*meeting|meeting.*today/i,
+      reply: () => [`Calendar intelligence analysis.\n\nYou have four scheduled interactions today. Two are high-leverage. Two are low-leverage and can be delegated or declined without strategic cost.\n\nHigh-leverage: The 11am investor conversation and the 3pm enterprise prospect call. APEX recommends your full presence and preparation for both.\n\nLow-leverage: The 9am status update can be replaced with an async summary. The 4pm vendor review can be delegated. Estimated time recaptured: 90 minutes — which should be redirected to the enterprise pricing decision that has been deferred.\n\nWould you like me to draft delegation notes for the low-leverage meetings?`]
+    },
+    goals: {
+      test: /goals?|priorities|objectives|targets|what.*working.*on|focus/i,
+      reply: () => [`Goal alignment review.\n\nBased on your assessment, your primary objective is ${goal.toLowerCase()}. Current system calibration has ${role.toLowerCase()}-level intelligence active across all relevant agents.\n\nThree of your four stated Q3 objectives are on track. The fourth — enterprise expansion — is under-resourced relative to its strategic priority. APEX recommends increasing your direct involvement in one key decision this week.\n\nThe system has identified an alignment gap: your calendar allocation does not match your stated priorities. You are spending 40% of high-focus time on execution tasks that could be delegated, and only 20% on the strategic decisions that only you can make.\n\nThis is the most common bottleneck for operators at your level. Would you like a recommended reallocation?`]
+    },
+    help: {
+      test: /help|what.*can.*you|capabilities|what.*do|commands|features/i,
+      reply: () => [`The system is capable of more than you have likely explored.\n\nAsk for a briefing and I will synthesize overnight intelligence across all eight agents into a prioritized executive summary.\n\nAsk about opportunities and ORACLE will surface the three highest-leverage actions available to you right now.\n\nAsk about strategy and I will synthesize APEX's intelligence into a direct recommendation.\n\nAsk about market signals and ORACLE will brief you on competitor movements and emerging windows.\n\nAsk about performance and LEDGER will give you the honest view of your metrics.\n\nOr ask about any of the eight agents directly — APEX, ORACLE, SIGNAL, CONVERT, FORGE, LEDGER, CIPHER, or MERIDIAN — and I will route your query to the appropriate specialist.\n\nThe system works best when you treat it like a Chief of Staff, not a search engine. What is the most important thing on your mind right now?`]
+    }
+  };
+
+  function getReply(text){
+    const t = text.trim();
+
+    // Name capture (if no name stored and user typed a single word)
+    if(!USER.name && RESPONSES.name_capture.test.test(t)){
+      return RESPONSES.name_capture.reply(t);
+    }
+
+    for(const [key, def] of Object.entries(RESPONSES)){
+      if(key === 'name_capture') continue;
+      if(def.test && def.test.test(t)){
+        if(def.condition && !def.condition()) continue;
+        const r = def.reply(t);
+        return Array.isArray(r) ? r : [r];
+      }
+    }
+
+    // Sophisticated fallback — never sounds like a chatbot
+    const fallbacks = [
+      `That is worth thinking through carefully. Based on your profile as a ${role} optimizing for ${goal}, I would approach it this way: start with the question APEX would ask — what is the highest-leverage action that only you can take? Everything else can be delegated or deferred. What is the core decision at the center of what you are asking?`,
+      `I do not have a pre-built response for that — which means it may be more nuanced than a standard briefing can address. Tell me more about what you are trying to resolve. The more context you give the system, the sharper the intelligence I can return.`,
+      `This falls outside my standard briefing categories. To give you a calibrated response, I need to understand: are you asking about a strategic decision, an operational bottleneck, or an intelligence gap? One more sentence and I can route this to the right agent.`,
+      `Noted. To give you the most useful response, let me ask: is this a decision you need to make, intelligence you need to gather, or an action you need to execute? The system handles all three — but the routing determines the quality of the output.`
+    ];
+    return [fallbacks[Math.floor(Math.random()*fallbacks.length)]];
+  }
+
+  return { getReply, getBriefing, greeting, role, goal, name: USER.name };
+})();
+
+/* ════════════════════════════════════════════════════════════
+   CONVERSATION ENGINE
+════════════════════════════════════════════════════════════ */
+const CONV = (() => {
+  const container = document.getElementById('alfred-conversation');
+  const stateLabel = document.getElementById('alfred-state-label');
+  let isTyping = false;
+  let thinkingEl = null;
+  let activeTypewriter = null;
+
+  function timestamp(){
+    return new Date().toTimeString().slice(0,5);
+  }
+
+  function addMessage(role, text, opts = {}){
+    const el = document.createElement('div');
+    el.className = `msg msg-${role}`;
+
+    const avatar = document.createElement('div');
+    avatar.className = 'msg-avatar';
+    avatar.textContent = role === 'alfred' ? 'A' : 'Y';
+
+    const body = document.createElement('div');
+    body.className = 'msg-body';
+
+    const sender = document.createElement('div');
+    sender.className = 'msg-sender';
+    sender.innerHTML = `${role === 'alfred' ? 'ALFRED' : 'YOU'}<span class="msg-time">${timestamp()}</span>`;
+
+    const textEl = document.createElement('div');
+    textEl.className = 'msg-text';
+
+    body.appendChild(sender);
+    body.appendChild(textEl);
+
+    if(opts.agent){
+      const tag = document.createElement('div');
+      tag.className = 'msg-agent-tag';
+      tag.textContent = `via ${opts.agent}`;
+      body.appendChild(tag);
+    }
+
+    el.appendChild(avatar);
+    el.appendChild(body);
+    container.appendChild(el);
+    scrollToBottom();
+    return textEl;
+  }
+
+  function showThinking(){
+    const el = document.createElement('div');
+    el.className = 'msg msg-alfred msg-thinking';
+    el.id = 'thinking-msg';
+    el.innerHTML = `
+      <div class="msg-avatar">A</div>
+      <div class="msg-body">
+        <div class="msg-sender">ALFRED <span class="msg-time">${timestamp()}</span></div>
+        <div class="msg-text">Processing<div class="thinking-dots">
+          <div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div>
+        </div></div>
+      </div>`;
+    container.appendChild(el);
+    scrollToBottom();
+    thinkingEl = el;
+    window._alfredRingMode('thinking');
+    stateLabel.textContent = 'PROCESSING';
+    stateLabel.classList.add('active');
+  }
+
+  function removeThinking(){
+    if(thinkingEl){ thinkingEl.remove(); thinkingEl = null; }
+  }
+
+  function typewrite(el, text, onDone){
+    if(activeTypewriter) clearTimeout(activeTypewriter);
+    el.textContent = '';
+    let i = 0;
+    // Use faster typing for longer texts
+    const baseSpeed = text.length > 300 ? 8 : 14;
+    function next(){
+      if(i <= text.length){
+        el.textContent = text.slice(0,i);
+        // Scroll as typing progresses
+        if(i % 30 === 0) scrollToBottom();
+        i++;
+        activeTypewriter = setTimeout(next, i < 20 ? baseSpeed * 0.4 : baseSpeed);
+      } else {
+        el.textContent = text; // ensure complete
+        scrollToBottom();
+        onDone && onDone();
+      }
+    }
+    next();
+  }
+
+  function scrollToBottom(){
+    container.scrollTop = container.scrollHeight;
+  }
+
+  function alfredSpeaks(text, opts = {}){
+    return new Promise(resolve => {
+      isTyping = true;
+      window._alfredRingMode('speaking');
+      stateLabel.textContent = 'RESPONDING';
+      stateLabel.classList.add('active');
+      const textEl = addMessage('alfred', '', opts);
+      typewrite(textEl, text, () => {
+        isTyping = false;
+        window._alfredRingMode('standby');
+        stateLabel.textContent = 'STANDBY';
+        stateLabel.classList.remove('active');
+        // Voice synthesis
+        if(window.speechSynthesis && VOICE.enabled){
+          VOICE.speak(text.slice(0, 180));
+        }
+        resolve();
+      });
+    });
+  }
+
+  async function userMessage(text){
+    if(!text.trim() || isTyping) return;
+    addMessage('user', text);
+    await new Promise(r => setTimeout(r, 400));
+    showThinking();
+    // Simulate intelligence processing delay
+    const delay = 900 + Math.random() * 600;
+    await new Promise(r => setTimeout(r, delay));
+    removeThinking();
+    const replies = ALFRED.getReply(text);
+    for(let i = 0; i < replies.length; i++){
+      if(i > 0) await new Promise(r => setTimeout(r, 300));
+      await alfredSpeaks(replies[i]);
+    }
+  }
+
+  return { alfredSpeaks, userMessage, scrollToBottom };
+})();
+
+/* ════════════════════════════════════════════════════════════
+   VOICE ENGINE
+════════════════════════════════════════════════════════════ */
+const VOICE = (() => {
+  let recognition = null;
+  let listening = false;
+  let speaking = false;
+  let enabled = false;
+  let mutedUntil = 0;
+
+  const voiceBtn = document.getElementById('voice-btn');
+  const inputStatus = document.getElementById('input-status');
+  const stateLabel = document.getElementById('alfred-state-label');
+
+  function initSpeech(){
+    if(!('SpeechRecognition' in window) && !('webkitSpeechRecognition' in window)) return false;
+    const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SR();
+    recognition.continuous = true;
+    recognition.interimResults = false;
+    recognition.lang = 'en-US';
+
+    recognition.onresult = e => {
+      if(Date.now() < mutedUntil) return;
+      const t = e.results[e.results.length - 1][0].transcript.trim();
+      if(!t) return;
+      document.getElementById('cmd-input').value = '';
+      inputStatus.textContent = '';
+      CONV.userMessage(t);
+    };
+
+    recognition.onerror = () => { listening = false; voiceBtn.classList.remove('listening'); };
+    recognition.onend = () => {
+      if(listening){
+        try{ recognition.start(); }catch(e){}
+      }
+    };
+    return true;
+  }
+
+  function toggleListening(){
+    if(!recognition && !initSpeech()){
+      inputStatus.textContent = 'Voice not supported in this browser';
+      return;
+    }
+    if(listening){
+      listening = false;
+      recognition.stop();
+      voiceBtn.classList.remove('listening');
+      inputStatus.textContent = '';
+      stateLabel.textContent = 'STANDBY';
+      stateLabel.classList.remove('active');
+    } else {
+      listening = true;
+      try{ recognition.start(); }catch(e){}
+      voiceBtn.classList.add('listening');
+      inputStatus.textContent = 'LISTENING...';
+      stateLabel.textContent = 'LISTENING';
+      stateLabel.classList.add('active');
+      window._alfredRingMode('thinking');
+    }
+  }
+
+  function speak(text){
+    if(!window.speechSynthesis) return;
+    mutedUntil = Date.now() + 400;
+    speaking = true;
+    window.speechSynthesis.cancel();
+    const utt = new SpeechSynthesisUtterance(text);
+    utt.rate = 0.92; utt.pitch = 0.88; utt.volume = 1;
+    utt.onstart = () => { speaking = true; };
+    utt.onend = () => {
+      speaking = false;
+      mutedUntil = Date.now() + 600;
+    };
+    // Try to pick a British voice for Alfred
+    const voices = window.speechSynthesis.getVoices();
+    const pref = voices.find(v => v.name.includes('Daniel') || v.name.includes('British') || v.name.includes('UK'))
+               || voices.find(v => v.lang.startsWith('en-GB'))
+               || voices.find(v => v.lang.startsWith('en'));
+    if(pref) utt.voice = pref;
+    window.speechSynthesis.speak(utt);
+  }
+
+  voiceBtn.addEventListener('click', toggleListening);
+
+  return { toggleListening, speak, get enabled(){ return enabled; }, set enabled(v){ enabled = v; } };
+})();
+
+/* ════════════════════════════════════════════════════════════
+   INPUT
+════════════════════════════════════════════════════════════ */
+(function(){
+  const input = document.getElementById('cmd-input');
+  const send  = document.getElementById('send-btn');
+
+  function submit(){
+    const t = input.value.trim();
+    if(!t) return;
+    input.value = '';
+    CONV.userMessage(t);
+  }
+
+  send.addEventListener('click', submit);
+  input.addEventListener('keydown', e => { if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); submit(); } });
+  document.getElementById('nav-alfred-btn').addEventListener('click', () => VOICE.toggleListening());
+})();
+
+/* ════════════════════════════════════════════════════════════
+   SECTION NAVIGATION
+════════════════════════════════════════════════════════════ */
+(function(){
+  const navItems = document.querySelectorAll('.nav-item[data-panel]');
+  const panels   = document.querySelectorAll('.cmd-panel');
+
+  function activate(panelId){
+    panels.forEach(p => p.classList.remove('active'));
+    navItems.forEach(n => n.classList.remove('active'));
+    const panel = document.getElementById('panel-'+panelId);
+    const nav   = document.querySelector(`.nav-item[data-panel="${panelId}"]`);
+    if(panel) panel.classList.add('active');
+    if(nav)   nav.classList.add('active');
+  }
+
+  navItems.forEach(item => {
+    item.addEventListener('click', () => activate(item.dataset.panel));
+  });
+})();
+
+/* ════════════════════════════════════════════════════════════
+   POPULATE PANELS
+════════════════════════════════════════════════════════════ */
+(function(){
+  // BRIEFING PANEL
+  const briefData = [
+    { agent:'ORACLE', time:'06:14 UTC', title:'Competitor funding detected', body:'Primary competitor closed $22M Series B overnight. Direct positioning overlap at 62%. Distribution acceleration recommended.', tag:'HIGH', tagClass:'tag-high' },
+    { agent:'LEDGER', time:'05:48 UTC', title:'Cash efficiency window identified', body:'Single reallocation in paid acquisition stack extends runway 6 weeks. No impact to growth trajectory or headcount.', tag:'ACTION REQUIRED', tagClass:'tag-high' },
+    { agent:'CONVERT', time:'07:02 UTC', title:'Pipeline velocity +22% this week', body:'Three enterprise deals entering final stage. Projected close probability: 78%. Direct founder outreach recommended on two.', tag:'OPPORTUNITY', tagClass:'tag-new' },
+    { agent:'SIGNAL', time:'04:30 UTC', title:'Distribution channel identified', body:'Untapped audience segment showing 91% alignment with your positioning. Competitors have not activated this channel.', tag:'WINDOW', tagClass:'tag-new' },
+    { agent:'APEX', time:'08:00 UTC', title:'Strategic alignment review', body:'Calendar allocation vs stated priorities gap: 40% of high-focus time on delegatable tasks. Reallocation brief ready.', tag:'ADVISORY', tagClass:'tag-med' },
+  ];
+  const bb = document.getElementById('briefing-body');
+  briefData.forEach(d => {
+    bb.innerHTML += `<div class="brief-card" onclick="document.querySelector('.nav-item[data-panel=alfred]').click();document.getElementById('cmd-input').value='Tell me more about the ${d.title.toLowerCase()} from ${d.agent}';document.getElementById('send-btn').click()">
+      <div class="brief-card-header"><span class="brief-card-agent">${d.agent}</span><span class="brief-card-time">${d.time}</span></div>
+      <div class="brief-card-title">${d.title}</div>
+      <div class="brief-card-body">${d.body}</div>
+      <span class="brief-card-tag ${d.tagClass}">${d.tag}</span>
+    </div>`;
+  });
+
+  // INTEL PANEL
+  const intelData = [
+    { agent:'ORACLE', title:'Macro signal: capital rotation into B2B SaaS', body:'Three major funds revised deployment timelines forward. Raise window more favorable in next 90 days than following 9 months.', tag:'MACRO', tagClass:'tag-med' },
+    { agent:'SIGNAL', title:'Audience intent shift detected', body:'Two new purchase intent signals appeared in primary segment this week. Not in previous model. Distribution strategy updated.', tag:'NEW SIGNAL', tagClass:'tag-new' },
+    { agent:'ORACLE', title:'Competitor content velocity +31%', body:'Primary competitor publishing cadence increased significantly this week. SIGNAL assesses pre-announcement positioning. Timeline: 4-6 weeks.', tag:'COMPETITIVE', tagClass:'tag-high' },
+    { agent:'SIGNAL', title:'PR window: category coverage incoming', body:'Three Tier-1 publications running category pieces in 30 days. ORACLE identified relevant journalists. Briefing window open.', tag:'OPPORTUNITY', tagClass:'tag-new' },
+  ];
+  const ib = document.getElementById('intel-body');
+  intelData.forEach(d => {
+    ib.innerHTML += `<div class="brief-card">
+      <div class="brief-card-header"><span class="brief-card-agent">${d.agent}</span></div>
+      <div class="brief-card-title">${d.title}</div>
+      <div class="brief-card-body">${d.body}</div>
+      <span class="brief-card-tag ${d.tagClass}">${d.tag}</span>
+    </div>`;
+  });
+
+  // GOALS PANEL
+  const role = USER.role || 'Founder';
+  const goal = USER.goal || 'Growth';
+  const goalsData = [
+    { label:`${goal} Acceleration`, pct: 72 },
+    { label:'Enterprise Pipeline', pct: 55 },
+    { label:'Operational Efficiency', pct: 88 },
+    { label:'Brand Authority', pct: 41 },
+    { label:'Strategic Partnerships', pct: 28 },
+  ];
+  const gb = document.getElementById('goals-body');
+  goalsData.forEach(g => {
+    const row = document.createElement('div');
+    row.className = 'goal-row';
+    row.innerHTML = `<div class="goal-progress-wrap">
+      <div class="goal-label">${g.label}</div>
+      <div class="goal-bar-track"><div class="goal-bar-fill" style="width:0%" data-target="${g.pct}%"></div></div>
+    </div>
+    <div class="goal-pct">${g.pct}%</div>`;
+    gb.appendChild(row);
+  });
+  // Animate bars after a delay
+  setTimeout(() => {
+    document.querySelectorAll('.goal-bar-fill').forEach(el => {
+      el.style.width = el.dataset.target;
+    });
+  }, 600);
+
+  // AGENTS PANEL
+  const agentsData = [
+    { id:'APEX', role:'Strategic Command', status:'Routing intelligence across network. Last: enterprise pipeline prioritization.', activity:94, on:true },
+    { id:'ORACLE', role:'Research Intelligence', status:'Processing 14 market signals. 3 competitor movements tracked.', activity:81, on:true },
+    { id:'SIGNAL', role:'Distribution Intelligence', status:'Content calendar updated. Audience signal analysis complete.', activity:67, on:true },
+    { id:'CONVERT', role:'Revenue Intelligence', status:'Pipeline updated. 3 deals flagged for founder outreach.', activity:73, on:true },
+    { id:'FORGE', role:'Systems Engineering', status:'Infrastructure health nominal. API latency resolved.', activity:45, on:false },
+    { id:'LEDGER', role:'Financial Intelligence', status:'Overnight analysis complete. Cash efficiency opportunity flagged.', activity:88, on:true },
+    { id:'CIPHER', role:'Security & Compliance', status:'Continuous access audit running. No anomalies.', activity:100, on:true },
+    { id:'MERIDIAN', role:'Operations Intelligence', status:'Process efficiency report ready. SLA 98.4%.', activity:62, on:true },
+  ];
+  const ag = document.getElementById('agents-grid');
+  agentsData.forEach(a => {
+    ag.innerHTML += `<div class="agent-full-card">
+      <div class="afc-header"><span class="afc-id">${a.id}</span><div class="afc-dot ${a.on?'on':'idle'}"></div></div>
+      <div class="afc-role">${a.role}</div>
+      <div class="afc-status">${a.status}</div>
+      <div class="afc-bar"><div class="afc-bar-fill" style="width:0%" data-w="${a.activity}%"></div></div>
+    </div>`;
+  });
+  setTimeout(() => {
+    document.querySelectorAll('.afc-bar-fill').forEach(el => { el.style.width = el.dataset.w; });
+  }, 800);
+
+  // RIGHT PANEL — agent status list
+  const rpal = document.getElementById('rp-agent-list');
+  agentsData.forEach(a => {
+    rpal.innerHTML += `<div class="rp-agent-row">
+      <div class="rp-agent-dot ${a.on?'on':'idle'}"></div>
+      <span class="rp-agent-name">${a.id}</span>
+      <span class="rp-agent-state">${a.on?'ACTIVE':'IDLE'}</span>
+    </div>`;
+  });
+})();
+
+/* ════════════════════════════════════════════════════════════
+   LIVE INTEL FEED (right panel)
+════════════════════════════════════════════════════════════ */
+(function(){
+  const pool = [
+    {agent:'APEX',   text:'Pipeline routing updated — enterprise tier prioritised.'},
+    {agent:'ORACLE', text:'New competitor signal detected. Brief queued.'},
+    {agent:'SIGNAL', text:'Audience intent shift confirmed. Distribution updated.'},
+    {agent:'CONVERT',text:'Deal probability recalculated — 3 accounts updated.'},
+    {agent:'LEDGER', text:'Burn rate variance flagged. Reallocation recommended.'},
+    {agent:'CIPHER', text:'Access audit cycle complete. No anomalies.'},
+    {agent:'MERIDIAN',text:'Process bottleneck resolved. SLA improving.'},
+    {agent:'FORGE',  text:'System health check nominal. Latency stable.'},
+    {agent:'ORACLE', text:'Market signal: capital rotation signal confirmed.'},
+    {agent:'SIGNAL', text:'Content window closing Friday. Briefing ready.'},
+    {agent:'APEX',   text:'Strategic decision queued for operator review.'},
+    {agent:'CONVERT',text:'Inbound enterprise inquiry — response recommended within 48h.'},
+  ];
+  const feed = document.getElementById('rp-feed');
+  const sigsEl = document.getElementById('rp-signals');
+  const actsEl = document.getElementById('rp-actions');
+  let idx = 0, sigs = 0, acts = 0;
+
+  function addFeedItem(){
+    const item = pool[idx % pool.length]; idx++;
+    const div = document.createElement('div');
+    div.className = 'rp-feed-item';
+    const t = new Date().toTimeString().slice(0,8);
+    div.innerHTML = `<div class="rp-feed-agent">${item.agent}</div><div class="rp-feed-text">${item.text}</div><div class="rp-feed-time">${t}</div>`;
+    feed.insertBefore(div, feed.firstChild);
+    while(feed.children.length > 12) feed.removeChild(feed.lastChild);
+    sigs++; acts += Math.random() > 0.4 ? 1 : 0;
+    sigsEl.textContent = sigs;
+    actsEl.textContent = acts;
+  }
+
+  // Seed 4 items
+  for(let i = 0; i < 4; i++) setTimeout(() => addFeedItem(), i * 300);
+  // Drip new items
+  function schedule(){ setTimeout(() => { addFeedItem(); schedule(); }, 6000 + Math.random() * 8000); }
+  schedule();
+})();
+
+/* ════════════════════════════════════════════════════════════
+   BOOT SEQUENCE
+════════════════════════════════════════════════════════════ */
+(function boot(){
+  const bootEl = document.getElementById('boot');
+  const logoEl = document.getElementById('boot-logo');
+  const linesEl = document.getElementById('boot-lines');
+  const barFill = document.getElementById('boot-bar-fill');
+  const barPct  = document.getElementById('boot-bar-pct');
+  const cmdEl   = document.getElementById('cmd');
+
+  const LINES = [
+    ['NEURAL TOPOLOGY', 'LOADED'],
+    ['ENCRYPTION LAYER', 'ACTIVE'],
+    ['AGENT NETWORK [08]', 'SYNCHRONIZED'],
+    ['MEMORY LAYER', 'ONLINE'],
+    ['INFERENCE ENGINE', 'RUNNING'],
+    ['IDENTITY VERIFICATION', 'COMPLETE'],
+    ['STRATEGIC PROFILE', 'LOADING'],
+    ['ALFRED', 'STANDING BY'],
+  ];
+
+  // Show logo
+  setTimeout(() => {
+    logoEl.style.opacity = '1';
+    logoEl.style.transform = 'scale(1)';
+  }, 200);
+
+  // Boot lines
+  LINES.forEach(([label, status], i) => {
+    setTimeout(() => {
+      const el = document.createElement('div');
+      el.className = 'boot-line';
+      el.innerHTML = `<span class="boot-line-label">${label.padEnd(30,'·').replace(/ /g,'&nbsp;')}</span><span class="boot-line-status">${status}</span>`;
+      linesEl.appendChild(el);
+      requestAnimationFrame(() => requestAnimationFrame(() => el.classList.add('show')));
+
+      // Update progress bar
+      const pct = Math.round(((i + 1) / LINES.length) * 100);
+      barPct.textContent = pct + '%';
+    }, 500 + i * 280);
+  });
+
+  // Animate bar fill
+  setTimeout(() => {
+    barFill.classList.add('go');
+  }, 600);
+
+  // Fade out boot, show command center
+  const totalBootTime = 500 + LINES.length * 280 + 600;
+  setTimeout(() => {
+    bootEl.classList.add('out');
+    cmdEl.classList.add('show');
+
+    setTimeout(() => {
+      bootEl.style.display = 'none';
+      startAlfred();
+    }, 900);
+  }, totalBootTime);
+})();
+
+/* ════════════════════════════════════════════════════════════
+   ALFRED INTRODUCTION
+════════════════════════════════════════════════════════════ */
+async function startAlfred(){
+  // Enable voice
+  VOICE.enabled = true;
+
+  const name = USER.name;
+  const role = USER.role || 'Founder';
+  const goal = USER.goal || 'Growth';
+  const isReturn = isReturning;
+
+  await new Promise(r => setTimeout(r, 400));
+
+  if(isReturn && name){
+    // Returning user
+    await CONV.alfredSpeaks(`Welcome back, ${name}.\n\nThe system has been running since your last session. Three developments require your attention.\n\nSay "briefing" for the full update, or ask me anything directly.`);
+  } else if(name){
+    // Has name but first session
+    await CONV.alfredSpeaks(`${ALFRED.greeting}\n\nI am Alfred. Your executive intelligence officer.\n\nThe system has been calibrated to your profile — ${role} optimizing for ${goal}. I have been running since before you opened this.\n\nThere are three things I want to brief you on. Say "briefing" when you are ready.`);
+  } else {
+    // No name — ask for it
+    await CONV.alfredSpeaks(`Connection established. Identity verified. The system is online.\n\nI am Alfred — your executive intelligence officer. Before I deliver your first briefing, I need one piece of information.\n\nWhat is your name?`);
+  }
+}
+</script>
+</body>
+</html>

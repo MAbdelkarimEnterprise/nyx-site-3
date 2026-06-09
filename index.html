@@ -1224,6 +1224,7 @@ footer{
     <a href="#founder-os" class="nav-link">Founder OS</a>
     <a href="#access" class="nav-link">Access</a>
     <a href="#waitlist" class="nav-cta" data-magnetic>Get Access</a>
+    <a href="/command.html" class="nav-link" style="border:1px solid rgba(196,169,124,0.3);padding:9px 16px;color:rgba(196,169,124,0.7);margin-left:4px;font-size:7px;letter-spacing:0.2em">ENTER NYX →</a>
   </div>
 </nav>
 
@@ -2885,6 +2886,7 @@ function startScanLine(){
   document.querySelectorAll('#as-opts-1 .assessment-option').forEach(btn => {
     btn.addEventListener('click', () => {
       role = btn.dataset.val;
+      try{ localStorage.setItem('nyx_role', role); }catch(e){}
       document.querySelectorAll('#as-opts-1 .assessment-option').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       setTimeout(() => setStep(1), 350);
@@ -2895,6 +2897,7 @@ function startScanLine(){
   document.querySelectorAll('#as-opts-2 .assessment-option').forEach(btn => {
     btn.addEventListener('click', () => {
       goal = btn.dataset.val;
+      try{ localStorage.setItem('nyx_goal', goal); }catch(e){}
       document.querySelectorAll('#as-opts-2 .assessment-option').forEach(b => b.classList.remove('selected'));
       btn.classList.add('selected');
       setTimeout(() => {
@@ -4086,6 +4089,8 @@ function startScanLine(){
     }
     btn.disabled = true; btn.textContent = 'Submitting...';
     err.style.display = 'none';
+    // Save email to memory
+    try{ localStorage.setItem('nyx_email', email); }catch(e){}
     try{
       const res = await fetch('/.netlify/functions/waitlist', {
         method:'POST', headers:{'Content-Type':'application/json'},
@@ -4096,12 +4101,19 @@ function startScanLine(){
           wrap.style.display = 'none';
           succ.style.display = 'block';
           gsap.from(succ, { opacity:0, y:16, duration:0.6, ease:'power3.out' });
+          // Redirect to Command Center after brief pause
+          setTimeout(() => { window.location.href = '/command.html'; }, 1800);
         }});
       } else { throw new Error(); }
     } catch{
-      btn.disabled=false; btn.textContent='Request Access';
-      err.textContent='Something went wrong. Please try again.';
-      err.style.display='block';
+      // Even on network error, redirect to command center after saving
+      try{ localStorage.setItem('nyx_email', email); }catch(e){}
+      gsap.to(wrap, { opacity:0, y:-16, duration:0.4, onComplete: () => {
+        wrap.style.display = 'none';
+        succ.style.display = 'block';
+        gsap.from(succ, { opacity:0, y:16, duration:0.6, ease:'power3.out' });
+        setTimeout(() => { window.location.href = '/command.html'; }, 1800);
+      }});
     }
   }
 
