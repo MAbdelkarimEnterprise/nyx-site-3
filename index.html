@@ -844,6 +844,122 @@ footer{
   .agents-grid{grid-template-columns:repeat(4,1fr)}
 }
 
+/* ── ALFRED DEMO SECTION ───────────────────────────────── */
+.alfred-demo{padding:var(--sv) var(--sh);border-top:1px solid var(--line)}
+.alfred-demo-inner{max-width:1400px;margin:0 auto}
+.alfred-demo-header{display:grid;grid-template-columns:1fr auto;gap:40px;align-items:end;margin-bottom:56px}
+.alfred-demo-headline{font-family:var(--serif);font-size:clamp(36px,5vw,68px);font-weight:300;line-height:1.05;color:var(--t1);overflow:hidden;clip-path:inset(0 0 100% 0)}
+.alfred-demo-headline em{font-style:italic;color:var(--gold)}
+.alfred-tabs{display:flex;gap:0;border:1px solid var(--line-hi);flex-wrap:wrap}
+.alfred-tab{font-family:var(--mono);font-size:7.5px;letter-spacing:0.22em;text-transform:uppercase;color:var(--t2);padding:10px 18px;background:none;border:none;border-right:1px solid var(--line);cursor:none;transition:color .2s,background .2s;white-space:nowrap}
+.alfred-tab:last-child{border-right:none}
+.alfred-tab:hover{color:var(--t1);background:var(--surf)}
+.alfred-tab.active{color:var(--gold);background:var(--surf)}
+.alfred-terminal{border:1px solid var(--line-hi);background:#030303;min-height:380px;display:flex;flex-direction:column;overflow:hidden;position:relative}
+.alfred-term-header{display:flex;align-items:center;justify-content:space-between;padding:11px 20px;border-bottom:1px solid var(--line);flex-shrink:0}
+.alfred-term-title{font-family:var(--mono);font-size:7.5px;letter-spacing:0.3em;color:rgba(196,169,124,0.4);text-transform:uppercase}
+.alfred-term-dot{width:5px;height:5px;border-radius:50%;background:var(--gold);animation:blink 1.8s ease-in-out infinite}
+.alfred-term-body{padding:28px 32px;flex:1;display:flex;flex-direction:column;gap:20px}
+.alfred-term-prompt{display:flex;gap:12px;align-items:flex-start}
+.atp-label{font-family:var(--mono);font-size:8px;letter-spacing:0.22em;color:rgba(196,169,124,0.35);text-transform:uppercase;flex-shrink:0;padding-top:2px;white-space:nowrap}
+.atp-text{font-family:var(--mono);font-size:8.5px;letter-spacing:0.1em;color:rgba(240,237,232,0.4);text-transform:uppercase;line-height:1.6}
+.alfred-term-response{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(15px,1.8vw,22px);font-weight:300;font-style:italic;color:rgba(240,237,232,0.88);line-height:1.8;letter-spacing:0.02em;min-height:100px}
+.alfred-blink-cursor{display:inline-block;width:2px;height:0.85em;background:var(--gold);vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:2px}
+.alfred-term-meta{margin-top:auto;padding-top:16px;border-top:1px solid var(--line);display:flex;gap:32px;flex-shrink:0;flex-wrap:wrap}
+.atm-item{display:flex;flex-direction:column;gap:4px}
+.atm-label{font-family:var(--mono);font-size:7px;letter-spacing:0.38em;color:rgba(196,169,124,0.25);text-transform:uppercase}
+.atm-val{font-family:var(--mono);font-size:9px;letter-spacing:0.12em;color:rgba(196,169,124,0.7)}
+@media(max-width:768px){.alfred-demo-header{grid-template-columns:1fr}.alfred-tabs{order:-1}.alfred-tab{padding:9px 12px;font-size:7px}}
+
+/* ── FOUNDER OS SECTION ────────────────────────────────── */
+.founder-os{padding:var(--sv) var(--sh);border-top:1px solid var(--line);background:var(--surf)}
+.founder-os-inner{max-width:1400px;margin:0 auto}
+.founder-os-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:56px;gap:40px;flex-wrap:wrap}
+.founder-os-headline{font-family:var(--serif);font-size:clamp(36px,5vw,68px);font-weight:300;line-height:1.05;color:var(--t1);overflow:hidden;clip-path:inset(0 0 100% 0)}
+.founder-os-headline em{font-style:italic;color:var(--gold)}
+.founder-os-sub{font-family:var(--mono);font-size:9px;letter-spacing:0.18em;color:var(--t2);text-transform:uppercase;max-width:340px;line-height:1.85}
+.os-dashboard{display:grid;grid-template-columns:1fr 1fr 1fr;grid-template-rows:auto auto;gap:1px;background:var(--line);border:1px solid var(--line)}
+.os-card{background:#050505;padding:28px 24px;position:relative;transition:background .3s;overflow:hidden}
+.os-card:hover{background:var(--surf)}
+.os-card--wide{grid-column:1/3}
+.os-card--tall{grid-row:1/3}
+.os-card-label{font-family:var(--mono);font-size:7px;letter-spacing:0.44em;color:rgba(196,169,124,0.35);text-transform:uppercase;margin-bottom:18px}
+.os-card-title{font-family:var(--serif);font-size:clamp(18px,2vw,24px);font-weight:300;color:var(--t1);margin-bottom:10px;line-height:1.2}
+.os-card-body{font-size:12.5px;line-height:1.85;color:var(--t2);letter-spacing:0.01em}
+/* briefing card */
+.os-briefing-lines{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.os-briefing-line{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;border:1px solid rgba(196,169,124,0.07);background:rgba(0,0,0,0.4)}
+.os-bl-agent{font-family:var(--mono);font-size:7px;letter-spacing:0.2em;color:rgba(196,169,124,0.5);text-transform:uppercase;flex-shrink:0;width:64px}
+.os-bl-text{font-family:var(--mono);font-size:8px;letter-spacing:0.06em;color:rgba(240,237,232,0.5);line-height:1.55}
+/* metrics */
+.os-metrics-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:16px}
+.os-metric{display:flex;flex-direction:column;gap:4px;padding:12px;border:1px solid rgba(196,169,124,0.07)}
+.os-metric-val{font-family:var(--serif);font-size:clamp(22px,2.5vw,32px);font-weight:300;color:var(--t1);line-height:1}
+.os-metric-label{font-family:var(--mono);font-size:7px;letter-spacing:0.3em;color:rgba(196,169,124,0.4);text-transform:uppercase}
+.os-metric-delta{font-family:var(--mono);font-size:8px;letter-spacing:0.1em;margin-top:2px}
+.os-metric-delta.up{color:rgba(120,210,140,0.7)}
+.os-metric-delta.down{color:rgba(210,120,120,0.7)}
+/* priorities */
+.os-priorities{display:flex;flex-direction:column;gap:8px;margin-top:14px}
+.os-priority{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1px solid rgba(196,169,124,0.07);cursor:pointer;transition:background .2s;background:rgba(0,0,0,0.3)}
+.os-priority:hover{background:rgba(196,169,124,0.04)}
+.os-pri-check{width:14px;height:14px;border:1px solid rgba(196,169,124,0.3);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:background .2s,border-color .2s}
+.os-priority.done .os-pri-check{background:rgba(196,169,124,0.2);border-color:var(--gold)}
+.os-priority.done .os-pri-text{text-decoration:line-through;color:var(--t3)}
+.os-pri-check-mark{width:7px;height:5px;border-left:1px solid var(--gold);border-bottom:1px solid var(--gold);transform:rotate(-45deg) translateY(-1px);opacity:0;transition:opacity .15s}
+.os-priority.done .os-pri-check-mark{opacity:1}
+.os-pri-text{font-family:var(--mono);font-size:8px;letter-spacing:0.1em;color:rgba(240,237,232,0.55);text-transform:uppercase;line-height:1.4;transition:color .2s}
+.os-pri-tag{margin-left:auto;font-family:var(--mono);font-size:7px;letter-spacing:0.18em;text-transform:uppercase;padding:2px 7px;flex-shrink:0}
+.os-pri-tag.high{border:1px solid rgba(196,169,124,0.3);color:rgba(196,169,124,0.6)}
+.os-pri-tag.med{border:1px solid rgba(240,237,232,0.1);color:rgba(240,237,232,0.3)}
+/* agent collab */
+.os-agent-flow{display:flex;flex-direction:column;gap:6px;margin-top:14px}
+.os-agent-msg{display:flex;gap:10px;align-items:flex-start;padding:8px 10px;border-left:2px solid transparent;transition:border-color .2s}
+.os-agent-msg.pulse{border-left-color:var(--gold)}
+.os-agent-id{font-family:var(--mono);font-size:7.5px;letter-spacing:0.2em;color:rgba(196,169,124,0.55);text-transform:uppercase;flex-shrink:0;width:72px;padding-top:1px}
+.os-agent-content{font-family:var(--mono);font-size:7.5px;letter-spacing:0.07em;color:rgba(240,237,232,0.4);line-height:1.55}
+@media(max-width:1100px){.os-dashboard{grid-template-columns:1fr 1fr}.os-card--wide{grid-column:1/-1}}
+@media(max-width:700px){.os-dashboard{grid-template-columns:1fr}.os-card--tall{grid-row:auto}}
+
+/* ── INTELLIGENCE ASSESSMENT ───────────────────────────── */
+.assessment{padding:var(--sv) var(--sh);text-align:center;position:relative;overflow:hidden}
+.assessment-glow{position:absolute;bottom:-80px;left:50%;transform:translateX(-50%);width:700px;height:350px;background:radial-gradient(ellipse,rgba(196,169,124,0.05) 0%,transparent 70%);pointer-events:none}
+.assessment-rule{width:1px;height:56px;margin:0 auto 44px;background:linear-gradient(to bottom,transparent,var(--gold),transparent);opacity:0}
+.assessment-eyebrow{font-family:var(--mono);font-size:7px;letter-spacing:0.5em;text-transform:uppercase;color:var(--gold);margin-bottom:28px;opacity:0}
+.assessment-headline{font-family:var(--serif);font-size:clamp(52px,8vw,110px)!important;font-weight:300;line-height:0.9;color:var(--t1);max-width:900px;margin:0 auto 28px;overflow:hidden;opacity:0}
+.assessment-headline em{font-style:italic;color:var(--t2)}
+.assessment-sub{font-family:var(--mono);font-size:9px;letter-spacing:0.22em;text-transform:uppercase;color:var(--t3);margin-bottom:52px;opacity:0}
+/* steps */
+.assessment-steps{max-width:640px;margin:0 auto;opacity:0;transition:opacity .4s}
+.assessment-steps.visible{opacity:1}
+.assessment-step{display:none}
+.assessment-step.active{display:block}
+.assessment-step-label{font-family:var(--mono);font-size:8px;letter-spacing:0.4em;color:rgba(196,169,124,0.4);text-transform:uppercase;margin-bottom:32px}
+.assessment-step-q{font-family:var(--serif);font-style:italic;font-size:clamp(22px,3vw,36px);font-weight:300;color:var(--t1);margin-bottom:36px;line-height:1.3}
+.assessment-options{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+.assessment-option{font-family:var(--mono);font-size:8px;letter-spacing:0.25em;text-transform:uppercase;color:var(--t2);padding:11px 22px;background:none;border:1px solid var(--line-hi);cursor:none;transition:color .2s,border-color .2s,background .2s}
+.assessment-option:hover{color:var(--t1);border-color:rgba(196,169,124,0.3);background:var(--surf)}
+.assessment-option.selected{color:var(--gold);border-color:var(--gold);background:rgba(196,169,124,0.06)}
+/* profile card */
+.assessment-profile{border:1px solid rgba(196,169,124,0.2);background:#030303;padding:32px;text-align:left;margin-bottom:32px;animation:modal-up .4s ease both;position:relative;overflow:hidden}
+.assessment-profile::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,var(--gold),transparent)}
+.ap-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding-bottom:20px;border-bottom:1px solid rgba(196,169,124,0.08)}
+.ap-title{font-family:var(--serif);font-size:clamp(20px,2.5vw,28px);font-weight:300;color:var(--t1)}
+.ap-badge{font-family:var(--mono);font-size:7px;letter-spacing:0.32em;text-transform:uppercase;color:var(--gold);padding:4px 10px;border:1px solid rgba(196,169,124,0.3)}
+.ap-body{font-family:var(--mono);font-size:9px;letter-spacing:0.08em;color:rgba(240,237,232,0.5);line-height:1.85;text-transform:uppercase}
+.ap-body strong{color:rgba(196,169,124,0.75);font-weight:400}
+.ap-agents{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px;padding-top:20px;border-top:1px solid rgba(196,169,124,0.08)}
+.ap-agent-chip{font-family:var(--mono);font-size:7px;letter-spacing:0.2em;text-transform:uppercase;color:rgba(196,169,124,0.6);padding:4px 10px;border:1px solid rgba(196,169,124,0.2)}
+/* email step */
+.assessment-email-form{display:flex;max-width:480px;margin:0 auto;border:1px solid var(--line-hi);transition:border-color .3s}
+.assessment-email-form:focus-within{border-color:var(--gold-d)}
+.assessment-note{margin-top:12px;font-family:var(--mono);font-size:8px;letter-spacing:0.15em;color:var(--t3)}
+.assessment-progress{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:40px;opacity:0}
+.assessment-progress.visible{opacity:1}
+.ap-dot{width:6px;height:6px;border-radius:50%;background:var(--line-hi);transition:background .3s}
+.ap-dot.active{background:var(--gold)}
+.ap-dot.done{background:rgba(196,169,124,0.4)}
+
 /* ── SR-ONLY ───────────────────────────────────────────── */
 .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
 
@@ -1102,10 +1218,12 @@ footer{
 <nav id="nav" aria-label="Main navigation">
   <a href="#" class="nav-logo">NYX</a>
   <div class="nav-links">
-    <a href="#system" class="nav-link">001 — System</a>
-    <a href="#agents" class="nav-link">002 — Agents</a>
-    <a href="#access" class="nav-link">003 — Access</a>
-    <a href="#waitlist" class="nav-cta" data-magnetic>Request Access</a>
+    <a href="#system" class="nav-link">System</a>
+    <a href="#agents" class="nav-link">Agents</a>
+    <a href="#alfred-demo" class="nav-link">Alfred</a>
+    <a href="#founder-os" class="nav-link">Founder OS</a>
+    <a href="#access" class="nav-link">Access</a>
+    <a href="#waitlist" class="nav-cta" data-magnetic>Get Access</a>
   </div>
 </nav>
 
@@ -1284,7 +1402,7 @@ footer{
     <div class="engine-copy">
       <div class="sec-label"><span class="sec-label-line"></span>002 — The Engine</div>
       <h2 class="engine-headline">Precision<br><em>in motion.</em></h2>
-      <p class="engine-body">NYX operates as a self-regulating system. Six agents. Continuous rotation. No part stops so another can move — every layer runs simultaneously, without instruction.</p>
+      <p class="engine-body">NYX operates as a self-regulating system. Eight agents. Continuous rotation. No part stops so another can move — every layer runs simultaneously, without instruction.</p>
       <div class="engine-specs">
         <div class="engine-spec"><span class="es-label">AGENTS</span><span class="es-val">08</span></div>
         <div class="engine-spec"><span class="es-label">LAYERS</span><span class="es-val">04</span></div>
@@ -1413,7 +1531,7 @@ footer{
 <section class="agents-section" id="agents" aria-label="Agent Network">
   <div class="agents-inner">
     <div class="sec-label"><span class="sec-label-line"></span>004 — Agent Network</div>
-    <h2 class="agents-headline">Six minds.<br>One operating system.</h2>
+    <h2 class="agents-headline">Eight minds.<br>One operating system.</h2>
     <p class="agents-sub">Each agent operates as a specialist. They coordinate, delegate, and execute — continuously, without instruction.</p>
     <div class="agents-grid">
       <div class="agent-card" data-agent="apex" data-role="Chief Executive Officer" role="button" tabindex="0" aria-label="Open APEX agent">
@@ -1457,6 +1575,138 @@ footer{
         <div class="agent-role">Operations Intelligence</div>
         <div class="agent-desc">Cross-functional process mapping, operational bottleneck detection, and resource allocation optimization. Keeps execution frictionless at every altitude.</div>
         <div class="agent-new-badge">NEW</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ALFRED DEMO -->
+<section class="alfred-demo" id="alfred-demo" aria-label="Alfred Intelligence Demo">
+  <div class="alfred-demo-inner">
+    <div class="alfred-demo-header">
+      <div class="sec-label" style="margin-bottom:0"><span class="sec-label-line"></span>004.2 — Alfred Intelligence</div>
+    </div>
+    <div class="alfred-demo-header" style="margin-bottom:56px">
+      <h2 class="alfred-demo-headline">Your Chief of Staff<br><em>never sleeps.</em></h2>
+      <div class="alfred-tabs" id="alfred-tabs">
+        <button class="alfred-tab active" data-brief="briefing">Morning Briefing</button>
+        <button class="alfred-tab" data-brief="opportunity">Opportunity Alert</button>
+        <button class="alfred-tab" data-brief="strategy">Strategic Report</button>
+        <button class="alfred-tab" data-brief="market">Market Intelligence</button>
+        <button class="alfred-tab" data-brief="performance">Performance Review</button>
+      </div>
+    </div>
+    <div class="alfred-terminal">
+      <div class="alfred-term-header">
+        <span class="alfred-term-title" id="alfred-term-title">ALFRED — DAILY EXECUTIVE BRIEFING</span>
+        <span class="alfred-term-dot"></span>
+      </div>
+      <div class="alfred-term-body">
+        <div class="alfred-term-prompt">
+          <span class="atp-label">YOU →</span>
+          <span class="atp-text" id="alfred-prompt-text">Alfred, give me my morning briefing.</span>
+        </div>
+        <div class="alfred-term-response" id="alfred-response-text"></div>
+        <div class="alfred-term-meta">
+          <div class="atm-item"><div class="atm-label">Agent</div><div class="atm-val" id="alfred-meta-agent">ALFRED</div></div>
+          <div class="atm-item"><div class="atm-label">Mode</div><div class="atm-val" id="alfred-meta-mode">EXECUTIVE BRIEFING</div></div>
+          <div class="atm-item"><div class="atm-label">Sources</div><div class="atm-val" id="alfred-meta-sources">8 agents</div></div>
+          <div class="atm-item"><div class="atm-label">Generated</div><div class="atm-val" id="alfred-meta-time">06:00 UTC</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOUNDER OS DASHBOARD -->
+<section class="founder-os" id="founder-os" aria-label="Founder Operating System">
+  <div class="founder-os-inner">
+    <div class="founder-os-header">
+      <div>
+        <div class="sec-label" style="margin-bottom:16px"><span class="sec-label-line"></span>004.7 — Founder OS</div>
+        <h2 class="founder-os-headline">The operating system<br><em>for your day.</em></h2>
+      </div>
+      <p class="founder-os-sub">Every morning NYX assembles your world. Pipeline. Priorities. Agent reports. Opportunities. Delivered before you open your eyes.</p>
+    </div>
+    <div class="os-dashboard">
+      <!-- Morning Briefing card (wide) -->
+      <div class="os-card os-card--wide">
+        <div class="os-card-label">Alfred — Morning Briefing · Today</div>
+        <div class="os-card-title">Good morning. Here is your world.</div>
+        <div class="os-briefing-lines">
+          <div class="os-briefing-line"><span class="os-bl-agent">ORACLE</span><span class="os-bl-text">Competitor raised Series B. Positioning overlap at 62%. Recommend accelerating distribution play this quarter.</span></div>
+          <div class="os-briefing-line os-agent-msg" id="os-pulse-1"><span class="os-bl-agent">LEDGER</span><span class="os-bl-text">Runway extended to 18 months following last week's close. Cash efficiency ratio improved 14% month-over-month.</span></div>
+          <div class="os-briefing-line"><span class="os-bl-agent">CONVERT</span><span class="os-bl-text">Pipeline velocity increased 22%. 3 high-value deals entered final stage. Projected close probability: 78%.</span></div>
+          <div class="os-briefing-line os-agent-msg" id="os-pulse-2"><span class="os-bl-agent">SIGNAL</span><span class="os-bl-text">Your LinkedIn post from Tuesday is still gaining traction. 4.2K impressions, 340 engagements. Recommend a follow-up thread today.</span></div>
+        </div>
+      </div>
+      <!-- Today's Priorities -->
+      <div class="os-card">
+        <div class="os-card-label">Today's Priorities</div>
+        <div class="os-card-title">3 actions. High leverage.</div>
+        <div class="os-priorities" id="os-priorities">
+          <div class="os-priority done" data-pri="1">
+            <div class="os-pri-check"><div class="os-pri-check-mark"></div></div>
+            <span class="os-pri-text">Review Q3 financial model with LEDGER</span>
+            <span class="os-pri-tag high">DONE</span>
+          </div>
+          <div class="os-priority" data-pri="2">
+            <div class="os-pri-check"><div class="os-pri-check-mark"></div></div>
+            <span class="os-pri-text">Close Series A term sheet — send counter</span>
+            <span class="os-pri-tag high">HIGH</span>
+          </div>
+          <div class="os-priority" data-pri="3">
+            <div class="os-pri-check"><div class="os-pri-check-mark"></div></div>
+            <span class="os-pri-text">Approve SIGNAL content calendar for August</span>
+            <span class="os-pri-tag med">MED</span>
+          </div>
+          <div class="os-priority" data-pri="4">
+            <div class="os-pri-check"><div class="os-pri-check-mark"></div></div>
+            <span class="os-pri-text">APEX: review hiring pipeline shortlist</span>
+            <span class="os-pri-tag med">MED</span>
+          </div>
+        </div>
+      </div>
+      <!-- Metrics -->
+      <div class="os-card">
+        <div class="os-card-label">Live Metrics · Ledger Report</div>
+        <div class="os-metrics-grid">
+          <div class="os-metric">
+            <div class="os-metric-val" id="os-mrr">$284K</div>
+            <div class="os-metric-label">MRR</div>
+            <div class="os-metric-delta up">↑ 18% MoM</div>
+          </div>
+          <div class="os-metric">
+            <div class="os-metric-val">18mo</div>
+            <div class="os-metric-label">Runway</div>
+            <div class="os-metric-delta up">↑ 3mo</div>
+          </div>
+          <div class="os-metric">
+            <div class="os-metric-val">78%</div>
+            <div class="os-metric-label">Close Rate</div>
+            <div class="os-metric-delta up">↑ 5%</div>
+          </div>
+          <div class="os-metric">
+            <div class="os-metric-val">$1.4M</div>
+            <div class="os-metric-label">Pipeline</div>
+            <div class="os-metric-delta down">↓ 2%</div>
+          </div>
+        </div>
+      </div>
+      <!-- Agent Activity (tall) -->
+      <div class="os-card os-card--tall">
+        <div class="os-card-label">Agent Network · Live Activity</div>
+        <div class="os-card-title">8 agents running.</div>
+        <div class="os-agent-flow" id="os-agent-flow">
+          <div class="os-agent-msg"><span class="os-agent-id">APEX</span><span class="os-agent-content">Routing: pipeline brief → CONVERT. Decision: accelerate enterprise tier.</span></div>
+          <div class="os-agent-msg"><span class="os-agent-id">ORACLE</span><span class="os-agent-content">Scanning: 14 market signals. 2 flagged for review. Competitor analysis updated.</span></div>
+          <div class="os-agent-msg"><span class="os-agent-id">CIPHER</span><span class="os-agent-content">Access audit complete. No anomalies. All endpoints secured.</span></div>
+          <div class="os-agent-msg"><span class="os-agent-id">SIGNAL</span><span class="os-agent-content">Content calendar: 3 posts queued. Distribution optimized for Tuesday 9am.</span></div>
+          <div class="os-agent-msg"><span class="os-agent-id">MERIDIAN</span><span class="os-agent-content">Ops review: fulfillment lag resolved. SLA back to 98.4%.</span></div>
+          <div class="os-agent-msg"><span class="os-agent-id">LEDGER</span><span class="os-agent-content">Budget variance flagged: $12K over in paid. Recommending reallocation.</span></div>
+          <div class="os-agent-msg"><span class="os-agent-id">FORGE</span><span class="os-agent-content">API latency normalized post-deploy. System health: nominal.</span></div>
+          <div class="os-agent-msg"><span class="os-agent-id">CONVERT</span><span class="os-agent-content">3 deals updated. Follow-up sequences triggered. Probability model recalculated.</span></div>
+        </div>
       </div>
     </div>
   </div>
@@ -1582,7 +1832,7 @@ footer{
         <div class="tier-body">
           <div class="tier-body-inner">
             <div></div>
-            <p class="tier-desc">The optimization level. Six specialist agents operating continuously on your behalf. Autonomous workflows that act while you focus on what matters.</p>
+            <p class="tier-desc">The optimization level. Eight specialist agents operating continuously on your behalf. Autonomous workflows that act while you focus on what matters.</p>
             <ul class="tier-features">
               <li>Autonomous workflow engine</li><li>Six-agent coordination</li>
               <li>Persistent memory layer</li><li>Multi-domain intelligence</li><li>Autonomy mode controls</li>
@@ -1603,7 +1853,7 @@ footer{
             <div></div>
             <p class="tier-desc">For founders and executives. The complete AI operating system — APEX, ORACLE, SIGNAL, CONVERT, FORGE, and LEDGER fully active with voice control and strategic automation at every layer.</p>
             <ul class="tier-features">
-              <li>Full agent network (6 agents)</li><li>Voice OS &amp; Jarvis Mode</li>
+              <li>Full agent network (8 agents)</li><li>Voice OS &amp; Alfred Mode</li>
               <li>Persistent memory system</li><li>Control Center &amp; autonomy modes</li><li>Webhook &amp; trigger automation</li>
             </ul>
             <button class="tier-cta" data-magnetic onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'})">Request Access</button>
@@ -1671,27 +1921,72 @@ footer{
   </div>
 </section>
 
-<!-- WAITLIST -->
-<section class="waitlist" id="waitlist" aria-label="Request Access">
-  <div class="waitlist-glow"></div>
-  <div class="waitlist-rule"></div>
-  <p class="waitlist-eyebrow">Selective Access</p>
-  <h2 class="waitlist-headline">
-    Access is not<br>for everyone.<br><em>It is for the right ones.</em>
+<!-- INTELLIGENCE ASSESSMENT -->
+<section class="assessment waitlist" id="waitlist" aria-label="Intelligence Assessment">
+  <div class="assessment-glow"></div>
+  <div class="waitlist-rule assessment-rule"></div>
+  <p class="waitlist-eyebrow assessment-eyebrow">Intelligence Assessment</p>
+  <h2 class="waitlist-headline assessment-headline">
+    We need to know<br><em>who you are.</em>
   </h2>
-  <p class="waitlist-sub">Reviewed manually. Not granted by algorithm.</p>
-  <div id="form-wrap">
-    <div class="waitlist-form">
-      <label for="email-input" class="sr-only">Email address</label>
-      <input type="email" id="email-input" class="waitlist-input" placeholder="your@email.com" autocomplete="email" inputmode="email" aria-describedby="waitlist-note-text"/>
-      <button id="submit-btn" class="waitlist-submit" data-magnetic>Request Access</button>
-    </div>
-    <p class="waitlist-note" id="waitlist-note-text">No spam. No noise. Just the system, when you are ready.</p>
-    <p class="waitlist-error" id="error-msg" role="alert" aria-live="assertive"></p>
+  <p class="waitlist-sub assessment-sub">Before we build your operating system, the system needs to understand you.</p>
+
+  <!-- Progress dots -->
+  <div class="assessment-progress" id="assessment-progress">
+    <div class="ap-dot active" id="ap-dot-1"></div>
+    <div class="ap-dot" id="ap-dot-2"></div>
+    <div class="ap-dot" id="ap-dot-3"></div>
+    <div class="ap-dot" id="ap-dot-4"></div>
   </div>
+
+  <div class="assessment-steps" id="assessment-steps">
+    <!-- Step 1: Who are you -->
+    <div class="assessment-step active" id="as-step-1">
+      <div class="assessment-step-label">Step 01 / 03 — Identity</div>
+      <div class="assessment-step-q">Who are you?</div>
+      <div class="assessment-options" id="as-opts-1">
+        <button class="assessment-option" data-val="Founder">Founder</button>
+        <button class="assessment-option" data-val="Executive">Executive</button>
+        <button class="assessment-option" data-val="Athlete">Athlete</button>
+        <button class="assessment-option" data-val="Investor">Investor</button>
+        <button class="assessment-option" data-val="Operator">Operator</button>
+        <button class="assessment-option" data-val="Builder">Builder</button>
+      </div>
+    </div>
+    <!-- Step 2: What are you optimizing -->
+    <div class="assessment-step" id="as-step-2">
+      <div class="assessment-step-label">Step 02 / 03 — Objective</div>
+      <div class="assessment-step-q">What are you optimizing?</div>
+      <div class="assessment-options" id="as-opts-2">
+        <button class="assessment-option" data-val="Revenue">Revenue</button>
+        <button class="assessment-option" data-val="Growth">Growth</button>
+        <button class="assessment-option" data-val="Performance">Performance</button>
+        <button class="assessment-option" data-val="Health">Health</button>
+        <button class="assessment-option" data-val="Operations">Operations</button>
+        <button class="assessment-option" data-val="Time">Time</button>
+      </div>
+    </div>
+    <!-- Step 3: Profile generated + email -->
+    <div class="assessment-step" id="as-step-3">
+      <div class="assessment-step-label">Step 03 / 03 — Your NYX Profile</div>
+      <div class="assessment-profile" id="as-profile">
+        <!-- generated by JS -->
+      </div>
+      <div id="form-wrap">
+        <div class="assessment-email-form waitlist-form">
+          <label for="email-input" class="sr-only">Email address</label>
+          <input type="email" id="email-input" class="waitlist-input" placeholder="your@email.com" autocomplete="email" inputmode="email"/>
+          <button id="submit-btn" class="waitlist-submit" data-magnetic>Activate Profile</button>
+        </div>
+        <p class="assessment-note waitlist-note">Your profile is reviewed manually. Access is selective.</p>
+        <p class="waitlist-error" id="error-msg" role="alert" aria-live="assertive"></p>
+      </div>
+    </div>
+  </div>
+
   <div class="waitlist-success" id="success-wrap" role="status" aria-live="polite">
-    <p class="waitlist-success-title">You are on the list.</p>
-    <p class="waitlist-success-note">Check your inbox. The system is already watching.</p>
+    <p class="waitlist-success-title">Profile received.</p>
+    <p class="waitlist-success-note">Alfred is reviewing your intake. You will hear from the system.</p>
   </div>
 </section>
 
@@ -2385,6 +2680,264 @@ function startScanLine(){
       ctx.fill();
     }
     draw();
+  });
+})();
+
+/* ── ALFRED DEMO ────────────────────────────────────── */
+(function(){
+  const BRIEFS = {
+    briefing: {
+      title: 'ALFRED — DAILY EXECUTIVE BRIEFING',
+      prompt: 'Alfred, give me my morning briefing.',
+      mode: 'EXECUTIVE BRIEFING',
+      sources: '8 agents',
+      time: '06:00 UTC',
+      text: `Good morning. It is Monday. You have three high-leverage actions today and two decisions that cannot wait.\n\nORACLE flagged a competitor funding round overnight — $22M Series B, direct positioning overlap in your primary segment. This accelerates your timeline by one quarter. I recommend reviewing your distribution strategy with APEX before noon.\n\nLEDGER confirms runway has extended to 18 months following last week's close. Cash efficiency ratio is up 14% month-over-month. You are ahead of plan.\n\nCONVERT reports three enterprise deals entered final stage. Combined value: $1.4M. Projected close probability is 78%. Your presence on the 11am call will increase that by an estimated 12 points.\n\nThe system is running. The rest is yours.`
+    },
+    opportunity: {
+      title: 'ALFRED — OPPORTUNITY ALERT',
+      prompt: 'Alfred, what opportunities should I know about?',
+      mode: 'OPPORTUNITY DETECTION',
+      sources: 'ORACLE + CONVERT',
+      time: 'live',
+      text: `Three opportunities require your attention. I have ranked them by expected return.\n\nFirst: A strategic partnership window with a tier-one distribution partner. ORACLE detected their outbound signals two days ago. The window is approximately 3 weeks before their Q4 roadmap locks. Expected revenue impact: $400K in year one.\n\nSecond: Your highest-intent inbound lead from last week has gone quiet. CONVERT analysis suggests they are evaluating a competitor. A direct founder-to-founder message in the next 48 hours has an 84% probability of re-engagement.\n\nThird: A speaking slot at a category-defining event opened. SIGNAL assessed audience alignment at 91%. Your competitors have not been invited. Confirmation deadline is Thursday.\n\nWhich do you want to action first?`
+    },
+    strategy: {
+      title: 'ALFRED — STRATEGIC INTELLIGENCE REPORT',
+      prompt: 'Alfred, give me a strategic report.',
+      mode: 'STRATEGIC ANALYSIS',
+      sources: 'APEX + ORACLE + LEDGER',
+      time: 'weekly',
+      text: `This is your weekly strategic summary. Three observations that will shape next quarter.\n\nThe market is consolidating faster than your model assumed. Two of the five independents in your segment have initiated acquisition conversations. Your positioning as the category premium creates protection, but only if you establish distribution before the consolidation window closes — approximately 6 months.\n\nYour unit economics are outperforming the cohort model by 19%. This is not noise. LEDGER traced it to a single product decision made in March. The implication: you have a repeatable advantage that competitors have not identified. Protect it. Do not publish it. Scale it.\n\nTeam velocity has increased 34% since the Q2 restructure. APEX models suggest one more targeted hire in the next 60 days would compound output disproportionately. The profile is specific: a senior operator with enterprise distribution experience.\n\nThe window to dominate this category is 18 months. The system agrees.`
+    },
+    market: {
+      title: 'ALFRED — MARKET INTELLIGENCE UPDATE',
+      prompt: 'Alfred, what is happening in the market?',
+      mode: 'MARKET INTELLIGENCE',
+      sources: 'ORACLE + SIGNAL',
+      time: 'real-time',
+      text: `ORACLE processed 14 market signals in the last 24 hours. Here is what matters.\n\nMacro: risk capital is rotating back into B2B SaaS. Three major funds have revised their deployment timelines forward. If you are considering a raise, the next 90 days are more favorable than the following 9 months.\n\nCompetitive: your primary competitor shipped a feature that overlaps with your Q3 roadmap at 40%. It is underdeveloped — they moved fast and it shows. Your execution depth remains the differentiator. Do not rush to match; execute your original vision better.\n\nAudience: your target segment's search behavior shifted last week. Two new intent signals appeared that were not in your model. SIGNAL has already updated the distribution strategy. Content calendar adjusted.\n\nSentiment: three Tier-1 publications are running category coverage in the next 30 days. ORACLE has identified the reporters. I recommend a targeted briefing campaign this week.`
+    },
+    performance: {
+      title: 'ALFRED — PERFORMANCE REVIEW',
+      prompt: 'Alfred, how am I performing this quarter?',
+      mode: 'PERFORMANCE ANALYSIS',
+      sources: 'ALL AGENTS',
+      time: 'Q3 2026',
+      text: `Quarter three is tracking at 118% of plan across the metrics that matter.\n\nRevenue: $284K MRR, up 18% month-over-month. Pipeline coverage ratio is 3.2x, which means you have enough in funnel to close the quarter above target even with a 30% loss rate.\n\nOperations: MERIDIAN reports SLA compliance at 98.4%, up from 91% last quarter. The friction point in your fulfillment process was resolved. Overhead efficiency improved.\n\nTeam: APEX models output velocity at a 7-year high for a team of this size. Decision latency — the time between identifying a problem and acting on it — dropped by 40% since you began using the system daily.\n\nOne flag: you have delayed the enterprise pricing decision four times. LEDGER and CONVERT both indicate this is costing you approximately $60K per month in leave-on-the-table revenue. This is the decision you should make today.\n\nYou are performing. The system is performing. One call to action remains.`
+    }
+  };
+
+  let currentBrief = 'briefing';
+  let typewriterTimer = null;
+  let initiated = false;
+
+  function typewrite(el, text, speed){
+    if(typewriterTimer) clearTimeout(typewriterTimer);
+    el.innerHTML = '';
+    let i = 0;
+    const cursor = '<span class="alfred-blink-cursor"></span>';
+    function next(){
+      if(i <= text.length){
+        // Convert newlines to <br> + preserve cursor
+        const chunk = text.slice(0, i).replace(/\n/g,'<br>');
+        el.innerHTML = chunk + cursor;
+        i++;
+        typewriterTimer = setTimeout(next, i < 60 ? speed * 0.5 : speed);
+      } else {
+        el.innerHTML = text.replace(/\n/g,'<br>');
+      }
+    }
+    next();
+  }
+
+  function showBrief(key){
+    const b = BRIEFS[key];
+    if(!b) return;
+    document.getElementById('alfred-term-title').textContent = b.title;
+    document.getElementById('alfred-prompt-text').textContent = b.prompt;
+    document.getElementById('alfred-meta-mode').textContent = b.mode;
+    document.getElementById('alfred-meta-sources').textContent = b.sources;
+    document.getElementById('alfred-meta-time').textContent = b.time;
+    typewrite(document.getElementById('alfred-response-text'), b.text, 18);
+  }
+
+  // Tabs
+  document.querySelectorAll('.alfred-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.alfred-tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      currentBrief = tab.dataset.brief;
+      showBrief(currentBrief);
+    });
+  });
+
+  // ScrollTrigger reveal + auto-start
+  ScrollTrigger.create({
+    trigger: '#alfred-demo',
+    start: 'top 70%',
+    once: true,
+    onEnter: () => {
+      if(!initiated){
+        initiated = true;
+        gsap.to('.alfred-demo-headline', {
+          clipPath:'inset(0 0 0% 0)', duration:1, ease:'power3.out'
+        });
+        setTimeout(() => showBrief('briefing'), 600);
+      }
+    }
+  });
+
+  // Rotate through briefs every 12 seconds for passive visitors
+  const briefKeys = Object.keys(BRIEFS);
+  let autoIdx = 0;
+  setInterval(() => {
+    autoIdx = (autoIdx + 1) % briefKeys.length;
+    const key = briefKeys[autoIdx];
+    // Only auto-rotate if section is in viewport
+    const demo = document.getElementById('alfred-demo');
+    if(!demo) return;
+    const rect = demo.getBoundingClientRect();
+    if(rect.top < window.innerHeight && rect.bottom > 0){
+      document.querySelectorAll('.alfred-tab').forEach(t => t.classList.remove('active'));
+      const activeTab = document.querySelector(`.alfred-tab[data-brief="${key}"]`);
+      if(activeTab) activeTab.classList.add('active');
+      showBrief(key);
+    }
+  }, 12000);
+})();
+
+/* ── FOUNDER OS DASHBOARD ────────────────────────────── */
+(function(){
+  // Priority checkboxes
+  document.querySelectorAll('.os-priority').forEach(el => {
+    el.addEventListener('click', () => {
+      el.classList.toggle('done');
+      const tag = el.querySelector('.os-pri-tag');
+      if(tag && el.classList.contains('done')) tag.textContent = 'DONE';
+    });
+  });
+
+  // Pulse agent rows periodically
+  const agentMsgs = document.querySelectorAll('#os-agent-flow .os-agent-msg');
+  let pulseIdx = 0;
+  function pulseNext(){
+    agentMsgs.forEach(m => m.classList.remove('pulse'));
+    if(agentMsgs[pulseIdx]) agentMsgs[pulseIdx].classList.add('pulse');
+    pulseIdx = (pulseIdx + 1) % agentMsgs.length;
+  }
+  setInterval(pulseNext, 2200);
+  pulseNext();
+
+  // Pulsing briefing lines
+  const pulseLines = [document.getElementById('os-pulse-1'), document.getElementById('os-pulse-2')];
+  let pulseLineIdx = 0;
+  setInterval(() => {
+    pulseLines.forEach(l => l && l.classList.remove('pulse'));
+    if(pulseLines[pulseLineIdx]) pulseLines[pulseLineIdx].classList.add('pulse');
+    pulseLineIdx = (pulseLineIdx + 1) % pulseLines.length;
+  }, 3400);
+
+  // Animate MRR counting up on scroll
+  ScrollTrigger.create({
+    trigger: '#founder-os',
+    start: 'top 65%',
+    once: true,
+    onEnter: () => {
+      gsap.to('.founder-os-headline', { clipPath:'inset(0 0 0% 0)', duration:1, ease:'power3.out' });
+    }
+  });
+})();
+
+/* ── INTELLIGENCE ASSESSMENT ─────────────────────────── */
+(function(){
+  let role = '', goal = '';
+  const steps = ['as-step-1','as-step-2','as-step-3'];
+  let currentStep = 0;
+
+  const PROFILES = {
+    'Founder+Revenue':   { title:'Revenue-Focused Founder', badge:'GROWTH MODE', agents:['APEX','ORACLE','CONVERT','LEDGER'], body:'NYX will configure <strong>APEX</strong> as your strategic command layer, routing every revenue-critical decision through <strong>CONVERT</strong> and <strong>LEDGER</strong>. Alfred will deliver morning briefings focused on pipeline velocity, burn efficiency, and competitive signals. Your operating system will be calibrated for aggressive, intelligent growth.' },
+    'Founder+Growth':    { title:'Growth-Obsessed Founder', badge:'SCALE MODE', agents:['APEX','SIGNAL','CONVERT','ORACLE'], body:'NYX will position <strong>SIGNAL</strong> as your distribution engine, coordinated with <strong>ORACLE\'s</strong> market intelligence. Alfred will prioritize audience intelligence, brand positioning, and growth loop optimization. Every briefing will open with distribution opportunities and competitive windows.' },
+    'Founder+Operations':{ title:'Operator-Founder', badge:'EFFICIENCY MODE', agents:['MERIDIAN','LEDGER','FORGE','CIPHER'], body:'NYX will assign <strong>MERIDIAN</strong> as your ops command layer, continuously mapping process friction and resource allocation. Alfred will flag operational bottlenecks before you feel them. Your briefings will be precision-tuned for execution speed and system health.' },
+    'Executive+Revenue': { title:'Revenue-Driven Executive', badge:'ENTERPRISE MODE', agents:['APEX','CONVERT','LEDGER','ORACLE'], body:'NYX will configure your system around enterprise pipeline intelligence. <strong>CONVERT</strong> will run continuously against your CRM data. Alfred will deliver weekly strategic reports, deal probability updates, and competitive positioning briefs calibrated for executive decision-making.' },
+    'Athlete+Performance':{ title:'Performance-Oriented Athlete', badge:'PEAK MODE', agents:['APEX','MERIDIAN','LEDGER','FORGE'], body:'NYX will recalibrate its operating layer for personal performance optimization. Alfred will deliver structured daily briefings on training load, recovery signals, and performance trajectory. The system will track the variables that matter — and alert you when they shift.' },
+    'Investor+Growth':   { title:'Growth-Focused Investor', badge:'INTELLIGENCE MODE', agents:['ORACLE','SIGNAL','LEDGER','APEX'], body:'NYX will configure <strong>ORACLE</strong> as your continuous market scanner, surfacing deal signals, sector shifts, and competitive dynamics before the market moves. Alfred will deliver weekly portfolio intelligence reports, emerging opportunity alerts, and strategic briefs on your highest-priority positions.' },
+    'default':           { title:'High-Performance Operator', badge:'FULL ACCESS', agents:['APEX','ORACLE','ALFRED','MERIDIAN'], body:'NYX will deploy your full agent network based on your profile. Alfred will deliver personalized briefings, opportunity alerts, and strategic intelligence calibrated to your specific domain. The system adapts to how you operate — not the other way around.' }
+  };
+
+  function getProfile(r, g){ return PROFILES[`${r}+${g}`] || PROFILES['default']; }
+
+  function setStep(idx){
+    document.querySelectorAll('.assessment-step').forEach((s, i) => {
+      s.classList.toggle('active', i === idx);
+    });
+    // Update progress dots
+    ['ap-dot-1','ap-dot-2','ap-dot-3','ap-dot-4'].forEach((id, i) => {
+      const d = document.getElementById(id);
+      if(!d) return;
+      d.classList.toggle('active', i === idx);
+      d.classList.toggle('done', i < idx);
+    });
+    currentStep = idx;
+  }
+
+  // Step 1 options
+  document.querySelectorAll('#as-opts-1 .assessment-option').forEach(btn => {
+    btn.addEventListener('click', () => {
+      role = btn.dataset.val;
+      document.querySelectorAll('#as-opts-1 .assessment-option').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      setTimeout(() => setStep(1), 350);
+    });
+  });
+
+  // Step 2 options
+  document.querySelectorAll('#as-opts-2 .assessment-option').forEach(btn => {
+    btn.addEventListener('click', () => {
+      goal = btn.dataset.val;
+      document.querySelectorAll('#as-opts-2 .assessment-option').forEach(b => b.classList.remove('selected'));
+      btn.classList.add('selected');
+      setTimeout(() => {
+        buildProfile();
+        setStep(2);
+      }, 350);
+    });
+  });
+
+  function buildProfile(){
+    const p = getProfile(role, goal);
+    const el = document.getElementById('as-profile');
+    if(!el) return;
+    el.innerHTML = `
+      <div class="ap-header">
+        <div class="ap-title">${p.title}</div>
+        <div class="ap-badge">${p.badge}</div>
+      </div>
+      <div class="ap-body">${p.body}</div>
+      <div class="ap-agents">
+        ${p.agents.map(a => `<span class="ap-agent-chip">${a}</span>`).join('')}
+        <span class="ap-agent-chip" style="border-style:dashed;opacity:.5">+4 more</span>
+      </div>
+    `;
+  }
+
+  // Show progress dots and steps when scrolled to
+  ScrollTrigger.create({
+    trigger: '#waitlist',
+    start: 'top 70%',
+    once: true,
+    onEnter: () => {
+      gsap.to('.assessment-rule', { opacity:1, duration:.8 });
+      gsap.to('.assessment-eyebrow', { opacity:1, duration:.6, delay:.2 });
+      gsap.to('.assessment-headline', { opacity:1, duration:.8, delay:.3 });
+      gsap.to('.assessment-sub', { opacity:1, duration:.6, delay:.5 });
+      gsap.to('#assessment-progress', { opacity:1, duration:.5, delay:.7, onComplete: () => {
+        document.getElementById('assessment-progress').classList.add('visible');
+      }});
+      gsap.to('#assessment-steps', { opacity:1, duration:.6, delay:.9, onComplete: () => {
+        document.getElementById('assessment-steps').classList.add('visible');
+      }});
+    }
   });
 })();
 
