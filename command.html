@@ -778,7 +778,7 @@ const ALFRED = (() => {
       if(!isCommand && t.length >= 2){
         const n = t.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
         MEM.set('name', n); USER.name = n; _awaitingName = false;
-        return [`${n}. Noted. The system has been calibrated to your profile.\n\nYou are a ${role} optimizing for ${goal}. I have configured the eight agents accordingly.\n\nI have a briefing ready. Three items require your attention today. Say "briefing" when you are ready, or ask me anything.`];
+        return [`${n}. Noted. Profile calibrated.\n\nSay "briefing" when you are ready, or ask me anything.`];
       }
     }
 
@@ -790,13 +790,12 @@ const ALFRED = (() => {
       }
     }
 
-    // Sophisticated contextual fallbacks
-    const n = USER.name || 'you';
+    // Contextual fallbacks — composed, direct
     const fallbacks = [
-      `That is worth thinking through carefully. As a ${role} optimizing for ${goal}, the question I would start with is: what is the highest-leverage action that only ${n === 'you' ? 'you' : n} can take here? Everything else can be delegated or deferred. What is the core decision at the center of what you are asking?`,
-      `Noted. The system does not have a pre-packaged response for that — which often means it is more nuanced than a standard briefing covers. Give me more context and I will route this to the appropriate agent. What is the underlying decision or problem?`,
-      `To give you a calibrated response, I need to understand: is this a strategic decision, an operational question, or an intelligence gap? One more sentence and I can route this precisely.`,
-      `That question requires more context to answer at the level you deserve. Tell me what outcome you are trying to achieve and I will give you the most useful intelligence the system has on it.`
+      `Noted. What is the decision at the center of that?`,
+      `I can route this more precisely — is this strategic, operational, or an intelligence gap?`,
+      `What outcome are you working toward? I will pull the relevant brief.`,
+      `Understood. Give me the core constraint and I will respond directly.`
     ];
     return [fallbacks[Math.floor(Math.random()*fallbacks.length)]];
   }
@@ -1296,7 +1295,7 @@ async function startAlfred(){
   if(isReturn && name){
     await CONV.alfredSpeaks(`Welcome back, ${name}.\n\nThe system has been active since your last session. Three new developments require your attention.\n\nSay "briefing" for the full intelligence update, or ask me anything directly.`);
   } else if(name){
-    await CONV.alfredSpeaks(`${ALFRED.greeting}\n\nI am Alfred — your executive intelligence officer.\n\nThe system has been calibrated to your profile: ${role}, optimizing for ${goal}. I have been running since before you arrived.\n\nSay "briefing" when you are ready for your intelligence summary, or ask me anything.`);
+    await CONV.alfredSpeaks(`${ALFRED.greeting}\n\nI am Alfred. Profile loaded — ${role}, optimizing for ${goal}.\n\nSay "briefing" to begin, or ask me anything.`);
   } else {
     // No name yet — set flag and ask
     // _awaitingName is already true

@@ -865,6 +865,11 @@ footer{
 .atp-text{font-family:var(--mono);font-size:8.5px;letter-spacing:0.1em;color:rgba(240,237,232,0.4);text-transform:uppercase;line-height:1.6}
 .alfred-term-response{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(15px,1.8vw,22px);font-weight:300;font-style:italic;color:rgba(240,237,232,0.88);line-height:1.8;letter-spacing:0.02em;min-height:100px}
 .alfred-blink-cursor{display:inline-block;width:2px;height:0.85em;background:var(--gold);vertical-align:text-bottom;animation:blink 1s step-end infinite;margin-left:2px}
+.alfred-term-enter{display:flex;align-items:center;gap:10px;cursor:pointer;opacity:0;transition:opacity .4s;pointer-events:none;padding:10px 0 4px}
+.alfred-term-enter.visible{opacity:1;pointer-events:auto}
+.alfred-enter-key{font-family:var(--mono);font-size:7px;letter-spacing:.2em;color:var(--bg);background:var(--gold);padding:3px 8px;border-radius:2px;line-height:1.4}
+.alfred-enter-label{font-family:var(--mono);font-size:7px;letter-spacing:.2em;color:var(--t3);text-transform:uppercase}
+.alfred-term-enter:hover .alfred-enter-label{color:var(--gold);transition:color .2s}
 .alfred-term-meta{margin-top:auto;padding-top:16px;border-top:1px solid var(--line);display:flex;gap:32px;flex-shrink:0;flex-wrap:wrap}
 .atm-item{display:flex;flex-direction:column;gap:4px}
 .atm-label{font-family:var(--mono);font-size:7px;letter-spacing:0.38em;color:rgba(196,169,124,0.25);text-transform:uppercase}
@@ -1608,6 +1613,10 @@ footer{
           <span class="atp-text" id="alfred-prompt-text">Alfred, give me my morning briefing.</span>
         </div>
         <div class="alfred-term-response" id="alfred-response-text"></div>
+        <div class="alfred-term-enter" id="alfred-enter-prompt">
+          <span class="alfred-enter-key">ENTER</span>
+          <span class="alfred-enter-label">NEXT BRIEF</span>
+        </div>
         <div class="alfred-term-meta">
           <div class="atm-item"><div class="atm-label">Agent</div><div class="atm-val" id="alfred-meta-agent">ALFRED</div></div>
           <div class="atm-item"><div class="atm-label">Mode</div><div class="atm-val" id="alfred-meta-mode">EXECUTIVE BRIEFING</div></div>
@@ -2733,26 +2742,26 @@ function startScanLine(){
   let typewriterTimer = null;
   let initiated = false;
 
-  function typewrite(el, text, speed){
+  function typewrite(el, text, speed, onDone){
     if(typewriterTimer) clearTimeout(typewriterTimer);
     el.innerHTML = '';
     let i = 0;
     const cursor = '<span class="alfred-blink-cursor"></span>';
     function next(){
       if(i <= text.length){
-        // Convert newlines to <br> + preserve cursor
         const chunk = text.slice(0, i).replace(/\n/g,'<br>');
         el.innerHTML = chunk + cursor;
         i++;
         typewriterTimer = setTimeout(next, i < 60 ? speed * 0.5 : speed);
       } else {
         el.innerHTML = text.replace(/\n/g,'<br>');
+        if(onDone) onDone();
       }
     }
     next();
   }
 
-  function showBrief(key){
+  function showBrief(key, onDone){
     const b = BRIEFS[key];
     if(!b) return;
     document.getElementById('alfred-term-title').textContent = b.title;
@@ -2760,7 +2769,7 @@ function startScanLine(){
     document.getElementById('alfred-meta-mode').textContent = b.mode;
     document.getElementById('alfred-meta-sources').textContent = b.sources;
     document.getElementById('alfred-meta-time').textContent = b.time;
-    typewrite(document.getElementById('alfred-response-text'), b.text, 18);
+    typewrite(document.getElementById('alfred-response-text'), b.text, 18, onDone);
   }
 
   // Tabs
@@ -2769,7 +2778,9 @@ function startScanLine(){
       document.querySelectorAll('.alfred-tab').forEach(t => t.classList.remove('active'));
       tab.classList.add('active');
       currentBrief = tab.dataset.brief;
-      showBrief(currentBrief);
+      currentIdx = briefKeys.indexOf(currentBrief);
+      if(enterPrompt) enterPrompt.classList.remove('visible');
+      showBrief(currentBrief, () => showEnterPrompt());
     });
   });
 
@@ -2784,28 +2795,38 @@ function startScanLine(){
         gsap.to('.alfred-demo-headline', {
           clipPath:'inset(0 0 0% 0)', duration:1, ease:'power3.out'
         });
-        setTimeout(() => showBrief('briefing'), 600);
+        setTimeout(() => showBrief('briefing', () => showEnterPrompt()), 600);
       }
     }
   });
 
-  // Rotate through briefs every 12 seconds for passive visitors
+  // Enter key / click advances to next brief
   const briefKeys = Object.keys(BRIEFS);
-  let autoIdx = 0;
-  setInterval(() => {
-    autoIdx = (autoIdx + 1) % briefKeys.length;
-    const key = briefKeys[autoIdx];
-    // Only auto-rotate if section is in viewport
+  let currentIdx = 0;
+  const enterPrompt = document.getElementById('alfred-enter-prompt');
+
+  function showEnterPrompt(){ if(enterPrompt) enterPrompt.classList.add('visible'); }
+
+  function advanceBrief(){
+    currentIdx = (currentIdx + 1) % briefKeys.length;
+    const key = briefKeys[currentIdx];
+    document.querySelectorAll('.alfred-tab').forEach(t => t.classList.remove('active'));
+    const activeTab = document.querySelector(`.alfred-tab[data-brief="${key}"]`);
+    if(activeTab) activeTab.classList.add('active');
+    if(enterPrompt) enterPrompt.classList.remove('visible');
+    showBrief(key, () => showEnterPrompt());
+  }
+
+  if(enterPrompt) enterPrompt.addEventListener('click', advanceBrief);
+
+  document.addEventListener('keydown', e => {
+    if(e.key !== 'Enter') return;
     const demo = document.getElementById('alfred-demo');
     if(!demo) return;
     const rect = demo.getBoundingClientRect();
-    if(rect.top < window.innerHeight && rect.bottom > 0){
-      document.querySelectorAll('.alfred-tab').forEach(t => t.classList.remove('active'));
-      const activeTab = document.querySelector(`.alfred-tab[data-brief="${key}"]`);
-      if(activeTab) activeTab.classList.add('active');
-      showBrief(key);
-    }
-  }, 12000);
+    if(rect.top < window.innerHeight && rect.bottom > 0) advanceBrief();
+  });
+
 })();
 
 /* ── FOUNDER OS DASHBOARD ────────────────────────────── */
