@@ -1305,6 +1305,35 @@ footer{
 @media(max-width:480px){
   .hero-title{letter-spacing:0.12em;padding-left:0.12em}
 }
+
+/* ── HERO EMBLEM CREST + CINEMATIC FX ─────────────────────────────── */
+#nyx-crest{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-51%);
+  width:min(88vw,860px);height:min(88vw,860px);z-index:2;pointer-events:none;
+  opacity:0;animation:nyxCrestIn 2.6s var(--ease-out) forwards 0.4s;
+  filter:drop-shadow(0 0 30px rgba(196,169,124,0.06));
+}
+@keyframes nyxCrestIn{to{opacity:1}}
+.nyx-rot-cw{transform-origin:400px 400px;animation:nyxCW 150s linear infinite}
+.nyx-rot-ccw{transform-origin:400px 400px;animation:nyxCCW 115s linear infinite}
+.nyx-rot-cw-slow{transform-origin:400px 400px;animation:nyxCW 230s linear infinite}
+@keyframes nyxCW{to{transform:rotate(360deg)}}
+@keyframes nyxCCW{to{transform:rotate(-360deg)}}
+#nyx-fx{position:absolute;top:50%;left:50%;transform:translate(-50%,-51%);z-index:1;pointer-events:none}
+#nyx-fx span{
+  position:absolute;top:50%;left:50%;width:300px;height:300px;margin:-150px;
+  border:1px solid rgba(196,169,124,0.22);border-radius:50%;
+  transform:scale(.2);opacity:0;animation:nyxPulse 7s ease-out infinite;
+}
+#nyx-fx span:nth-child(2){animation-delay:2.3s}
+#nyx-fx span:nth-child(3){animation-delay:4.6s}
+@keyframes nyxPulse{0%{transform:scale(.2);opacity:0}15%{opacity:.5}100%{transform:scale(3.6);opacity:0}}
+@media(prefers-reduced-motion:reduce){
+  .nyx-rot-cw,.nyx-rot-ccw,.nyx-rot-cw-slow,#nyx-fx span{animation:none!important}
+}
+@media(max-width:600px){
+  #nyx-crest{width:118vw;height:118vw}
+}
 </style>
 </head>
 <body>
@@ -1373,6 +1402,8 @@ footer{
   <div class="hero-glow"></div>
   <div class="hero-scan"></div>
   <div class="hero-grid"></div>
+  <div id="nyx-fx" aria-hidden="true"><span></span><span></span><span></span></div>
+  <div id="nyx-crest" aria-hidden="true"></div>
   <div class="hero-hud">
     <div class="hero-hud-tl"></div><div class="hero-hud-tr"></div>
     <div class="hero-hud-bl"></div><div class="hero-hud-br"></div>
@@ -4971,6 +5002,32 @@ function startScanLine(){
     </div>
   </div>
 </div>
+
+<script>
+/* NYX hero emblem crest — luxury intelligence seal */
+(function(){
+  var el=document.getElementById('nyx-crest'); if(!el) return;
+  var C=400, G='196,169,124', s='';
+  for(var i=0;i<72;i++){var a=i*5*Math.PI/180,lng=(i%6===0),r1=lng?348:356,r2=372;
+    s+='<line x1="'+(C+r1*Math.cos(a)).toFixed(1)+'" y1="'+(C+r1*Math.sin(a)).toFixed(1)+'" x2="'+(C+r2*Math.cos(a)).toFixed(1)+'" y2="'+(C+r2*Math.sin(a)).toFixed(1)+'" stroke="rgba('+G+','+(lng?0.55:0.28)+')" stroke-width="'+(lng?1.4:0.8)+'"/>';}
+  var star='',tips=[];
+  for(var j=0;j<8;j++){var b=(j*45-90)*Math.PI/180,r=j%2===0?140:120,x=C+r*Math.cos(b),y=C+r*Math.sin(b);tips.push([x,y]);
+    star+='<line x1="'+C+'" y1="'+C+'" x2="'+x.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="rgba('+G+',0.32)" stroke-width="0.9"/>';
+    star+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="'+(j%2===0?3.2:2)+'" fill="rgba('+G+',0.7)"/>';}
+  var out='M';tips.forEach(function(t,i){out+=(i?'L':'')+t[0].toFixed(1)+','+t[1].toFixed(1)+' ';});out+='Z';
+  var cross='';[[0,-1],[1,0],[0,1],[-1,0]].forEach(function(d){cross+='<line x1="'+(C+d[0]*200)+'" y1="'+(C+d[1]*200)+'" x2="'+(C+d[0]*238)+'" y2="'+(C+d[1]*238)+'" stroke="rgba('+G+',0.4)" stroke-width="1"/>';});
+  el.innerHTML='<svg viewBox="0 0 800 800" width="100%" height="100%" preserveAspectRatio="xMidYMid meet" aria-hidden="true">'
+    +'<defs><path id="nyxCirc" d="M '+C+','+C+' m -322,0 a 322,322 0 1,1 644,0 a 322,322 0 1,1 -644,0"/></defs>'
+    +'<g class="nyx-rot-cw">'+s+'<circle cx="'+C+'" cy="'+C+'" r="372" fill="none" stroke="rgba('+G+',0.18)" stroke-width="0.8"/></g>'
+    +'<g class="nyx-rot-ccw"><text font-family="Inter,sans-serif" font-size="13" letter-spacing="6" fill="rgba('+G+',0.5)"><textPath href="#nyxCirc" startOffset="0%">AUTONOMOUS · INTELLIGENCE · SYSTEM · NYX · MMXXVI · WHAT OPERATES IN THE DARK · </textPath></text></g>'
+    +'<circle cx="'+C+'" cy="'+C+'" r="300" fill="none" stroke="rgba('+G+',0.13)" stroke-width="0.8"/>'
+    +'<circle cx="'+C+'" cy="'+C+'" r="238" fill="none" stroke="rgba('+G+',0.22)" stroke-width="0.8" stroke-dasharray="2 7"/>'
+    +cross
+    +'<g class="nyx-rot-cw-slow">'+star+'<path d="'+out+'" fill="none" stroke="rgba('+G+',0.18)" stroke-width="0.8"/></g>'
+    +'<circle cx="'+C+'" cy="'+C+'" r="64" fill="none" stroke="rgba('+G+',0.3)" stroke-width="0.8"/>'
+    +'<circle cx="'+C+'" cy="'+C+'" r="2.4" fill="rgba('+G+',0.85)"/></svg>';
+})();
+</script>
 
 </body>
 </html>
