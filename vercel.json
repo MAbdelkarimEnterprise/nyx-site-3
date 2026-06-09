@@ -1,32 +1,7 @@
 {
-  "version": 2,
-  "builds": [
-    {
-      "src": "api/**/*.js",
-      "use": "@vercel/node"
-    },
-    {
-      "src": "*.html",
-      "use": "@vercel/static"
-    }
-  ],
-  "routes": [
-    {
-      "src": "/api/(.*)",
-      "dest": "/api/$1"
-    },
-    {
-      "src": "/(.*\\.html)",
-      "dest": "/$1"
-    },
-    {
-      "src": "/command",
-      "dest": "/command.html"
-    },
-    {
-      "src": "/",
-      "dest": "/index.html"
-    }
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/command", "destination": "/command.html" }
   ],
   "headers": [
     {
