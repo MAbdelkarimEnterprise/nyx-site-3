@@ -7,17 +7,20 @@
 <meta name="robots" content="noindex,nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;overflow:hidden;background:#000;color:#F0EDE8;font-family:'Space Mono',monospace;-webkit-font-smoothing:antialiased}
+html,body{height:100%;overflow:hidden;background:#000;color:#F0EDE8;font-family:'Inter',system-ui,-apple-system,sans-serif;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-feature-settings:'cv01' 1,'tnum' 1;text-rendering:optimizeLegibility}
 :root{
   --gold:#C4A97C;--gold-d:rgba(196,169,124,0.28);--gold-faint:rgba(196,169,124,0.08);
   --t1:#F0EDE8;--t2:rgba(240,237,232,0.45);--t3:rgba(240,237,232,0.18);
   --line:rgba(255,255,255,0.055);--line-hi:rgba(255,255,255,0.1);
   --bg:#000;--bg1:#050505;--bg2:#0a0a0a;
   --serif:'Cormorant Garamond',Georgia,serif;
-  --mono:'Space Mono',monospace;
+  --display:'Cormorant Garamond',Georgia,serif;
+  --ui:'Inter',system-ui,-apple-system,sans-serif;
+  /* --mono kept as an alias → Inter so all legacy UI refs adopt Inter */
+  --mono:'Inter',system-ui,-apple-system,sans-serif;
   --ease-out:cubic-bezier(0.16,1,0.3,1);
   --nav-w:180px;--right-w:264px;--header-h:48px;--input-h:62px;
 }

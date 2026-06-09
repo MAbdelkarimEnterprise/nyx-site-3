@@ -12,12 +12,12 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400;1,500&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ── RESET ─────────────────────────────────────────────── */
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html{scroll-behavior:smooth;cursor:none}
-body{background:#000;color:#F0EDE8;font-family:'DM Sans',system-ui,sans-serif;font-weight:300;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+body{background:#000;color:#F0EDE8;font-family:'Inter',system-ui,-apple-system,sans-serif;font-weight:400;overflow-x:hidden;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;font-feature-settings:'cv01' 1,'cv02' 1,'cv03' 1,'tnum' 1;text-rendering:optimizeLegibility}
 a,button{cursor:none}
 
 /* ── TOKENS ────────────────────────────────────────────── */
@@ -26,9 +26,16 @@ a,button{cursor:none}
   --line:rgba(255,255,255,0.048);--line-hi:rgba(255,255,255,0.11);
   --t1:#F0EDE8;--t2:rgba(240,237,232,0.38);--t3:rgba(240,237,232,0.16);
   --gold:#C4A97C;--gold-d:rgba(196,169,124,0.28);
-  --serif:'Cormorant Garamond',Georgia,serif;
-  --mono:'Space Mono',monospace;
-  --sans:'DM Sans',system-ui,sans-serif;
+  /* ── TYPE SYSTEM ──────────────────────────────────────
+     Cormorant Garamond = display (editorial, cinematic, authoritative)
+     Inter = UI (nav, buttons, forms, labels, metrics, cards, body)
+     --mono / --sans both resolve to Inter so all legacy UI refs
+     adopt the new interface typeface automatically. */
+  --serif:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+  --display:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+  --ui:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'Inter',system-ui,-apple-system,sans-serif;
+  --sans:'Inter',system-ui,-apple-system,sans-serif;
   --ease-out:cubic-bezier(0.16,1,0.3,1);
   --ease-io:cubic-bezier(0.87,0,0.13,1);
   --sh:clamp(20px,5vw,72px);
@@ -1170,6 +1177,109 @@ footer{
 @media(max-width:768px){
   .voice-split{grid-template-columns:1fr;gap:48px}
   .voice-hud-preview{display:none}
+}
+
+/* ═══════════════════════════════════════════════════════════════════
+   NYX TYPOGRAPHY SYSTEM — v2
+   Display: Cormorant Garamond · Interface: Inter
+   Goal: a luxury intelligence organisation, not a software company.
+   "Apple designed Jarvis." Editorial. Cinematic. Authoritative. Timeless.
+   ═══════════════════════════════════════════════════════════════════ */
+
+/* ── DISPLAY (Cormorant Garamond) ─────────────────────────────────── */
+.hero-title,
+.manifesto-headline,.engine-headline,.system-headline,.access-headline,
+.waitlist-headline,.feed-headline,.alfred-demo-headline,.founder-os-headline,
+.assessment-headline,.os-card-title,.pillar-title,.tier-name,.ap-title,
+.alfred-hdr-name,.brief-card-title,.rp-metric-val{
+  font-family:var(--display);
+  font-feature-settings:'liga' 1,'dlig' 1,'kern' 1;
+}
+
+/* Hero headline — cinematic, monumental */
+.hero-title{
+  font-weight:400;letter-spacing:0.05em;line-height:0.84;
+}
+.hero-subtitle{
+  font-family:var(--display);font-style:italic;font-weight:400;
+  font-size:clamp(15px,1.8vw,21px);line-height:1.75;
+  letter-spacing:0.012em;color:rgba(240,237,232,0.5);
+}
+
+/* Section headlines — editorial scale, tighter optical tracking */
+.manifesto-headline,.engine-headline,.system-headline,.access-headline,
+.waitlist-headline,.feed-headline,.alfred-demo-headline,.founder-os-headline{
+  font-weight:400;line-height:1.04;letter-spacing:-0.014em;
+}
+.assessment-headline{font-weight:400;line-height:0.92;letter-spacing:-0.02em}
+
+/* Emphasis italics inside display headlines */
+.hero-subtitle em,.manifesto-headline em,.engine-headline em,
+.system-headline em,.waitlist-headline em,.alfred-demo-headline em,
+.founder-os-headline em,.assessment-headline em{
+  font-style:italic;font-weight:400;
+}
+
+/* Card / tier / panel titles */
+.os-card-title,.pillar-title,.ap-title,.alfred-hdr-name,.brief-card-title{
+  font-weight:500;letter-spacing:0.004em;line-height:1.18;
+}
+.tier-name{font-weight:400;letter-spacing:0.01em}
+
+/* ── INTERFACE (Inter) — micro-labels & eyebrows ──────────────────── */
+.hero-eyebrow,.sec-label,.assessment-step-label,.assessment-eyebrow,
+.waitlist-eyebrow,.intel-label,.os-card-label,.feed-subhead{
+  font-family:var(--ui);font-weight:500;
+}
+.hero-eyebrow{font-size:10px;letter-spacing:0.34em;color:var(--gold)}
+.sec-label{font-size:9.5px;letter-spacing:0.34em}
+.assessment-step-label,.assessment-eyebrow,.waitlist-eyebrow{letter-spacing:0.32em}
+
+/* Fine print labels / metrics — keep crisp, slightly tighter than mono */
+.es-label,.os-metric-label,.atp-label,.atm-label,.vhud-label,.vhud-status,
+.jarvis-panel-label,.alfred-term-title,.tier-num,.hero-status-label,
+.hero-scroll-text,.af-panel-label,.af-system-label,.af-orb-label,
+.agent-modal-la-label,.alfred-enter-label{
+  font-family:var(--ui);font-weight:500;
+}
+
+/* Numeric metrics — tabular figures, Inter */
+.es-val,.os-metric-val,.rp-metric-val,.hero-coords p,.intel-stat{
+  font-feature-settings:'tnum' 1,'lnum' 1;
+}
+.es-val{font-family:var(--ui);font-weight:500;letter-spacing:0.01em}
+
+/* ── BODY & DESCRIPTIONS (Inter) ──────────────────────────────────── */
+.manifesto-body p,.tier-desc,.pillar-desc,.access-sub{
+  font-family:var(--ui);font-weight:400;line-height:1.75;
+  letter-spacing:0;color:var(--t2);
+}
+.manifesto-body p{font-size:14.5px}
+/* Technical captions kept as refined uppercase Inter */
+.engine-body,.agent-desc{
+  font-family:var(--ui);font-weight:400;letter-spacing:0.1em;line-height:1.85;
+}
+
+/* ── NAVIGATION & BUTTONS (Inter) ─────────────────────────────────── */
+.nav-logo{font-family:var(--ui);font-weight:600;letter-spacing:0.18em}
+.nav-link{font-family:var(--ui);font-weight:500;letter-spacing:0.04em}
+.nav-cta,.tier-cta,.waitlist-submit{
+  font-family:var(--ui);font-weight:500;letter-spacing:0.14em;text-transform:uppercase;
+}
+
+/* ── RESPONSIVE TYPE TUNING ───────────────────────────────────────── */
+@media(max-width:768px){
+  .hero-subtitle{font-size:15px;line-height:1.7}
+  .hero-eyebrow{font-size:9px;letter-spacing:0.3em}
+  .sec-label{font-size:9px;letter-spacing:0.3em;margin-bottom:40px}
+  .manifesto-headline,.engine-headline,.system-headline,.access-headline,
+  .waitlist-headline,.feed-headline,.alfred-demo-headline,.founder-os-headline{
+    line-height:1.08;
+  }
+  .manifesto-body p{font-size:14px}
+}
+@media(max-width:480px){
+  .hero-title{letter-spacing:0.03em}
 }
 </style>
 </head>

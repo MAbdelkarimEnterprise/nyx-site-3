@@ -32,9 +32,14 @@
   --sidebar-w: 236px;
   --topbar-h: 50px;
 
-  --serif: 'Cormorant Garamond', Georgia, serif;
-  --mono: 'Space Mono', 'Courier New', monospace;
-  --sans: 'DM Sans', system-ui, -apple-system, sans-serif;
+  /* Display = Cormorant Garamond · Interface = Inter.
+     Wired to the self-hosted next/font variables from layout.tsx.
+     --mono kept as an alias → Inter so legacy UI refs adopt Inter. */
+  --serif: var(--font-cormorant), Georgia, 'Times New Roman', serif;
+  --display: var(--font-cormorant), Georgia, 'Times New Roman', serif;
+  --ui: var(--font-inter), system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --mono: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --sans: var(--font-inter), system-ui, -apple-system, sans-serif;
 
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-io: cubic-bezier(0.87, 0, 0.13, 1);
