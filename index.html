@@ -4278,7 +4278,7 @@ function startScanLine(){
     // Save email to memory
     try{ localStorage.setItem('nyx_email', email); }catch(e){}
     try{
-      const res = await fetch('/.netlify/functions/waitlist', {
+      const res = await fetch('/api/waitlist', {
         method:'POST', headers:{'Content-Type':'application/json'},
         body: JSON.stringify({ email })
       });
@@ -4667,7 +4667,7 @@ function startScanLine(){
     const thinking = showThinking();
 
     try {
-      const res = await fetch('/.netlify/functions/agent', {
+      const res = await fetch('/api/agent', {
         method:  'POST',
         headers: { 'Content-Type': 'application/json' },
         body:    JSON.stringify({ agent: currentAgent, command: cmd, history: history.slice(-6) }),
