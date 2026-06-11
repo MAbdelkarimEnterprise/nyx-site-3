@@ -756,8 +756,8 @@ const ALFRED = (() => {
   // Conversation history for context
   const history = [];
 
-  // Track whether Alfred is waiting for a name response
-  let _awaitingName = !USER.name;
+  // Name capture disabled — Alfred addresses the user as "sir".
+  let _awaitingName = false;
 
   async function getReply(text){
     const t = text.trim();
@@ -920,6 +920,59 @@ const CONV = (() => {
     });
   }
 
+  // Shared streaming routine — POST history to /api/chat and stream the reply into a bubble.
+  async function streamReply(history, file){
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        messages: history,
+        profile: { name: USER.name, role: ALFRED.role, goal: ALFRED.goal },
+        file: file || null
+      })
+    });
+
+    if(!res.ok) throw new Error('API error');
+
+    removeThinking();
+    window._alfredRingMode('speaking');
+    stateLabel.textContent = 'RESPONDING';
+    stateLabel.classList.add('active');
+    const textEl = addMessage('alfred', '');
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let fullText = '';
+    let buffer = '';
+
+    while(true){
+      const { done, value } = await reader.read();
+      if(done) break;
+      buffer += decoder.decode(value, { stream: true });
+      const lines = buffer.split('\n');
+      buffer = lines.pop(); // incomplete line stays in buffer
+      for(const line of lines){
+        if(!line.startsWith('data: ')) continue;
+        const data = line.slice(6);
+        if(data === '[DONE]') continue;
+        try {
+          const parsed = JSON.parse(data);
+          if(parsed.text){
+            fullText += parsed.text;
+            textEl.textContent = fullText;
+            scrollToBottom();
+          }
+        } catch(_){}
+      }
+    }
+
+    ALFRED.pushAssistantReply(fullText);
+    window._alfredRingMode('standby');
+    stateLabel.textContent = 'STANDBY';
+    stateLabel.classList.remove('active');
+    if(window.speechSynthesis && VOICE.enabled){ VOICE.speak(fullText.slice(0, 200)); }
+    return fullText;
+  }
+
   async function userMessage(text){
     if(!text.trim() || isTyping) return;
     isTyping = true;
@@ -944,74 +997,35 @@ const CONV = (() => {
       return;
     }
 
-    // Real API streaming
     try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          messages: result.history,
-          profile: { name: USER.name, role: ALFRED.role, goal: ALFRED.goal },
-          file: attachedFile || null
-        })
-      });
-
-      if(!res.ok) throw new Error('API error');
-
-      removeThinking();
-
-      // Stream directly into a message bubble
-      window._alfredRingMode('speaking');
-      stateLabel.textContent = 'RESPONDING';
-      stateLabel.classList.add('active');
-      const textEl = addMessage('alfred', '');
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let fullText = '';
-      let buffer = '';
-
-      while(true){
-        const { done, value } = await reader.read();
-        if(done) break;
-        buffer += decoder.decode(value, { stream: true });
-        const lines = buffer.split('\n');
-        buffer = lines.pop(); // incomplete line stays in buffer
-        for(const line of lines){
-          if(!line.startsWith('data: ')) continue;
-          const data = line.slice(6);
-          if(data === '[DONE]') continue;
-          try {
-            const parsed = JSON.parse(data);
-            if(parsed.text){
-              fullText += parsed.text;
-              textEl.textContent = fullText;
-              scrollToBottom();
-            }
-          } catch(_){}
-        }
-      }
-
-      // Store in history
-      ALFRED.pushAssistantReply(fullText);
-
-      window._alfredRingMode('standby');
-      stateLabel.textContent = 'STANDBY';
-      stateLabel.classList.remove('active');
-
-      if(window.speechSynthesis && VOICE.enabled){
-        VOICE.speak(fullText.slice(0, 200));
-      }
-
+      await streamReply(result.history, attachedFile);
     } catch(err) {
       console.error('Alfred API error:', err);
       removeThinking();
-      await alfredSpeaks('The intelligence layer is temporarily offline. Stand by.');
+      await alfredSpeaks('Apologies, sir. The intelligence layer is temporarily offline. Stand by.');
     }
 
     isTyping = false;
   }
 
-  return { alfredSpeaks, userMessage, scrollToBottom };
+  // Alfred's first response after wake — an unprompted overview briefing addressed to "sir".
+  async function alfredBriefing(){
+    if(isTyping) return;
+    isTyping = true;
+    showThinking();
+    const prompt = 'I have just activated NYX. Deliver my opening intelligence briefing now — a sharp overview of overnight activity across all eight agents (APEX, ORACLE, SIGNAL, CONVERT, FORGE, LEDGER, CIPHER, MERIDIAN). Address me as "sir". Be specific and confident with numbers and timeframes, keep it tight, and close with one clear next action.';
+    const result = await ALFRED.getReply(prompt); // pushes to history; no user bubble rendered
+    try {
+      await streamReply((result && result.history) || [{ role:'user', content: prompt }], null);
+    } catch(err) {
+      console.error('Alfred briefing error:', err);
+      removeThinking();
+      await alfredSpeaks('Good evening, sir. NYX is online. The intelligence layer is reconnecting — say "briefing" in a moment for your full update.');
+    }
+    isTyping = false;
+  }
+
+  return { alfredSpeaks, userMessage, alfredBriefing, scrollToBottom };
 })();
 
 /* ════════════════════════════════════════════════════════════
@@ -1556,24 +1570,11 @@ const CLAPWAKE = (() => {
    ALFRED INTRODUCTION
 ════════════════════════════════════════════════════════════ */
 async function startAlfred(){
+  // Called only after the double-clap (or tap) wake — never before.
   VOICE.enabled = true;
-
-  const name = USER.name;
-  const role = USER.role || 'Founder';
-  const goal = USER.goal || 'Growth';
-  const isReturn = isReturning;
-
-  await new Promise(r => setTimeout(r, 500));
-
-  if(isReturn && name){
-    await CONV.alfredSpeaks(`Welcome back, ${name}.\n\nThe system has been active since your last session. Three new developments require your attention.\n\nSay "briefing" for the full intelligence update, or ask me anything directly.`);
-  } else if(name){
-    await CONV.alfredSpeaks(`${ALFRED.greeting}\n\nI am Alfred. Profile loaded — ${role}, optimizing for ${goal}.\n\nSay "briefing" to begin, or ask me anything.`);
-  } else {
-    // No name yet — set flag and ask
-    // _awaitingName is already true
-    await CONV.alfredSpeaks(`Connection established. Identity verified. The system is online.\n\nI am Alfred — your executive intelligence officer.\n\nBefore I deliver your first briefing, I need one piece of information.\n\nWhat is your name?`);
-  }
+  await new Promise(r => setTimeout(r, 450));
+  // First response is an overview briefing addressed to "sir".
+  await CONV.alfredBriefing();
 }
 </script>
 </body>

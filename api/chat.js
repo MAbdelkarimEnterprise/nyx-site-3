@@ -90,7 +90,7 @@ module.exports = async function handler(req, res) {
   }
 
   const systemPrompt = ALFRED_SYSTEM_PROMPT +
-    `\n\nUSER PROFILE:\n- Name: ${name || 'Unknown'}\n- Role: ${role}\n- Primary Goal: ${goal}\n\nAddress them by name when appropriate. Calibrate all intelligence to their role and goal.`;
+    `\n\nUSER PROFILE:\n- Role: ${role}\n- Primary Goal: ${goal}\n\nAlways address the user as "sir" — never by first name, never "ma'am". Open your first briefing with a greeting that uses "sir". Calibrate all intelligence to their role and goal.`;
 
   // Build messages — inject file into the last user message if present
   const apiMessages = messages.map((m, i) => {
