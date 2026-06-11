@@ -24,7 +24,7 @@ a,button{cursor:none}
 :root{
   --void:#000;--deep:#050505;--surf:#0A0A0A;--s2:#121212;
   --line:rgba(255,255,255,0.048);--line-hi:rgba(255,255,255,0.11);
-  --t1:#F0EDE8;--t2:rgba(240,237,232,0.38);--t3:rgba(240,237,232,0.16);
+  --t1:#F0EDE8;--t2:rgba(240,237,232,0.62);--t3:rgba(240,237,232,0.36);
   --gold:#C4A97C;--gold-d:rgba(196,169,124,0.28);
   /* ── TYPE SYSTEM ──────────────────────────────────────
      Cormorant Garamond = display (editorial, cinematic, authoritative)
@@ -1334,6 +1334,29 @@ footer{
 @media(max-width:600px){
   #nyx-crest{width:118vw;height:118vw}
 }
+
+/* ── VISIBILITY BOOST — brighter + larger text ────────────────────── */
+/* Brighten dim gold micro-labels */
+.es-label,.os-card-label,.os-metric-label,.atp-label,.atm-label,
+.assessment-step-label,.jarvis-panel-label,.alfred-term-title,
+.af-panel-label,.agent-modal-la-label,.tier-num,.vhud-label,.vhud-status{
+  color:rgba(196,169,124,0.78)!important;
+}
+/* Enlarge the smallest labels for legibility */
+.hero-eyebrow{font-size:11.5px}
+.sec-label{font-size:10.5px}
+.es-label,.os-card-label,.os-metric-label,.assessment-step-label,
+.atp-label,.atm-label,.af-panel-label,.jarvis-panel-label,.alfred-term-title{
+  font-size:9px;
+}
+.tier-num,.pillar-num{font-size:9px}
+/* Larger, brighter body copy & descriptions */
+.manifesto-body p{font-size:16px;color:rgba(240,237,232,0.74)}
+.tier-desc,.pillar-desc,.access-sub{font-size:14px;color:rgba(240,237,232,0.7)}
+.engine-body,.agent-desc{font-size:11.5px;color:rgba(240,237,232,0.62)}
+.hero-subtitle{color:rgba(240,237,232,0.78)}
+/* Nav brighter */
+.nav-link{color:rgba(240,237,232,0.7)}
 </style>
 </head>
 <body>
