@@ -59,16 +59,21 @@ module.exports = async function handler(req, res) {
     return res.status(200).end();
   }
 
-  // Safe runtime diagnostic — reports key presence/length only, never the value.
+  // Public health check — reveals nothing sensitive.
+  // Full diagnostic is gated behind a secret token only the owner knows.
   if (req.method === 'GET') {
-    const k = process.env.ANTHROPIC_API_KEY || '';
-    return res.status(200).json({
-      diag: true,
-      hasKey: !!k,
-      keyLength: k.length,
-      startsWithExpectedPrefix: k.startsWith('sk-ant-'),
-      relatedVarNames: Object.keys(process.env).filter(n => /ANTHROPIC|API_KEY/i.test(n)),
-    });
+    const token = process.env.DIAG_TOKEN;
+    const provided = (req.query && req.query.token) || '';
+    if (token && provided === token) {
+      const k = process.env.ANTHROPIC_API_KEY || '';
+      return res.status(200).json({
+        diag: true,
+        hasKey: !!k,
+        keyLength: k.length,
+        startsWithExpectedPrefix: k.startsWith('sk-ant-'),
+      });
+    }
+    return res.status(200).json({ ok: true });
   }
 
   if (req.method !== 'POST') {

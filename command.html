@@ -1384,6 +1384,116 @@ const VOICE = (() => {
 /* ════════════════════════════════════════════════════════════
    BOOT SEQUENCE
 ════════════════════════════════════════════════════════════ */
+/* ════════════════════════════════════════════════════════════
+   CLAP-TO-WAKE — double-clap activation for Alfred
+   Browsers require one user gesture before mic access, so the
+   flow is: tap once to arm → clap twice to wake. Tapping again
+   (or tapping when mic is blocked) wakes him as a safe fallback.
+════════════════════════════════════════════════════════════ */
+const CLAPWAKE = (() => {
+  let onWake = null, audioCtx = null, stream = null, raf = 0;
+  let woken = false, armed = false, denied = false;
+  let lastClap = 0, lastEdge = 0, quiet = true;
+
+  // Tunables — raise THRESH if the room is loud / false triggers, lower if claps are missed.
+  // FLOOR is the "silence" level the signal must return to between claps — this is what
+  // rejects sustained noise (applause, music) so only sharp clap transients count.
+  const THRESH = 0.28, FLOOR = 0.12, REFRACTORY = 140, MIN_GAP = 90, MAX_GAP = 700;
+
+  const style = document.createElement('style');
+  style.textContent = `
+    #clapwake{position:fixed;inset:0;z-index:9000;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;gap:24px;cursor:pointer;text-align:center;padding:24px;
+      background:radial-gradient(circle at 50% 45%,#0a0a0a 0%,#000 72%);font-family:var(--ui);
+      transition:opacity .9s var(--ease-out)}
+    #clapwake.out{opacity:0;pointer-events:none}
+    #clapwake .cw-mark{font-family:var(--serif);font-size:clamp(54px,12vw,118px);letter-spacing:.18em;
+      color:var(--t1);line-height:1;opacity:.96}
+    #clapwake .cw-ring{width:13px;height:13px;border-radius:50%;background:var(--gold);
+      box-shadow:0 0 0 0 var(--gold-d);animation:cwpulse 2.4s infinite}
+    #clapwake .cw-status{font-size:12px;letter-spacing:.42em;text-transform:uppercase;color:var(--gold)}
+    #clapwake .cw-hint{font-size:13px;letter-spacing:.05em;color:var(--t2);max-width:430px;line-height:1.55}
+    #clapwake .cw-skip{margin-top:6px;font-size:11px;letter-spacing:.28em;text-transform:uppercase;
+      color:var(--t3);border-bottom:1px solid var(--line-hi);padding-bottom:3px;display:none}
+    .cw-flash{animation:cwflash .45s var(--ease-out)}
+    @keyframes cwpulse{0%{box-shadow:0 0 0 0 var(--gold-d)}70%{box-shadow:0 0 0 22px rgba(196,169,124,0)}100%{box-shadow:0 0 0 0 rgba(196,169,124,0)}}
+    @keyframes cwflash{0%{transform:scale(1)}40%{transform:scale(1.6);filter:brightness(2)}100%{transform:scale(1)}}
+  `;
+  document.head.appendChild(style);
+
+  const el = document.createElement('div');
+  el.id = 'clapwake';
+  el.innerHTML = `
+    <div class="cw-mark">NYX</div>
+    <div class="cw-ring" id="cw-ring"></div>
+    <div class="cw-status" id="cw-status">System Armed</div>
+    <div class="cw-hint" id="cw-hint">Tap once to enable, then <strong>clap twice</strong> to wake Alfred.</div>
+    <div class="cw-skip" id="cw-skip">Tap to wake now</div>`;
+
+  const $ = id => el.querySelector(id);
+  function flash(){ const r=$('#cw-ring'); if(!r) return; r.classList.remove('cw-flash'); void r.offsetWidth; r.classList.add('cw-flash'); }
+
+  async function enableMic(){
+    if(armed || denied) return;
+    try{
+      stream = await navigator.mediaDevices.getUserMedia({ audio:true });
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const src = audioCtx.createMediaStreamSource(stream);
+      const an = audioCtx.createAnalyser();
+      an.fftSize = 1024;
+      src.connect(an);
+      const buf = new Uint8Array(an.fftSize);
+      armed = true;
+      $('#cw-status').textContent = 'Listening';
+      $('#cw-hint').innerHTML = '<strong>Clap twice</strong> to wake Alfred.';
+      $('#cw-skip').style.display = 'block';
+      loop(an, buf);
+    }catch(err){
+      denied = true;
+      $('#cw-status').textContent = 'Microphone Off';
+      $('#cw-hint').textContent = 'Tap anywhere to wake Alfred.';
+    }
+  }
+
+  function loop(an, buf){
+    if(woken) return;
+    an.getByteTimeDomainData(buf);
+    let peak = 0;
+    for(let i=0;i<buf.length;i++){ const d = Math.abs(buf[i]-128)/128; if(d>peak) peak=d; }
+    const now = performance.now();
+    if(peak < FLOOR) quiet = true;                                       // signal fell back to silence
+    if(peak > THRESH && quiet && now - lastEdge > REFRACTORY){           // sharp transient from silence = a clap
+      lastEdge = now; quiet = false; flash();
+      const gap = now - lastClap;
+      if(lastClap && gap > MIN_GAP && gap < MAX_GAP){ wake(); return; }  // second clap
+      lastClap = now;                                                    // first clap
+    }
+    if(lastClap && now - lastClap > MAX_GAP) lastClap = 0;               // expire stale clap
+    raf = requestAnimationFrame(() => loop(an, buf));
+  }
+
+  function cleanup(){
+    cancelAnimationFrame(raf);
+    try{ stream && stream.getTracks().forEach(t=>t.stop()); }catch(_){}
+    try{ audioCtx && audioCtx.close(); }catch(_){}
+  }
+
+  function wake(){
+    if(woken) return; woken = true;
+    cleanup();
+    el.classList.add('out');
+    setTimeout(() => { el.remove(); if(onWake) onWake(); }, 900);
+  }
+
+  function arm(cb){
+    onWake = cb;
+    document.body.appendChild(el);
+    el.addEventListener('click', () => { (armed || denied) ? wake() : enableMic(); });
+  }
+
+  return { arm };
+})();
+
 (function boot(){
   const bootEl = document.getElementById('boot');
   const logoEl = document.getElementById('boot-logo');
@@ -1437,7 +1547,7 @@ const VOICE = (() => {
 
     setTimeout(() => {
       bootEl.style.display = 'none';
-      startAlfred();
+      CLAPWAKE.arm(startAlfred);   // double-clap (or tap) to wake Alfred
     }, 900);
   }, totalBootTime);
 })();
