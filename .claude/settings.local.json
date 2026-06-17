@@ -22,7 +22,13 @@
       "Bash(ln -sf node_modules.nosync node_modules)",
       "Bash(curl -s http://localhost:3001/login -o /dev/null -w \"%{http_code}\")",
       "Bash(node -e \"require\\('/Users/abdelkarim/Downloads/nyx-site 3/netlify/functions/agent.js'\\)\")",
-      "Bash(node --check \"/Users/abdelkarim/Downloads/nyx-site 3/netlify/functions/agent.js\")"
+      "Bash(node --check \"/Users/abdelkarim/Downloads/nyx-site 3/netlify/functions/agent.js\")",
+      "Bash(git push *)",
+      "Bash(git remote *)",
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(echo \"exit: $?\")",
+      "Bash(gh auth *)",
+      "Bash(git -C \"/Users/abdelkarim/Downloads/nyx-site 3\" credential fill)"
     ]
   }
 }
