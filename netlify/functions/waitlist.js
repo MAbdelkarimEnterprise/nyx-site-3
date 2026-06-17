@@ -1,4 +1,5 @@
 const { Resend } = require('resend');
+const { checkRateLimit, logError } = require('../lib/shared');
 
 const EMAIL_HTML = `<!DOCTYPE html>
 <html lang="en">
@@ -72,22 +73,65 @@ const EMAIL_HTML = `<!DOCTYPE html>
 </body>
 </html>`;
 
+
+
+// Persist the signup via Supabase REST (no SDK dependency). Idempotent on email
+// thanks to the unique index; conflicts are ignored. Never throws — a storage
+// hiccup must not block the confirmation email.
+async function persistSignup({ email, ip, userAgent, referrer }) {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) return { stored: false, reason: 'supabase-not-configured' };
+  try {
+    const res = await fetch(`${url}/rest/v1/waitlist_signups`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        Prefer: 'resolution=ignore-duplicates,return=minimal',
+      },
+      body: JSON.stringify([{ email, source: 'landing', ip, user_agent: userAgent, referrer }]),
+    });
+    return { stored: res.ok || res.status === 409, status: res.status };
+  } catch (err) {
+    console.error('waitlist persist error:', err.message);
+    return { stored: false, reason: err.message };
+  }
+}
+
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
   }
 
+  const headers = event.headers || {};
+  const ip = (headers['x-nf-client-connection-ip']
+    || headers['x-forwarded-for'] || 'unknown').split(',')[0].trim();
+  if (await checkRateLimit(ip, { max: 5, windowMs: 60_000, prefix: 'waitlist' })) {
+    return { statusCode: 429, body: JSON.stringify({ error: 'Too many requests. Please wait a moment.' }) };
+  }
+
   let email;
   try {
     const body = JSON.parse(event.body);
-    email = body.email;
+    email = (body.email || '').trim();
   } catch (e) {
     return { statusCode: 400, body: JSON.stringify({ error: 'Invalid request body' }) };
   }
 
-  if (!email || !email.includes('@')) {
+  // RFC-pragmatic email validation (not just "@").
+  if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
     return { statusCode: 400, body: JSON.stringify({ error: 'Invalid email' }) };
   }
+
+  // Persist first so the lead is never lost, even if email delivery fails.
+  const persisted = await persistSignup({
+    email,
+    ip,
+    userAgent: headers['user-agent'] || null,
+    referrer: headers['referer'] || headers['referrer'] || null,
+  });
 
   const resend = new Resend(process.env.RESEND_API_KEY);
 
@@ -101,10 +145,10 @@ exports.handler = async (event) => {
 
     return {
       statusCode: 200,
-      body: JSON.stringify({ ok: true }),
+      body: JSON.stringify({ ok: true, stored: persisted.stored }),
     };
   } catch (err) {
-    console.error('Resend error:', err);
+    await logError('waitlist', err, { email });
     return {
       statusCode: 500,
       body: JSON.stringify({ error: 'Failed to send email' }),

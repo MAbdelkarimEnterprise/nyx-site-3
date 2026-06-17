@@ -1,4 +1,5 @@
 const Anthropic = require('@anthropic-ai/sdk');
+const { checkRateLimit, logError } = require('../lib/shared');
 
 const PERSONAS = {
   apex: {
@@ -30,6 +31,16 @@ const PERSONAS = {
 exports.handler = async (event) => {
   if (event.httpMethod !== 'POST') {
     return { statusCode: 405, body: 'Method Not Allowed' };
+  }
+
+  const ip = (event.headers['x-nf-client-connection-ip']
+    || event.headers['x-forwarded-for'] || 'unknown').split(',')[0].trim();
+  if (await checkRateLimit(ip, { max: 20, windowMs: 60_000, prefix: 'agent' })) {
+    return {
+      statusCode: 429,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ response: 'Rate limit reached. Please wait a moment.' }),
+    };
   }
 
   let body;
@@ -84,7 +95,7 @@ exports.handler = async (event) => {
       body: JSON.stringify({ response: text, agent: persona.name }),
     };
   } catch (err) {
-    console.error('[NYX agent error]', err.message);
+    await logError('agent', err, { agent });
     return {
       statusCode: 502,
       headers: { 'Content-Type': 'application/json' },

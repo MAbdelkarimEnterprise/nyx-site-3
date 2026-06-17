@@ -906,15 +906,15 @@ const CONV = (() => {
       stateLabel.textContent = 'RESPONDING';
       stateLabel.classList.add('active');
       const textEl = addMessage('alfred', '', opts);
+      // Speak as the text starts typing (concurrent), not after it finishes.
+      if(window.speechSynthesis && VOICE.enabled){
+        VOICE.speak(text);
+      }
       typewrite(textEl, text, () => {
         isTyping = false;
         window._alfredRingMode('standby');
         stateLabel.textContent = 'STANDBY';
         stateLabel.classList.remove('active');
-        // Voice synthesis
-        if(window.speechSynthesis && VOICE.enabled){
-          VOICE.speak(text.slice(0, 180));
-        }
         resolve();
       });
     });
@@ -943,6 +943,28 @@ const CONV = (() => {
     const decoder = new TextDecoder();
     let fullText = '';
     let buffer = '';
+    let spokenLen = 0;
+    const canSpeak = !!(window.speechSynthesis && VOICE.enabled);
+    if(canSpeak) VOICE.speakReset();
+
+    // Speak complete sentences as they stream in, so the voice tracks the text.
+    function flushSpeech(final){
+      if(!canSpeak) return;
+      const pending = fullText.slice(spokenLen);
+      if(final){
+        const tail = pending.trim();
+        if(tail) VOICE.speakChunk(tail);
+        spokenLen = fullText.length;
+        return;
+      }
+      let idx = -1, m, re = /[.!?](\s)/g;     // sentence end followed by whitespace already streamed
+      while((m = re.exec(pending)) !== null) idx = m.index + 1;
+      if(idx > 0){
+        const chunk = pending.slice(0, idx).trim();
+        if(chunk) VOICE.speakChunk(chunk);
+        spokenLen += idx;
+      }
+    }
 
     while(true){
       const { done, value } = await reader.read();
@@ -963,13 +985,14 @@ const CONV = (() => {
           }
         } catch(_){}
       }
+      flushSpeech(false);   // speak any newly-completed sentences
     }
 
+    flushSpeech(true);      // speak whatever is left
     ALFRED.pushAssistantReply(fullText);
     window._alfredRingMode('standby');
     stateLabel.textContent = 'STANDBY';
     stateLabel.classList.remove('active');
-    if(window.speechSynthesis && VOICE.enabled){ VOICE.speak(fullText.slice(0, 200)); }
     return fullText;
   }
 
@@ -1184,30 +1207,47 @@ const VOICE = (() => {
     }
   }
 
-  function speak(text){
-    if(!window.speechSynthesis) return;
-    mutedUntil = Date.now() + 400;
-    speaking = true;
-    window.speechSynthesis.cancel();
+  // Build a configured Alfred utterance (British voice if available).
+  function makeUtt(text){
     const utt = new SpeechSynthesisUtterance(text);
     utt.rate = 0.92; utt.pitch = 0.88; utt.volume = 1;
-    utt.onstart = () => { speaking = true; };
-    utt.onend = () => {
-      speaking = false;
-      mutedUntil = Date.now() + 600;
-    };
-    // Try to pick a British voice for Alfred
     const voices = window.speechSynthesis.getVoices();
     const pref = voices.find(v => v.name.includes('Daniel') || v.name.includes('British') || v.name.includes('UK'))
                || voices.find(v => v.lang.startsWith('en-GB'))
                || voices.find(v => v.lang.startsWith('en'));
     if(pref) utt.voice = pref;
-    window.speechSynthesis.speak(utt);
+    utt.onstart = () => { speaking = true; };
+    utt.onend = () => { speaking = false; mutedUntil = Date.now() + 600; };
+    return utt;
+  }
+
+  // One-shot: interrupts anything currently speaking.
+  function speak(text){
+    if(!window.speechSynthesis || !text) return;
+    mutedUntil = Date.now() + 400;
+    speaking = true;
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(makeUtt(text));
+  }
+
+  // Clear the queue before a fresh streamed reply.
+  function speakReset(){
+    if(!window.speechSynthesis) return;
+    mutedUntil = Date.now() + 400;
+    window.speechSynthesis.cancel();
+  }
+
+  // Append a chunk to the speech queue WITHOUT cancelling — lets sentences
+  // be spoken back-to-back as they stream in.
+  function speakChunk(text){
+    if(!window.speechSynthesis || !text) return;
+    speaking = true;
+    window.speechSynthesis.speak(makeUtt(text));
   }
 
   voiceBtn.addEventListener('click', toggleListening);
 
-  return { toggleListening, speak, get enabled(){ return enabled; }, set enabled(v){ enabled = v; } };
+  return { toggleListening, speak, speakReset, speakChunk, get enabled(){ return enabled; }, set enabled(v){ enabled = v; } };
 })();
 
 /* ════════════════════════════════════════════════════════════

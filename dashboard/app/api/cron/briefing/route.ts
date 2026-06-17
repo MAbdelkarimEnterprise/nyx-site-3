@@ -9,8 +9,13 @@ import type { BriefingSection, ExecutionLog } from '@/lib/types';
 export const maxDuration = 300;
 
 export async function GET(request: Request) {
+  // Fail-closed: if CRON_SECRET is not configured, refuse rather than run
+  // paid agent workloads for every user from an unauthenticated request.
   const authHeader = request.headers.get('authorization');
-  if (process.env.CRON_SECRET && authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  if (!process.env.CRON_SECRET) {
+    return NextResponse.json({ error: 'CRON_SECRET not configured' }, { status: 503 });
+  }
+  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
