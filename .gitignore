@@ -4,3 +4,5 @@ dashboard/node_modules.nosync/
 dashboard/node_modules/
 dist/
 build/
+.DS_Store
+.claude/
