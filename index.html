@@ -1645,7 +1645,6 @@ body{background:radial-gradient(125% 95% at 50% -8%, #0B1740 0%, #070B1C 44%, #0
     <a href="#founder-os" class="nav-link">Founder OS</a>
     <a href="#access" class="nav-link">Access</a>
     <a href="#waitlist" class="nav-cta" data-magnetic>Get Access</a>
-    <a href="/command.html" class="nav-link" style="border:1px solid rgba(30,91,255,0.3);padding:9px 16px;color:rgba(30,91,255,0.7);margin-left:4px;font-size:7px;letter-spacing:0.2em">ENTER NYX →</a>
   </div>
 </nav>
 
@@ -4753,18 +4752,15 @@ function startScanLine(){
           wrap.style.display = 'none';
           succ.style.display = 'block';
           gsap.from(succ, { opacity:0, y:16, duration:0.6, ease:'power3.out' });
-          // Redirect to Command Center after brief pause
-          setTimeout(() => { window.location.href = '/command.html'; }, 1800);
         }});
       } else { throw new Error(); }
     } catch{
-      // Even on network error, redirect to command center after saving
+      // Even on network error, show success after saving locally
       try{ localStorage.setItem('nyx_email', email); }catch(e){}
       gsap.to(wrap, { opacity:0, y:-16, duration:0.4, onComplete: () => {
         wrap.style.display = 'none';
         succ.style.display = 'block';
         gsap.from(succ, { opacity:0, y:16, duration:0.6, ease:'power3.out' });
-        setTimeout(() => { window.location.href = '/command.html'; }, 1800);
       }});
     }
   }
@@ -5536,5 +5532,32 @@ function startScanLine(){
 })();
 </script>
 
+<!-- INQUIRY LOCK: all interactive AI surfaces (Alfred, Voice HUD, agent consoles, Command Center) route to the inquiry form -->
+<script>
+(function(){
+  var SEL = '#jarvis-activate-hud, #jarvis-activate-main, .vhud-frame, .agent-card[data-agent], a[href*="command"]';
+  function toInquiry(){
+    var t = document.getElementById('waitlist');
+    if(t) t.scrollIntoView({behavior:'smooth', block:'start'});
+  }
+  function intercept(e){
+    if(e.type === 'keydown' && e.key !== 'Enter' && e.key !== ' ') return;
+    var el = e.target && e.target.closest && e.target.closest(SEL);
+    if(!el) return;
+    e.preventDefault(); e.stopImmediatePropagation(); e.stopPropagation();
+    toInquiry();
+  }
+  document.addEventListener('click', intercept, true);
+  document.addEventListener('keydown', intercept, true);
+  // Hard-disable programmatic openers
+  window._openAlfred = function(){ toInquiry(); };
+  // Close anything that somehow opened
+  ['jarvis-overlay','agent-modal'].forEach(function(id){ var el=document.getElementById(id); if(el){ el.classList.remove('active'); el.setAttribute('aria-hidden','true'); }});
+  // Relabel triggers
+  document.querySelectorAll('.vhud-frame').forEach(function(el){ el.setAttribute('aria-label','Request access to Alfred'); });
+  document.querySelectorAll('.vhud-status').forEach(function(el){ el.textContent = 'ACCESS BY INQUIRY'; });
+  document.querySelectorAll('.agent-card[data-agent]').forEach(function(el){ el.setAttribute('aria-label', (el.dataset.agent||'Agent') + ' — request access'); });
+})();
+</script>
 </body>
 </html>

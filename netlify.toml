@@ -6,3 +6,15 @@
 
 [[plugins]]
   package = "@netlify/plugin-functions-install-core"
+
+[[redirects]]
+  from = "/command"
+  to = "/#waitlist"
+  status = 302
+  force = true
+
+[[redirects]]
+  from = "/command.html"
+  to = "/#waitlist"
+  status = 302
+  force = true
